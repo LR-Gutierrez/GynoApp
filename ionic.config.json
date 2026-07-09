@@ -1,0 +1,7 @@
+{
+  "name": "gync-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
