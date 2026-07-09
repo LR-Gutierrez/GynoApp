@@ -1,96 +1,231 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="toolbar-transparent">
     <ion-title>
-      <span class="title-text">UI Kit</span>
-      <span class="subtitle-text">GyncApp Design System</span>
+      <span
+        class="title-text text-2xl font-bold text-on-surface tracking-tight font-sans"
+        >UI Kit</span
+      >
+      <span
+        class="subtitle-text block text-xs font-semibold text-on-surface-variant tracking-widest uppercase opacity-70"
+        >GyncApp Design System</span
+      >
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ui-kit-content">
+<ion-content class="ui-kit-content px-4 pt-2 pb-32 bg-background md:px-8">
   <!-- ========================================== -->
   <!-- SECCIÓN: COLORES -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="color-palette-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="color-palette-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Colores
     </h2>
-    <div class="color-grid">
+    <div
+      class="color-grid grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4"
+    >
       <!-- Primary -->
-      <div class="color-group">
-        <h3 class="color-group-title">Primary</h3>
-        <div class="color-swatch" style="background: #003c90">
-          <span class="color-label">#003c90</span>
+      <div
+        class="color-group bg-surface-container-low p-4 rounded-xl border border-outline-variant"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Primary
+        </h3>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #003c90"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            >#003c90</span
+          >
         </div>
-        <div class="color-swatch" style="background: #0f52ba">
-          <span class="color-label">#0f52ba</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #0f52ba"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            >#0f52ba</span
+          >
         </div>
-        <div class="color-swatch" style="background: #d9e2ff">
-          <span class="color-label" style="color: #111c2c">#d9e2ff</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #d9e2ff"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            style="color: #111c2c"
+            >#d9e2ff</span
+          >
         </div>
-        <div class="color-swatch" style="background: #b0c6ff">
-          <span class="color-label" style="color: #111c2c">#b0c6ff</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #b0c6ff"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            style="color: #111c2c"
+            >#b0c6ff</span
+          >
         </div>
       </div>
 
       <!-- Secondary -->
-      <div class="color-group">
-        <h3 class="color-group-title">Secondary</h3>
-        <div class="color-swatch" style="background: #006a65">
-          <span class="color-label">#006a65</span>
+      <div
+        class="color-group bg-surface-container-low p-4 rounded-xl border border-outline-variant"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Secondary
+        </h3>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #006a65"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            >#006a65</span
+          >
         </div>
-        <div class="color-swatch" style="background: #20b2aa">
-          <span class="color-label">#20b2aa</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #20b2aa"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            >#20b2aa</span
+          >
         </div>
-        <div class="color-swatch" style="background: #79f6ed">
-          <span class="color-label" style="color: #111c2c">#79f6ed</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #79f6ed"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            style="color: #111c2c"
+            >#79f6ed</span
+          >
         </div>
-        <div class="color-swatch" style="background: #59dad1">
-          <span class="color-label" style="color: #111c2c">#59dad1</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #59dad1"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            style="color: #111c2c"
+            >#59dad1</span
+          >
         </div>
       </div>
 
       <!-- Surface -->
-      <div class="color-group">
-        <h3 class="color-group-title">Surface</h3>
+      <div
+        class="color-group bg-surface-container-low p-4 rounded-xl border border-outline-variant"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Surface
+        </h3>
         <div
-          class="color-swatch"
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
           style="background: #f9f9ff; border: 1px solid #e2e8f0"
         >
-          <span class="color-label" style="color: #111c2c">#f9f9ff</span>
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            style="color: #111c2c"
+            >#f9f9ff</span
+          >
         </div>
         <div
-          class="color-swatch"
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
           style="background: #ffffff; border: 1px solid #e2e8f0"
         >
-          <span class="color-label" style="color: #111c2c">#ffffff</span>
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            style="color: #111c2c"
+            >#ffffff</span
+          >
         </div>
         <div
-          class="color-swatch"
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
           style="background: #e7eeff; border: 1px solid #e2e8f0"
         >
-          <span class="color-label" style="color: #111c2c">#e7eeff</span>
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            style="color: #111c2c"
+            >#e7eeff</span
+          >
         </div>
-        <div class="color-swatch" style="background: #d8e3fa">
-          <span class="color-label" style="color: #111c2c">#d8e3fa</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #d8e3fa"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            style="color: #111c2c"
+            >#d8e3fa</span
+          >
         </div>
       </div>
 
       <!-- Estado -->
-      <div class="color-group">
-        <h3 class="color-group-title">Estado</h3>
-        <div class="color-swatch" style="background: #008a85">
-          <span class="color-label">Éxito</span>
+      <div
+        class="color-group bg-surface-container-low p-4 rounded-xl border border-outline-variant"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Estado
+        </h3>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #008a85"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            >Éxito</span
+          >
         </div>
-        <div class="color-swatch" style="background: #ba1a1a">
-          <span class="color-label">Error</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #ba1a1a"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            >Error</span
+          >
         </div>
-        <div class="color-swatch" style="background: #f5a623">
-          <span class="color-label" style="color: #111c2c">Advertencia</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #f5a623"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            style="color: #111c2c"
+            >Advertencia</span
+          >
         </div>
-        <div class="color-swatch" style="background: #737784">
-          <span class="color-label">Neutral</span>
+        <div
+          class="color-swatch h-15 rounded-lg flex items-end justify-start p-2 mb-2 relative"
+          style="background: #737784"
+        >
+          <span
+            class="color-label font-sans text-[10px] font-semibold text-white bg-black/40 px-2 py-0.5 rounded backdrop-blur tracking-wide"
+            >Neutral</span
+          >
         </div>
       </div>
     </div>
@@ -99,41 +234,100 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: TIPOGRAFÍA -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="text-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="text-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Tipografía
     </h2>
-    <div class="typography-grid">
-      <div class="typography-item">
-        <span class="typography-label">Display LG — 32px / 700</span>
-        <p class="display-lg">Display Large 32px</p>
+    <div
+      class="typography-grid bg-surface-container-lowest p-4 rounded-xl border border-outline-variant"
+    >
+      <div
+        class="typography-item flex flex-col gap-1 py-2 border-b border-surface-container-high last:border-none"
+      >
+        <span
+          class="typography-label text-[10px] font-semibold text-on-surface-variant tracking-widest uppercase font-sans"
+          >Display LG — 32px / 700</span
+        >
+        <p
+          class="display-lg font-sans text-[32px] font-bold leading-10 tracking-tight text-on-surface m-0"
+        >
+          Display Large 32px
+        </p>
       </div>
-      <div class="typography-item">
-        <span class="typography-label">Headline MD — 24px / 600</span>
-        <p class="headline-md">Headline Medium 24px</p>
+      <div
+        class="typography-item flex flex-col gap-1 py-2 border-b border-surface-container-high last:border-none"
+      >
+        <span
+          class="typography-label text-[10px] font-semibold text-on-surface-variant tracking-widest uppercase font-sans"
+          >Headline MD — 24px / 600</span
+        >
+        <p
+          class="headline-md font-sans text-2xl font-semibold leading-8 tracking-tight text-on-surface m-0"
+        >
+          Headline Medium 24px
+        </p>
       </div>
-      <div class="typography-item">
-        <span class="typography-label">Headline SM — 20px / 600</span>
-        <p class="headline-sm">Headline Small 20px</p>
+      <div
+        class="typography-item flex flex-col gap-1 py-2 border-b border-surface-container-high last:border-none"
+      >
+        <span
+          class="typography-label text-[10px] font-semibold text-on-surface-variant tracking-widest uppercase font-sans"
+          >Headline SM — 20px / 600</span
+        >
+        <p
+          class="headline-sm font-sans text-xl font-semibold leading-7 text-on-surface m-0"
+        >
+          Headline Small 20px
+        </p>
       </div>
-      <div class="typography-item">
-        <span class="typography-label">Body LG — 16px / 400</span>
-        <p class="body-lg">
+      <div
+        class="typography-item flex flex-col gap-1 py-2 border-b border-surface-container-high last:border-none"
+      >
+        <span
+          class="typography-label text-[10px] font-semibold text-on-surface-variant tracking-widest uppercase font-sans"
+          >Body LG — 16px / 400</span
+        >
+        <p
+          class="body-lg font-sans text-base font-normal leading-6 text-on-surface m-0"
+        >
           Body Large 16px — Lorem ipsum dolor sit amet, consectetur adipiscing
           elit.
         </p>
       </div>
-      <div class="typography-item">
-        <span class="typography-label">Body MD — 14px / 400</span>
-        <p class="body-md">
+      <div
+        class="typography-item flex flex-col gap-1 py-2 border-b border-surface-container-high last:border-none"
+      >
+        <span
+          class="typography-label text-[10px] font-semibold text-on-surface-variant tracking-widest uppercase font-sans"
+          >Body MD — 14px / 400</span
+        >
+        <p
+          class="body-md font-sans text-sm font-normal leading-5 text-on-surface m-0"
+        >
           Body Medium 14px — Lorem ipsum dolor sit amet, consectetur adipiscing
           elit.
         </p>
       </div>
-      <div class="typography-item">
-        <span class="typography-label">Label MD — 12px / 600 / UPPERCASE</span>
-        <p class="label-md">Label Medium 12px Uppercase</p>
+      <div
+        class="typography-item flex flex-col gap-1 py-2 border-b border-surface-container-high last:border-none"
+      >
+        <span
+          class="typography-label text-[10px] font-semibold text-on-surface-variant tracking-widest uppercase font-sans"
+          >Label MD — 12px / 600 / UPPERCASE</span
+        >
+        <p
+          class="label-md font-sans text-xs font-semibold leading-4 tracking-widest text-on-surface-variant m-0 uppercase"
+        >
+          Label Medium 12px Uppercase
+        </p>
       </div>
     </div>
   </section>
@@ -141,20 +335,41 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: BOTONES -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="shapes-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="shapes-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Botones
     </h2>
-    <div class="button-grid">
-      <div class="button-group">
-        <h3 class="color-group-title">Solid</h3>
+    <div
+      class="button-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5"
+    >
+      <div
+        class="button-group bg-surface-container-low p-4 rounded-xl border border-outline-variant flex flex-col gap-2"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Solid
+        </h3>
         <ion-button expand="block" class="btn-primary">Primary</ion-button>
         <ion-button expand="block" class="btn-secondary">Secondary</ion-button>
         <ion-button expand="block" class="btn-tertiary">Tertiary</ion-button>
       </div>
-      <div class="button-group">
-        <h3 class="color-group-title">Outline</h3>
+      <div
+        class="button-group bg-surface-container-low p-4 rounded-xl border border-outline-variant flex flex-col gap-2"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Outline
+        </h3>
         <ion-button expand="block" fill="outline" class="btn-outline-primary"
           >Primary</ion-button
         >
@@ -165,8 +380,14 @@
           >Tertiary</ion-button
         >
       </div>
-      <div class="button-group">
-        <h3 class="color-group-title">Con Icono</h3>
+      <div
+        class="button-group bg-surface-container-low p-4 rounded-xl border border-outline-variant flex flex-col gap-2"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Con Icono
+        </h3>
         <ion-button expand="block" class="btn-primary">
           <ion-icon slot="start" name="lock-closed"></ion-icon>
           Secure Action
@@ -180,8 +401,14 @@
           Descargar
         </ion-button>
       </div>
-      <div class="button-group">
-        <h3 class="color-group-title">Tamaños</h3>
+      <div
+        class="button-group bg-surface-container-low p-4 rounded-xl border border-outline-variant flex flex-col gap-2"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Tamaños
+        </h3>
         <ion-button size="large" class="btn-primary">Large</ion-button>
         <ion-button class="btn-primary">Default</ion-button>
         <ion-button size="small" class="btn-primary">Small</ion-button>
@@ -192,14 +419,25 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: CARDS (Estilo GyncApp) -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="copy-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="copy-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Cards
     </h2>
 
     <!-- Patient Card -->
-    <div class="card-section-label">Patient Card</div>
+    <div
+      class="card-section-label text-xs font-semibold text-on-surface-variant tracking-widest uppercase my-4 mx-0 first:mt-0 font-sans"
+    >
+      Patient Card
+    </div>
     <div class="patient-card" (click)="onAction('patient')">
       <div class="patient-card-header">
         <div class="patient-avatar">MG</div>
@@ -229,7 +467,11 @@
     </div>
 
     <!-- Consultation Card -->
-    <div class="card-section-label">Consultation Card</div>
+    <div
+      class="card-section-label text-xs font-semibold text-on-surface-variant tracking-widest uppercase my-4 mx-0 first:mt-0 font-sans"
+    >
+      Consultation Card
+    </div>
     <div class="consultation-card" (click)="onAction('consultation')">
       <div class="consultation-card-header">
         <span class="consultation-title">Control Rutina</span>
@@ -249,7 +491,11 @@
     </div>
 
     <!-- Status Card -->
-    <div class="card-section-label">Status Card</div>
+    <div
+      class="card-section-label text-xs font-semibold text-on-surface-variant tracking-widest uppercase my-4 mx-0 first:mt-0 font-sans"
+    >
+      Status Card
+    </div>
     <div class="status-card" (click)="onAction('status')">
       <div class="status-card-header">
         <div class="status-avatar">AG</div>
@@ -271,12 +517,21 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: BADGES -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="ribbon-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="ribbon-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Badges
     </h2>
-    <div class="badges-grid">
+    <div
+      class="badges-grid flex flex-wrap gap-2 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant"
+    >
       <ion-badge class="badge-primary">Primary</ion-badge>
       <ion-badge class="badge-secondary">Secondary</ion-badge>
       <ion-badge class="badge-routine">Routine</ion-badge>
@@ -290,15 +545,21 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: CHIPS -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
       <ion-icon
         name="ellipsis-horizontal-circle-outline"
-        class="section-icon"
+        class="section-icon text-[22px] text-primary"
       ></ion-icon>
       Chips
     </h2>
-    <div class="chips-grid">
+    <div
+      class="chips-grid flex flex-wrap gap-2 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant"
+    >
       <ion-chip class="chip-primary">
         <ion-label>Primary</ion-label>
       </ion-chip>
@@ -325,14 +586,26 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: FORMULARIOS -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="document-text-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="document-text-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Formularios
     </h2>
-    <div class="form-demo">
+    <div
+      class="form-demo bg-surface-container-lowest p-4 rounded-xl border border-outline-variant"
+    >
       <div class="form-field">
-        <label class="form-label">Nombre completo</label>
+        <label
+          class="form-label font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1.5"
+          >Nombre completo</label
+        >
         <ion-input
           class="form-input"
           placeholder="Ingrese el nombre completo"
@@ -342,7 +615,10 @@
 
       <div class="form-row">
         <div class="form-field form-field-half">
-          <label class="form-label">Edad</label>
+          <label
+            class="form-label font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1.5"
+            >Edad</label
+          >
           <ion-input
             class="form-input"
             type="number"
@@ -350,13 +626,19 @@
           ></ion-input>
         </div>
         <div class="form-field form-field-half">
-          <label class="form-label">Teléfono</label>
+          <label
+            class="form-label font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1.5"
+            >Teléfono</label
+          >
           <ion-input class="form-input" placeholder="Teléfono"></ion-input>
         </div>
       </div>
 
       <div class="form-field">
-        <label class="form-label">Motivo de Consulta</label>
+        <label
+          class="form-label font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1.5"
+          >Motivo de Consulta</label
+        >
         <ion-input
           class="form-input"
           placeholder="Ingrese el motivo de la consulta"
@@ -366,7 +648,10 @@
       </div>
 
       <div class="form-field">
-        <label class="form-label">Notas Privadas</label>
+        <label
+          class="form-label font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1.5"
+          >Notas Privadas</label
+        >
         <ion-textarea
           class="form-textarea"
           placeholder="Ingrese notas privadas..."
@@ -380,9 +665,16 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: SEARCH BAR -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="search-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="search-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Search Bar
     </h2>
     <div class="search-bar">
@@ -407,27 +699,48 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: MULTIMEDIA -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="image-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="image-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Multimedia
     </h2>
-    <div class="media-grid">
-      <div class="media-item">
+    <div
+      class="media-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+    >
+      <div
+        class="media-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant text-center"
+      >
         <div class="photo-thumbnail">
           <div class="thumbnail-placeholder">
             <ion-icon name="image-outline" class="placeholder-icon"></ion-icon>
           </div>
         </div>
-        <span class="thumbnail-label">Placeholder</span>
+        <span
+          class="thumbnail-label block font-sans text-xs text-on-surface-variant mt-2"
+          >Placeholder</span
+        >
       </div>
-      <div class="media-item">
+      <div
+        class="media-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant text-center"
+      >
         <div class="photo-thumbnail loading">
           <ion-spinner class="thumbnail-spinner"></ion-spinner>
         </div>
-        <span class="thumbnail-label">Cargando</span>
+        <span
+          class="thumbnail-label block font-sans text-xs text-on-surface-variant mt-2"
+          >Cargando</span
+        >
       </div>
-      <div class="media-item">
+      <div
+        class="media-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant text-center"
+      >
         <div class="photo-thumbnail encrypted">
           <img
             src="https://picsum.photos/seed/gync/400/400"
@@ -441,13 +754,21 @@
             ></ion-icon>
           </div>
         </div>
-        <span class="thumbnail-label">Encriptada</span>
+        <span
+          class="thumbnail-label block font-sans text-xs text-on-surface-variant mt-2"
+          >Encriptada</span
+        >
       </div>
-      <div class="media-item">
+      <div
+        class="media-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant text-center"
+      >
         <div class="photo-thumbnail camera">
           <ion-icon name="camera-outline" class="camera-icon"></ion-icon>
         </div>
-        <span class="thumbnail-label">Tomar foto</span>
+        <span
+          class="thumbnail-label block font-sans text-xs text-on-surface-variant mt-2"
+          >Tomar foto</span
+        >
       </div>
     </div>
   </section>
@@ -455,21 +776,38 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: FEEDBACK -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
       <ion-icon
         name="chatbubble-ellipses-outline"
-        class="section-icon"
+        class="section-icon text-[22px] text-primary"
       ></ion-icon>
       Feedback
     </h2>
-    <div class="feedback-grid">
+    <div class="feedback-grid grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Empty State -->
-      <div class="feedback-item">
-        <div class="empty-state">
-          <ion-icon name="folder-open-outline" class="empty-icon"></ion-icon>
-          <h4 class="empty-title">No hay pacientes</h4>
-          <p class="empty-description">
+      <div
+        class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30 flex flex-col gap-3"
+      >
+        <div
+          class="empty-state flex flex-col items-center text-center py-3 flex-1"
+        >
+          <ion-icon
+            name="folder-open-outline"
+            class="empty-icon text-5xl text-outline mb-2"
+          ></ion-icon>
+          <h4
+            class="empty-title font-sans text-base font-semibold text-on-surface m-0 mb-1"
+          >
+            No hay pacientes
+          </h4>
+          <p
+            class="empty-description font-sans text-sm text-on-surface-variant m-0 mb-4"
+          >
             Agrega tu primer paciente para comenzar
           </p>
           <ion-button class="btn-primary" (click)="onAction('add')">
@@ -480,52 +818,72 @@
       </div>
 
       <!-- Loading -->
-      <div class="feedback-item">
-        <div class="feedback-actions">
-          <ion-button class="btn-secondary" (click)="toggleLoading()">
+      <div
+        class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30 flex flex-col gap-3"
+      >
+        <div class="feedback-actions flex flex-wrap gap-2">
+          <ion-button
+            class="btn-secondary flex-1 min-w-30"
+            (click)="toggleLoading()"
+          >
             {{ showLoading ? 'Ocultar' : 'Mostrar' }} Loading
           </ion-button>
-          <ion-button class="btn-primary" (click)="toggleConfirm()">
+          <ion-button
+            class="btn-primary flex-1 min-w-30"
+            (click)="toggleConfirm()"
+          >
             Mostrar Confirmación
           </ion-button>
         </div>
       </div>
 
       <!-- Toast -->
-      <div class="feedback-item">
-        <div class="feedback-actions">
-          <ion-button class="btn-primary" (click)="showToast()"
+      <div
+        class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30 flex flex-col gap-3"
+      >
+        <div class="feedback-actions flex flex-wrap gap-2">
+          <ion-button class="btn-primary flex-1 min-w-30" (click)="showToast()"
             >Mostrar Toast</ion-button
           >
-          <ion-button class="btn-secondary" (click)="showAlert()"
+          <ion-button
+            class="btn-secondary flex-1 min-w-30"
+            (click)="showAlert()"
             >Mostrar Alert</ion-button
           >
         </div>
       </div>
 
       <!-- Security Badge -->
-      <div class="feedback-item">
-        <div class="security-badge">
+      <div
+        class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30 flex flex-col gap-3"
+      >
+        <div
+          class="security-badge inline-flex items-center gap-2 px-3.5 py-1.5 pl-2.5 bg-primary-100 rounded-full border border-primary-600 font-sans"
+        >
           <ion-icon
             name="shield-checkmark-outline"
-            class="security-icon"
+            class="security-icon text-lg text-primary-600"
           ></ion-icon>
-          <span class="security-text">Encrypted Session Active</span>
-          <span class="security-dot"></span>
+          <span class="security-text text-xs font-medium text-primary-900"
+            >Encrypted Session Active</span
+          >
+          <span
+            class="security-dot w-1.5 h-1.5 rounded-full bg-primary-600 inline-block animate-[pulse-dot_2s_ease-in-out_infinite]"
+          ></span>
         </div>
         <div
-          class="security-badge"
-          style="background: #ffdad6; border-color: #ba1a1a; margin-top: 8px"
+          class="security-badge inline-flex items-center gap-2 px-3.5 py-1.5 pl-2.5 bg-error-container rounded-full border border-error font-sans mt-2"
         >
           <ion-icon
             name="lock-closed-outline"
-            class="security-icon"
-            style="color: #ba1a1a"
+            class="security-icon text-lg text-error"
           ></ion-icon>
-          <span class="security-text" style="color: #ba1a1a"
+          <span class="security-text text-xs font-medium text-error"
             >Session Locked</span
           >
-          <span class="security-dot" style="background: #ba1a1a"></span>
+          <span
+            class="security-dot w-1.5 h-1.5 rounded-full bg-error inline-block animate-[pulse-dot_2s_ease-in-out_infinite]"
+          ></span>
         </div>
       </div>
     </div>
@@ -564,16 +922,29 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: NAVEGACIÓN -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="compass-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="compass-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Navegación
     </h2>
-    <div class="navigation-grid">
+    <div class="navigation-grid grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Page Header -->
-      <div class="nav-item">
-        <h3 class="color-group-title">Page Header</h3>
-        <div class="page-header">
+      <div
+        class="nav-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Page Header
+        </h3>
+        <div class="page-header flex items-center gap-2 py-1">
           <ion-button
             fill="clear"
             class="back-button"
@@ -581,20 +952,40 @@
           >
             <ion-icon name="arrow-back-outline"></ion-icon>
           </ion-button>
-          <div class="header-content">
-            <h4 class="header-title">Perfil del Paciente</h4>
-            <p class="header-subtitle">María García · 34 años</p>
+          <div class="header-content flex-1">
+            <h4
+              class="header-title font-sans text-xl font-semibold text-on-surface m-0 tracking-tight"
+            >
+              Perfil del Paciente
+            </h4>
+            <p
+              class="header-subtitle font-sans text-sm text-on-surface-variant m-0"
+            >
+              María García · 34 años
+            </p>
           </div>
-          <ion-button fill="clear" class="header-action" (click)="openProfileActionPopover($event)">
+          <ion-button
+            fill="clear"
+            class="header-action"
+            (click)="openProfileActionPopover($event)"
+          >
             <ion-icon name="ellipsis-vertical-outline"></ion-icon>
           </ion-button>
         </div>
       </div>
 
       <!-- FAB -->
-      <div class="nav-item">
-        <h3 class="color-group-title">Floating Action Button</h3>
-        <div class="fab-container">
+      <div
+        class="nav-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Floating Action Button
+        </h3>
+        <div
+          class="fab-container flex items-center justify-center h-25 bg-surface-container-low rounded-lg"
+        >
           <ion-fab-button class="fab-button" (click)="onAction('fab')">
             <ion-icon name="add-outline"></ion-icon>
           </ion-fab-button>
@@ -602,8 +993,14 @@
       </div>
 
       <!-- Segment -->
-      <div class="nav-item">
-        <h3 class="color-group-title">Segment / Tabs</h3>
+      <div
+        class="nav-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant"
+      >
+        <h3
+          class="color-group-title text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans"
+        >
+          Segment / Tabs
+        </h3>
         <ion-segment class="segment-custom" value="info">
           <ion-segment-button value="info">
             <ion-label>Info</ion-label>
@@ -622,182 +1019,350 @@
   <!-- ========================================== -->
   <!-- SECCIÓN: DIVIDERS -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <h2 class="section-title">
-      <ion-icon name="remove-outline" class="section-icon"></ion-icon>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <h2
+      class="section-title flex items-center gap-2 font-sans text-xl font-semibold text-on-surface mb-5 pb-3 border-b-2 border-surface-container-high tracking-tight"
+    >
+      <ion-icon
+        name="remove-outline"
+        class="section-icon text-[22px] text-primary"
+      ></ion-icon>
       Dividers
     </h2>
-    <div class="divider-demo">
-      <p class="body-md" style="margin: 0 0 8px 0">Contenido arriba</p>
+    <div
+      class="divider-demo bg-surface-container-lowest p-4 rounded-xl border border-outline-variant"
+    >
+      <p
+        class="font-sans text-sm font-normal leading-5 text-on-surface m-0 mb-2"
+      >
+        Contenido arriba
+      </p>
       <ion-item-divider class="divider-custom">
         <ion-label>Divider con texto</ion-label>
       </ion-item-divider>
-      <p class="body-md" style="margin: 8px 0 0 0">Contenido abajo</p>
+      <p
+        class="font-sans text-sm font-normal leading-5 text-on-surface m-0 mt-2"
+      >
+        Contenido abajo
+      </p>
 
-      <div class="divider-simple"></div>
-      <p class="body-md" style="margin: 0">Divider simple</p>
+      <div class="divider-simple h-px bg-outline-variant my-4"></div>
+      <p class="font-sans text-sm font-normal leading-5 text-on-surface m-0">
+        Divider simple
+      </p>
     </div>
   </section>
 
   <!-- ========================================== -->
   <!-- SECCIÓN: LISTAS -->
   <!-- ========================================== -->
-  <section class="ui-section">
-    <div class="patients-section-header">
-      <div class="patients-section-title">
-        <ion-icon name="people" aria-hidden="true"></ion-icon>
-        <h2>Todas las Pacientes</h2>
+  <section
+    class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5"
+  >
+    <div
+      class="patients-section-header flex items-center justify-between gap-3 flex-wrap pb-4"
+    >
+      <div class="patients-section-title flex items-center gap-2">
+        <ion-icon
+          name="people"
+          aria-hidden="true"
+          class="text-[22px] text-primary-600"
+        ></ion-icon>
+        <h2
+          class="m-0 font-sans text-xl font-bold text-on-surface tracking-tight"
+        >
+          Todas las Pacientes
+        </h2>
       </div>
 
-      <button type="button" class="patients-filter-btn" (click)="openFilterPopover($event)">
-        <ion-icon name="funnel-outline" aria-hidden="true"></ion-icon>
+      <button
+        type="button"
+        class="patients-filter-btn inline-flex items-center gap-2 h-10 px-3.5 border border-outline-variant rounded-xl bg-surface-container-lowest text-on-surface font-sans text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-surface-container-low"
+        (click)="openFilterPopover($event)"
+      >
+        <ion-icon
+          name="funnel-outline"
+          aria-hidden="true"
+          class="text-base"
+        ></ion-icon>
         <span>Filtrar</span>
       </button>
     </div>
 
-    <div class="patients-table-wrapper">
-      <table class="patients-table">
+    <div
+      class="patients-table-wrapper overflow-x-auto border border-outline-variant rounded-2xl shadow-[0_4px_16px_rgba(15,82,186,0.06)]"
+    >
+      <table
+        class="patients-table w-full border-collapse min-w-190 table-auto"
+      >
         <thead>
-          <tr>
-            <th>NOMBRE DE LA PACIENTE</th>
-            <th>EDAD</th>
-            <th>ÚLTIMA CONSULTA</th>
-            <th>ESTADO</th>
-            <th>ACCIONES</th>
+          <tr class="bg-[#dfe8ff]">
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
+            >
+              <div class="px-6 py-4">NOMBRE DE LA PACIENTE</div>
+            </th>
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
+            >
+              <div class="px-6 py-4">EDAD</div>
+            </th>
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
+            >
+              <div class="px-6 py-4">ÚLTIMA CONSULTA</div>
+            </th>
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
+            >
+              <div class="px-6 py-4">ESTADO</div>
+            </th>
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
+            >
+              <div class="px-6 py-4">ACCIONES</div>
+            </th>
           </tr>
         </thead>
 
-        <tbody>
-          <tr>
-            <td>
-              <div class="patient-cell">
-                <div class="patient-avatar bg-blue">BG</div>
-                <div class="patient-info">
-                  <p class="patient-name">Beatriz Gómez</p>
+        <tbody class="divide-y divide-outline-variant">
+          <tr
+            class="transition-colors duration-200 hover:bg-surface-container-low"
+          >
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="flex items-center gap-3.5 min-w-55 px-6 py-4">
+                <div
+                  class="patient-avatar w-9.5 h-9.5 rounded-full flex items-center justify-center shrink-0 font-sans text-sm font-bold border border-[rgba(15,82,186,0.06)] bg-[#edf3ff] text-[#30568b]"
+                >
+                  BG
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <p
+                    class="m-0 font-sans text-base font-semibold text-on-surface"
+                  >
+                    Beatriz Gómez
+                  </p>
                 </div>
               </div>
             </td>
-            <td>31 años</td>
-            <td>15 Oct 2023</td>
-            <td>
-              <span class="status-pill status-routine">Control Rutina</span>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">31 años</div>
             </td>
-            <td>
-              <button
-                type="button"
-                class="row-action-btn"
-                aria-label="Acciones de Beatriz Gómez"
-                (click)="openActionPopover($event, 'Beatriz Gómez')"
-              >
-                <ion-icon
-                  name="ellipsis-vertical"
-                  aria-hidden="true"
-                ></ion-icon>
-              </button>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">15 Oct 2023</div>
+            </td>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">
+                <span
+                  class="status-pill inline-flex items-center justify-center min-h-6 px-3 py-1 rounded-full font-sans text-xs font-semibold leading-none border whitespace-nowrap bg-[#d7f7f2] text-[#0b7c75] border-[#b8ebe3]"
+                  >Control Rutina</span
+                >
+              </div>
+            </td>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">
+                <button
+                  type="button"
+                  class="row-action-btn w-9 h-9 border-0 bg-transparent text-on-surface-variant rounded-[10px] inline-flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface"
+                  aria-label="Acciones de Beatriz Gómez"
+                  (click)="openActionPopover($event, 'Beatriz Gómez')"
+                >
+                  <ion-icon
+                    name="ellipsis-vertical"
+                    aria-hidden="true"
+                    class="text-lg"
+                  ></ion-icon>
+                </button>
+              </div>
             </td>
           </tr>
 
-          <tr>
-            <td>
-              <div class="patient-cell">
-                <div class="patient-avatar bg-blue">CP</div>
-                <div class="patient-info">
-                  <p class="patient-name">Claudia Paredes</p>
+          <tr
+            class="transition-colors duration-200 hover:bg-surface-container-low"
+          >
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="flex items-center gap-3.5 min-w-55 px-6 py-4">
+                <div
+                  class="patient-avatar w-9.5 h-9.5 rounded-full flex items-center justify-center shrink-0 font-sans text-sm font-bold border border-[rgba(15,82,186,0.06)] bg-[#edf3ff] text-[#30568b]"
+                >
+                  CP
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <p
+                    class="m-0 font-sans text-base font-semibold text-on-surface"
+                  >
+                    Claudia Paredes
+                  </p>
                 </div>
               </div>
             </td>
-            <td>25 años</td>
-            <td>02 Oct 2023</td>
-            <td>
-              <span class="status-pill status-followup">Seguimiento</span>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">25 años</div>
             </td>
-            <td>
-              <button
-                type="button"
-                class="row-action-btn"
-                aria-label="Acciones de Claudia Paredes"
-                (click)="openActionPopover($event, 'Claudia Paredes')"
-              >
-                <ion-icon
-                  name="ellipsis-vertical"
-                  aria-hidden="true"
-                ></ion-icon>
-              </button>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">02 Oct 2023</div>
+            </td>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">
+                <span
+                  class="status-pill inline-flex items-center justify-center min-h-6 px-3 py-1 rounded-full font-sans text-xs font-semibold leading-none border whitespace-nowrap bg-[#ffd9dc] text-[#a53b45] border-[#f3bec2]"
+                  >Seguimiento</span
+                >
+              </div>
+            </td>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">
+                <button
+                  type="button"
+                  class="row-action-btn w-9 h-9 border-0 bg-transparent text-on-surface-variant rounded-[10px] inline-flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface"
+                  aria-label="Acciones de Claudia Paredes"
+                  (click)="openActionPopover($event, 'Claudia Paredes')"
+                >
+                  <ion-icon
+                    name="ellipsis-vertical"
+                    aria-hidden="true"
+                    class="text-lg"
+                  ></ion-icon>
+                </button>
+              </div>
             </td>
           </tr>
 
-          <tr>
-            <td>
-              <div class="patient-cell">
-                <div class="patient-avatar bg-cyan">DR</div>
-                <div class="patient-info">
-                  <p class="patient-name">Diana Rivas</p>
+          <tr
+            class="transition-colors duration-200 hover:bg-surface-container-low"
+          >
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="flex items-center gap-3.5 min-w-55 px-6 py-4">
+                <div
+                  class="patient-avatar w-9.5 h-9.5 rounded-full flex items-center justify-center shrink-0 font-sans text-sm font-bold border border-[rgba(15,82,186,0.06)] bg-[#d9fbf6] text-[#136c70]"
+                >
+                  DR
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <p
+                    class="m-0 font-sans text-base font-semibold text-on-surface"
+                  >
+                    Diana Rivas
+                  </p>
                 </div>
               </div>
             </td>
-            <td>39 años</td>
-            <td>28 Sep 2023</td>
-            <td>
-              <span class="status-pill status-prenatal">Prenatal</span>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">39 años</div>
             </td>
-            <td>
-              <button
-                type="button"
-                class="row-action-btn"
-                aria-label="Acciones de Diana Rivas"
-                (click)="openActionPopover($event, 'Diana Rivas')"
-              >
-                <ion-icon
-                  name="ellipsis-vertical"
-                  aria-hidden="true"
-                ></ion-icon>
-              </button>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">28 Sep 2023</div>
+            </td>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">
+                <span
+                  class="status-pill inline-flex items-center justify-center min-h-6 px-3 py-1 rounded-full font-sans text-xs font-semibold leading-none border whitespace-nowrap bg-[#dde4ff] text-[#6170b0] border-[#c7d1f8]"
+                  >Prenatal</span
+                >
+              </div>
+            </td>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">
+                <button
+                  type="button"
+                  class="row-action-btn w-9 h-9 border-0 bg-transparent text-on-surface-variant rounded-[10px] inline-flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface"
+                  aria-label="Acciones de Diana Rivas"
+                  (click)="openActionPopover($event, 'Diana Rivas')"
+                >
+                  <ion-icon
+                    name="ellipsis-vertical"
+                    aria-hidden="true"
+                    class="text-lg"
+                  ></ion-icon>
+                </button>
+              </div>
             </td>
           </tr>
 
-          <tr>
-            <td>
-              <div class="patient-cell">
-                <div class="patient-avatar bg-blue">FP</div>
-                <div class="patient-info">
-                  <p class="patient-name">Fernanda Pardo</p>
+          <tr
+            class="transition-colors duration-200 hover:bg-surface-container-low"
+          >
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="flex items-center gap-3.5 min-w-55 px-6 py-4">
+                <div
+                  class="patient-avatar w-9.5 h-9.5 rounded-full flex items-center justify-center shrink-0 font-sans text-sm font-bold border border-[rgba(15,82,186,0.06)] bg-[#edf3ff] text-[#30568b]"
+                >
+                  FP
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <p
+                    class="m-0 font-sans text-base font-semibold text-on-surface"
+                  >
+                    Fernanda Pardo
+                  </p>
                 </div>
               </div>
             </td>
-            <td>45 años</td>
-            <td>14 Sep 2023</td>
-            <td>
-              <span class="status-pill status-routine">Control Rutina</span>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">45 años</div>
             </td>
-            <td>
-              <button
-                type="button"
-                class="row-action-btn"
-                aria-label="Acciones de Fernanda Pardo"
-                (click)="openActionPopover($event, 'Fernanda Pardo')"
-              >
-                <ion-icon
-                  name="ellipsis-vertical"
-                  aria-hidden="true"
-                ></ion-icon>
-              </button>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">14 Sep 2023</div>
+            </td>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">
+                <span
+                  class="status-pill inline-flex items-center justify-center min-h-6 px-3 py-1 rounded-full font-sans text-xs font-semibold leading-none border whitespace-nowrap bg-[#d7f7f2] text-[#0b7c75] border-[#b8ebe3]"
+                  >Control Rutina</span
+                >
+              </div>
+            </td>
+            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+              <div class="px-6 py-4">
+                <button
+                  type="button"
+                  class="row-action-btn w-9 h-9 border-0 bg-transparent text-on-surface-variant rounded-[10px] inline-flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface"
+                  aria-label="Acciones de Fernanda Pardo"
+                  (click)="openActionPopover($event, 'Fernanda Pardo')"
+                >
+                  <ion-icon
+                    name="ellipsis-vertical"
+                    aria-hidden="true"
+                    class="text-lg"
+                  ></ion-icon>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <div class="patients-table-footer">
-        <p>Mostrando 4 de 128 pacientes</p>
+      <div
+        class="patients-table-footer flex items-center justify-between gap-4 p-4 border-t border-outline-variant bg-surface-container-lowest"
+      >
+        <p class="m-0 font-sans text-sm text-on-surface-variant">
+          Mostrando 4 de 128 pacientes
+        </p>
 
-        <div class="patients-pagination">
-          <button type="button" class="page-btn" aria-label="Página anterior">
-            <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
+        <div class="patients-pagination flex gap-2">
+          <button
+            type="button"
+            class="page-btn w-11 h-11 border border-outline-variant rounded-xl bg-surface-container-lowest text-on-surface-variant inline-flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface"
+            aria-label="Página anterior"
+          >
+            <ion-icon
+              name="chevron-back-outline"
+              aria-hidden="true"
+              class="text-lg"
+            ></ion-icon>
           </button>
 
-          <button type="button" class="page-btn" aria-label="Página siguiente">
+          <button
+            type="button"
+            class="page-btn w-11 h-11 border border-outline-variant rounded-xl bg-surface-container-lowest text-on-surface-variant inline-flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface"
+            aria-label="Página siguiente"
+          >
             <ion-icon
               name="chevron-forward-outline"
               aria-hidden="true"
+              class="text-lg"
             ></ion-icon>
           </button>
         </div>

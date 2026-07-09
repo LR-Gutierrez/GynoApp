@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IonicModule, ToastController, AlertController, PopoverController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -11,17 +11,17 @@ import { CommonModule } from '@angular/common';
   imports: [IonicModule, CommonModule, FormsModule],
 })
 export class UiKitPage {
+  private toastController = inject(ToastController);
+  private alertController = inject(AlertController);
+  private popoverController = inject(PopoverController);
+
   showLoading = false;
   showConfirm = false;
   searchValue = '';
   formValue = '';
   formError: string | null = null;
 
-  constructor(
-    private toastController: ToastController,
-    private alertController: AlertController,
-    private popoverController: PopoverController,
-  ) {
+  constructor() {
     setTimeout(() => {
       this.formError = 'Este campo es requerido';
     }, 1500);
@@ -157,7 +157,7 @@ export class UiKitPage {
   imports: [IonicModule],
 })
 export class ProfileActionPopoverComponent {
-  constructor(private popoverController: PopoverController) {}
+  private popoverController = inject(PopoverController);
   close() {
     this.popoverController.dismiss();
   }
@@ -177,7 +177,7 @@ export class ProfileActionPopoverComponent {
   imports: [IonicModule],
 })
 export class FilterPopoverComponent {
-  constructor(private popoverController: PopoverController) {}
+  private popoverController = inject(PopoverController);
   close() {
     this.popoverController.dismiss();
   }
@@ -197,7 +197,7 @@ export class FilterPopoverComponent {
   imports: [IonicModule],
 })
 export class ActionPopoverComponent {
-  constructor(private popoverController: PopoverController) {}
+  private popoverController = inject(PopoverController);
   close() {
     this.popoverController.dismiss();
   }
