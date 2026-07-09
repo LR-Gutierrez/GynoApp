@@ -1,0 +1,31 @@
+<div
+  class="photo-thumbnail rounded-xl overflow-hidden bg-surface-container-low transition-all duration-200 cursor-pointer"
+  [class]="type()"
+  (click)="clicked.emit()"
+>
+  @switch (type()) {
+    @case ('placeholder') {
+      <div class="thumbnail-placeholder flex items-center justify-center w-full h-full bg-surface-container-low">
+        <ion-icon name="image-outline" class="placeholder-icon text-[32px] text-outline opacity-40"></ion-icon>
+      </div>
+    }
+    @case ('loading') {
+      <div class="flex items-center justify-center w-full h-full">
+        <ion-spinner class="thumbnail-spinner text-primary-600 w-8 h-8"></ion-spinner>
+      </div>
+    }
+    @case ('encrypted') {
+      @if (src()) {
+        <img [src]="src()" alt="Foto encriptada" class="thumbnail-img w-full h-full object-cover" />
+      }
+      <div class="thumbnail-overlay absolute inset-0 bg-black/20 backdrop-blur-2xl flex items-center justify-center">
+        <ion-icon name="lock-closed-outline" class="overlay-icon text-[36px] text-white"></ion-icon>
+      </div>
+    }
+    @case ('camera') {
+      <div class="flex items-center justify-center w-full h-full bg-surface-container-low border-2 border-dashed border-outline-variant rounded-xl">
+        <ion-icon name="camera-outline" class="camera-icon text-[32px] text-outline"></ion-icon>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,11 @@
+<div
+  class="security-badge inline-flex items-center gap-2 px-3.5 py-1.5 pl-2.5 rounded-full border font-sans"
+  [class.bg-primary-fixed]="type() === 'active'"
+  [class.border-primary-600]="type() === 'active'"
+  [class.bg-error-container]="type() === 'locked'"
+  [class.border-error]="type() === 'locked'"
+>
+  <ion-icon [name]="iconName" class="security-icon text-lg" [class.text-primary-600]="type() === 'active'" [class.text-error]="type() === 'locked'"></ion-icon>
+  <span class="text-xs font-medium" [class.text-primary-900]="type() === 'active'" [class.text-error]="type() === 'locked'">{{ text() }}</span>
+  <span class="w-1.5 h-1.5 rounded-full inline-block animate-[pulse-dot_2s_ease-in-out_infinite]" [class.bg-primary-600]="type() === 'active'" [class.bg-error]="type() === 'locked'"></span>
+</div>

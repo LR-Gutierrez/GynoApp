@@ -1,0 +1,25 @@
+<div class="form-field mb-4 last:mb-0">
+  <label
+    class="form-label font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1.5 block"
+  >
+    {{ label() }}
+  </label>
+  @if (type() === 'textarea') {
+    <ion-textarea
+      class="form-textarea"
+      [placeholder]="placeholder()"
+      rows="3"
+      [(ngModel)]="value"
+    ></ion-textarea>
+  } @else {
+    <ion-input
+      class="form-input"
+      [type]="type()"
+      [placeholder]="placeholder()"
+      [(ngModel)]="value"
+    ></ion-input>
+  }
+  @if (error()) {
+    <span class="form-error block font-sans text-xs text-error mt-1">{{ error() }}</span>
+  }
+</div>

@@ -1,0 +1,8 @@
+@if (visible()) {
+  <div class="loading-overlay fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+    <div class="loading-content bg-surface-container-lowest px-10 py-8 rounded-xl text-center min-w-[200px]">
+      <ion-spinner class="loading-spinner text-primary-600 w-10 h-10"></ion-spinner>
+      <p class="loading-message font-sans text-base font-medium text-on-surface mt-3">{{ message() }}</p>
+    </div>
+  </div>
+}

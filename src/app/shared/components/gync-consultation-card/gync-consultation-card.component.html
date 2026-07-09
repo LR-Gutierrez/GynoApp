@@ -1,0 +1,18 @@
+<div
+  class="cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest overflow-hidden transition-all duration-200 hover:border-secondary-400 hover:shadow-[0_4px_12px_rgba(32,178,170,0.08)] mb-3 py-2"
+  (click)="clicked.emit()"
+>
+  <div class="flex justify-between items-center px-4 pb-2">
+    <ion-badge [class]="badgeVariant">{{ badgeText }}</ion-badge>
+  </div>
+  <div class="px-4 pb-2">
+    <h3 class="font-sans text-base font-semibold text-on-surface m-0 mb-1">{{ consultation().diagnostico }}</h3>
+    <p class="font-sans text-sm text-on-surface-variant m-0 mb-2.5 leading-relaxed">{{ consultation().motivo }}</p>
+    <div class="flex justify-between items-center pt-2.5 border-t border-outline-variant">
+      <span class="font-sans text-xs font-medium text-primary-600">{{ doctorName }}</span>
+      <span class="font-sans text-xs text-on-surface-variant">
+        {{ consultation().photoIds.length }} fotos{{ consultation().receta ? ' · Receta' : '' }}
+      </span>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,27 @@
 @import "tailwindcss";
 @source "./tailwind-safelist.html";
 
+@utility chip-primary {
+  background-color: #d9e2ff;
+  color: #001945;
+}
+@utility chip-secondary {
+  background-color: #79f6ed;
+  color: #00201e;
+}
+@utility chip-success {
+  background-color: #e6f9f7;
+  color: #008a85;
+}
+@utility chip-warning {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+@utility chip-danger {
+  background-color: #ffdad6;
+  color: #ba1a1a;
+}
+
 @theme {
   --color-primary-50: #eef2ff;
   --color-primary-100: #d9e2ff;

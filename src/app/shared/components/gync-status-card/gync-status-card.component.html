@@ -1,0 +1,22 @@
+<div
+  class="cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest overflow-hidden transition-all duration-200 hover:border-primary-600 hover:shadow-[0_4px_12px_rgba(15,82,186,0.08)] mb-3 py-4"
+  (click)="clicked.emit()"
+>
+  <div class="flex items-center gap-3 px-4 pb-3">
+    <gync-avatar [name]="initials()"></gync-avatar>
+    <div class="flex flex-col">
+      <span class="font-sans text-sm font-semibold text-on-surface">{{ name() }}</span>
+      <span class="font-sans text-xs text-on-surface-variant">Última visita: {{ lastVisit() }}</span>
+    </div>
+  </div>
+  <div class="px-4 pb-2 flex flex-wrap gap-2">
+    @for (chip of chips(); track $index) {
+      <span
+        class="font-sans text-[10px] font-semibold tracking-wide uppercase px-3 py-1 rounded-full"
+        [ngClass]="'chip-' + chip.variant"
+      >
+        {{ chip.label }}
+      </span>
+    }
+  </div>
+</div>

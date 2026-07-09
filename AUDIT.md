@@ -31,7 +31,34 @@ Checklist de verificación por etapa. Cada ítem debe ser verificado y marcado a
 - [x] Todos los componentes compilan sin errores
 - [x] Tailwind CSS v4 styles apply correctly (utilities detected and generated via CLI)
 
-**Build:** ✅ `ng build` exitoso
+### Refactor: UI Kit → Componentes Reutilizables (2026-07-08)
+
+Se extrajeron todos los patrones visuales del UI Kit a componentes standalone reutilizables:
+
+| Componente | Selector | Inputs | Outputs |
+|---|---|---|---|
+| **PatientCard** | `gync-patient-card` | `patient`, `avatar` | `clicked`, `delete` |
+| **ConsultationCard** | `gync-consultation-card` | `consultation` | `clicked` |
+| **StatusCard** | `gync-status-card` | `name`, `initials`, `lastVisit`, `chips` | `clicked` |
+| **FormField** | `gync-form-field` | `label`, `type`, `placeholder`, `error`, `value` | `valueChange` (via model) |
+| **SearchBar** | `gync-search-bar` | `placeholder`, `value` | `search` |
+| **PhotoThumbnail** | `gync-photo-thumbnail` | `type`, `src`, `encrypted`, `size` | `clicked` |
+| **EmptyState** | `gync-empty-state` | `icon`, `message`, `actionLabel` | `action` |
+| **LoadingOverlay** | `gync-loading-overlay` | `visible`, `message` | — |
+| **ConfirmDialog** | `gync-confirm-dialog` | `visible`, `title`, `message`, `confirmText`, `cancelText` | `confirm`, `cancel` |
+| **SecurityBadge** | `gync-security-badge` | `type`, `text` | — |
+| **PageHeader** | `gync-page-header` | `title`, `subtitle`, `showBack`, `showAction` | `back`, `action` |
+| **Fab** | `gync-fab` | `icon`, `label` | `clicked` |
+| **PatientTable** | `gync-patient-table` | `patients`, `totalCount`, `pageSize` | `filter`, `rowAction` |
+
+**Mejoras de estilos:**
+- ~882 líneas de SCSS del `ui-kit.page.scss` movidas a `global.scss` como estilos compartidos
+- Componentes usan Tailwind CSS v4 para layout y espaciado
+- Ionic custom properties (`--background`, `--border-radius`, etc.) mantenidas en `global.scss` (necesarias para Ionic)
+- Animación `pulse-dot` definida globalmente
+- Safelist de Tailwind actualizada con clases dinámicas
+
+**Build:** ✅ `ng build` exitoso (0 warnings)
 
 ---
 
@@ -132,7 +159,7 @@ Checklist de verificación por etapa. Cada ítem debe ser verificado y marcado a
 | Etapa | Estado |
 |-------|--------|
 | 1. Scaffolding | ✅ |
-| 2. UI Kit | ✅ |
+| 2. UI Kit + Componentes | ✅ |
 | 3. Base de Datos | 🔴 |
 | 4. Autenticación | 🔴 |
 | 5. Pacientes | 🔴 |

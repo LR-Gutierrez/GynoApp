@@ -1,0 +1,14 @@
+<div class="search-bar flex items-center bg-surface-container-low rounded-lg border border-outline-variant px-3 transition-colors duration-200 focus-within:border-primary-600">
+  <ion-icon name="search-outline" class="text-lg text-outline shrink-0"></ion-icon>
+  <ion-input
+    class="search-input"
+    [placeholder]="placeholder()"
+    [(ngModel)]="value"
+    (ionInput)="onInput($event)"
+  ></ion-input>
+  @if (value()) {
+    <ion-button fill="clear" class="search-clear shrink-0" (click)="clear()">
+      <ion-icon name="close-circle"></ion-icon>
+    </ion-button>
+  }
+</div>

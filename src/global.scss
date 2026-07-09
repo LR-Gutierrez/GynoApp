@@ -93,4 +93,656 @@
   --ion-text-color-rgb: 17, 28, 44;
 }
 
+// ==========================================
+// BOTONES GYNC (shared button classes)
+// ==========================================
+.btn-primary {
+  --background: #0f52ba;
+  --background-hover: #0d469e;
+  --gap: 4px;
+  --color: #ffffff;
+  --border-radius: 8px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+}
 
+.btn-secondary {
+  --background: #20b2aa;
+  --background-hover: #1c9c95;
+  --gap: 4px;
+  --color: #ffffff;
+  --border-radius: 8px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+}
+
+.btn-tertiary {
+  --background: #3a4248;
+  --background-hover: #2f363b;
+  --gap: 4px;
+  --color: #ffffff;
+  --border-radius: 8px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+}
+
+.btn-outline-primary {
+  --border-color: #0f52ba;
+  --border-width: 1px;
+  --gap: 4px;
+  --color: #0f52ba;
+  --border-radius: 8px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+}
+
+.btn-outline-secondary {
+  --border-color: #20b2aa;
+  --border-width: 1px;
+  --gap: 4px;
+  --color: #20b2aa;
+  --border-radius: 8px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+}
+
+.btn-outline-tertiary {
+  --border-color: #3a4248;
+  --border-width: 1px;
+  --gap: 4px;
+  --color: #3a4248;
+  --border-radius: 8px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+}
+
+.btn-primary-gync {
+  --background: #0f52ba;
+  --background-hover: #0d469e;
+  --gap: 4px;
+  --color: #ffffff;
+  --border-radius: 8px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  min-height: 32px;
+}
+
+.btn-outline-gync {
+  --border-color: #0f52ba;
+  --border-width: 1px;
+  --gap: 4px;
+  --color: #0f52ba;
+  --border-radius: 8px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  min-height: 32px;
+}
+
+// ==========================================
+// BADGES
+// ==========================================
+.badge-primary {
+  --background: #0f52ba;
+  --color: #ffffff;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-secondary {
+  --background: #20b2aa;
+  --color: #ffffff;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-routine {
+  --background: #79f6ed;
+  --color: #00201e;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-success {
+  --background: #008a85;
+  --color: #ffffff;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-warning {
+  --background: #f5a623;
+  --color: #ffffff;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-danger {
+  --background: #ba1a1a;
+  --color: #ffffff;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-neutral {
+  --background: #737784;
+  --color: #ffffff;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+// ==========================================
+// CHIPS
+// ==========================================
+.chip-primary {
+  --background: #d9e2ff;
+  --color: #001945;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+.chip-primary ion-label {
+  padding-inline: 8px;
+}
+
+.chip-secondary {
+  --background: #79f6ed;
+  --color: #00201e;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+.chip-secondary ion-label {
+  padding-inline: 8px;
+}
+
+.chip-success {
+  --background: #e6f9f7;
+  --color: #008a85;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+.chip-success ion-label {
+  padding-inline: 8px;
+}
+
+.chip-danger {
+  --background: #ffdad6;
+  --color: #ba1a1a;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+.chip-danger ion-label {
+  padding-inline: 8px;
+}
+
+// ==========================================
+// FORMULARIOS
+// ==========================================
+.form-input {
+  --background: var(--color-surface-container-low, #f0f3ff);
+  --border-radius: 8px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --border-color: var(--color-outline-variant, #e2e8f0);
+  --border-width: 1px;
+  --border-style: solid;
+  --highlight-height: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: var(--color-on-surface, #111c2c);
+}
+
+.form-input.ion-focused {
+  --border-color: #0f52ba;
+}
+
+.form-textarea {
+  --background: var(--color-surface-container-low, #f0f3ff);
+  --border-radius: 8px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --border-color: var(--color-outline-variant, #e2e8f0);
+  --border-width: 1px;
+  --border-style: solid;
+  --highlight-height: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: var(--color-on-surface, #111c2c);
+  min-height: 80px;
+}
+
+.form-textarea.ion-focused {
+  --border-color: #0f52ba;
+}
+
+.form-error {
+  display: block;
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  color: #ba1a1a;
+  margin-top: 4px;
+}
+
+// ==========================================
+// SEARCH BAR
+// ==========================================
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--color-surface-container-low, #f0f3ff);
+  border-radius: 8px;
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  padding: 0 12px;
+  transition: border-color 0.2s ease;
+}
+
+.search-bar:focus-within {
+  border-color: #0f52ba;
+}
+
+.search-bar .search-input {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --background: transparent;
+  --border-radius: 0;
+  --highlight-height: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: var(--color-on-surface, #111c2c);
+  flex: 1;
+}
+
+.search-bar .search-clear {
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --color: var(--color-outline, #737784);
+  height: 32px;
+  min-height: 32px;
+}
+
+// ==========================================
+// MULTIMEDIA
+// ==========================================
+.photo-thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-surface-container-low, #f0f3ff);
+  transition: all 0.2s ease;
+}
+
+.photo-thumbnail.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-thumbnail.encrypted .thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-thumbnail.encrypted .thumbnail-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-thumbnail.encrypted .overlay-icon {
+  font-size: 36px;
+  color: #ffffff;
+}
+
+.photo-thumbnail.camera {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-container-low, #f0f3ff);
+  border: 2px dashed var(--color-outline-variant, #e2e8f0);
+}
+
+.photo-thumbnail.camera .camera-icon {
+  font-size: 32px;
+  color: var(--color-outline, #737784);
+}
+
+.photo-thumbnail .thumbnail-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface-container-low, #f0f3ff);
+}
+
+.photo-thumbnail .thumbnail-placeholder .placeholder-icon {
+  font-size: 32px;
+  color: var(--color-outline, #737784);
+  opacity: 0.4;
+}
+
+.photo-thumbnail .thumbnail-spinner {
+  color: #0f52ba;
+  width: 32px;
+  height: 32px;
+}
+
+// ==========================================
+// FEEDBACK - LOADING OVERLAY
+// ==========================================
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-overlay .loading-content {
+  background: var(--color-surface-container-lowest, #ffffff);
+  padding: 32px 40px;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 200px;
+}
+
+.loading-overlay .loading-spinner {
+  color: #0f52ba;
+  width: 40px;
+  height: 40px;
+}
+
+.loading-overlay .loading-message {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-on-surface, #111c2c);
+  margin-top: 12px;
+}
+
+// ==========================================
+// FEEDBACK - CONFIRM DIALOG
+// ==========================================
+.confirm-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-dialog .confirm-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.confirm-dialog .confirm-content {
+  position: relative;
+  background: var(--color-surface-container-lowest, #ffffff);
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.confirm-dialog .confirm-title {
+  font-family: "Inter", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-on-surface, #111c2c);
+  margin: 0 0 8px 0;
+}
+
+.confirm-dialog .confirm-message {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: var(--color-on-surface-variant, #434653);
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.confirm-dialog .confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.confirm-dialog .confirm-actions ion-button {
+  min-width: 80px;
+}
+
+// ==========================================
+// FEEDBACK - SECURITY BADGE
+// ==========================================
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  background: #d9e2ff;
+  border-radius: 9999px;
+  border: 1px solid #0f52ba;
+  font-family: "Inter", sans-serif;
+}
+
+.security-badge .security-icon {
+  font-size: 18px;
+  color: #0f52ba;
+}
+
+.security-badge .security-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #001945;
+}
+
+.security-badge .security-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+// ==========================================
+// FAB
+// ==========================================
+.fab-button {
+  --background: #0f52ba;
+  --background-hover: #0d469e;
+  --border-radius: 50%;
+  --box-shadow: 0 4px 16px rgba(15, 82, 186, 0.3);
+  width: 56px;
+  height: 56px;
+}
+
+.fab-button ion-icon {
+  font-size: 28px;
+  color: #ffffff;
+}
+
+// ==========================================
+// SEGMENT
+// ==========================================
+.segment-custom {
+  --background: var(--color-surface-container-low, #f0f3ff);
+  --indicator-color: #0f52ba;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.segment-custom ion-segment-button {
+  --color: var(--color-on-surface-variant, #434653);
+  --color-checked: var(--color-on-surface, #111c2c);
+  --indicator-color: #0f52ba;
+  --border-radius: 6px;
+  font-weight: 500;
+  font-family: "Inter", sans-serif;
+  min-height: 40px;
+}
+
+// ==========================================
+// POPOVERS
+// ==========================================
+ion-popover {
+  --background: var(--color-surface-container-lowest, #ffffff);
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --min-width: 180px;
+  z-index: 9999;
+}
+
+ion-popover::part(content) {
+  border-radius: 12px;
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+}
+
+ion-popover ion-list {
+  background: transparent;
+  padding: 4px;
+}
+
+ion-popover ion-item {
+  --background: transparent;
+  --border-color: transparent;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --min-height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  margin-bottom: 2px;
+}
+
+ion-popover ion-item:hover {
+  --background: var(--color-surface-container-low, #f0f3ff);
+}
+
+// ==========================================
+// DIVIDERS
+// ==========================================
+.divider-custom {
+  --background: var(--color-surface-container-low, #f0f3ff);
+  --color: var(--color-on-surface-variant, #434653);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 8px 0;
+}
+
+// ==========================================
+// PAGE HEADER
+// ==========================================
+.back-button {
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --color: var(--color-on-surface, #111c2c);
+  height: 36px;
+  min-height: 36px;
+}
+
+.header-action {
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --color: var(--color-on-surface-variant, #434653);
+  height: 36px;
+  min-height: 36px;
+}

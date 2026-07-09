@@ -1,0 +1,18 @@
+<div class="page-header flex items-center gap-2 py-1">
+  @if (showBack()) {
+    <ion-button fill="clear" class="back-button shrink-0" (click)="back.emit()">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+    </ion-button>
+  }
+  <div class="header-content flex-1 min-w-0">
+    <h4 class="header-title font-sans text-xl font-semibold text-on-surface m-0 tracking-tight truncate">{{ title() }}</h4>
+    @if (subtitle()) {
+      <p class="header-subtitle font-sans text-sm text-on-surface-variant m-0 truncate">{{ subtitle() }}</p>
+    }
+  </div>
+  @if (showAction()) {
+    <ion-button fill="clear" class="header-action shrink-0" (click)="action.emit($event)">
+      <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+    </ion-button>
+  }
+</div>
