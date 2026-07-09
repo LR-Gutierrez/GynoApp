@@ -2,12 +2,14 @@ import { Component, input, model } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MaskitoDirective } from '@maskito/angular';
+import type { MaskitoOptions } from '@maskito/core';
 
 @Component({
   selector: 'gync-form-field',
   templateUrl: './gync-form-field.component.html',
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, MaskitoDirective],
 })
 export class GyncFormFieldComponent {
   readonly label = input.required<string>();
@@ -16,4 +18,5 @@ export class GyncFormFieldComponent {
   readonly error = input<string>('');
   readonly icon = input<string>('');
   readonly value = model<string>('');
+  readonly mask = input<MaskitoOptions | null>(null);
 }

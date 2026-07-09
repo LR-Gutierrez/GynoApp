@@ -205,10 +205,10 @@
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
     <gync-section-header icon="document-text-outline" title="Formularios"></gync-section-header>
     <div class="form-demo bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
-      <gync-form-field label="Nombre completo" placeholder="Ingrese el nombre completo" [(value)]="formValue"></gync-form-field>
+      <gync-form-field label="Nombre completo" placeholder="Ingrese el nombre completo" [mask]="lettersOnlyMask" [(value)]="formValue"></gync-form-field>
       <div class="form-row flex gap-3 mt-4 first:mt-0">
-        <gync-form-field label="Edad" type="number" placeholder="Edad" class="flex-1"></gync-form-field>
-        <gync-form-field label="Teléfono" type="tel" placeholder="Teléfono" class="flex-1"></gync-form-field>
+        <gync-form-field label="Edad" placeholder="Edad" [mask]="digitsOnlyMask" class="flex-1"></gync-form-field>
+        <gync-form-field label="Teléfono" placeholder="Teléfono" [mask]="phoneMask" class="flex-1"></gync-form-field>
       </div>
       <gync-form-field label="Motivo de Consulta" placeholder="Ingrese el motivo" [(value)]="formValue" [error]="formError || ''"></gync-form-field>
       <gync-form-field label="Notas Privadas" type="textarea" placeholder="Ingrese notas privadas..." [(value)]="formValue"></gync-form-field>

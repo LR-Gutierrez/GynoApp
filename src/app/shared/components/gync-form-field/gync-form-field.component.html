@@ -11,6 +11,14 @@
       rows="3"
       [(ngModel)]="value"
     ></ion-textarea>
+  } @else if (mask()) {
+    <input
+      class="form-input-native"
+      [type]="mask() ? 'text' : type()"
+      [placeholder]="placeholder()"
+      [maskito]="mask()!"
+      [(ngModel)]="value"
+    />
   } @else {
     <ion-input
       class="form-input"

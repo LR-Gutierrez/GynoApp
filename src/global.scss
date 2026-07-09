@@ -387,6 +387,27 @@
   --border-color: #0f52ba;
 }
 
+.form-input-native {
+  background: var(--color-surface-container-low, #f0f3ff);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: var(--color-on-surface, #111c2c);
+  width: 100%;
+  min-height: 44px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.form-input-native:focus {
+  border-color: #0f52ba;
+}
+.form-input-native::placeholder {
+  color: var(--color-outline, #737784);
+}
+
 .form-error {
   display: block;
   font-family: "Inter", sans-serif;

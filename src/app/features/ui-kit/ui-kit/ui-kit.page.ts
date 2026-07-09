@@ -19,6 +19,7 @@ import { GyncSectionHeaderComponent } from 'src/app/shared/components/gync-secti
 import { Patient, Consultation } from 'src/app/shared/models/patient.model';
 import { StatusChip } from 'src/app/shared/components/gync-status-card/gync-status-card.component';
 import { TablePatient } from 'src/app/shared/components/gync-patient-table/gync-patient-table.component';
+import { phoneMask, digitsOnlyMask, lettersOnlyMask } from 'src/app/shared/utils/masks';
 
 @Component({
   selector: 'app-ui-kit',
@@ -44,6 +45,10 @@ export class UiKitPage {
   searchValue = '';
   formValue = '';
   formError: string | null = null;
+
+  readonly phoneMask = phoneMask;
+  readonly digitsOnlyMask = digitsOnlyMask;
+  readonly lettersOnlyMask = lettersOnlyMask;
 
   sampleConsultation: Consultation = {
     id: '1',
