@@ -1,4 +1,4 @@
-# GyncApp — Auto-Auditoría
+# GynoApp — Auto-Auditoría
 
 Checklist de verificación por etapa. Cada ítem debe ser verificado y marcado antes de avanzar a la siguiente etapa.
 
@@ -37,19 +37,19 @@ Se extrajeron todos los patrones visuales del UI Kit a componentes standalone re
 
 | Componente | Selector | Inputs | Outputs |
 |---|---|---|---|
-| **PatientCard** | `gync-patient-card` | `patient`, `avatar` | `clicked`, `delete` |
-| **ConsultationCard** | `gync-consultation-card` | `consultation` | `clicked` |
-| **StatusCard** | `gync-status-card` | `name`, `initials`, `lastVisit`, `chips` | `clicked` |
-| **FormField** | `gync-form-field` | `label`, `type`, `placeholder`, `error`, `value` | `valueChange` (via model) |
-| **SearchBar** | `gync-search-bar` | `placeholder`, `value` | `search` |
-| **PhotoThumbnail** | `gync-photo-thumbnail` | `type`, `src`, `encrypted`, `size` | `clicked` |
-| **EmptyState** | `gync-empty-state` | `icon`, `message`, `actionLabel` | `action` |
-| **LoadingOverlay** | `gync-loading-overlay` | `visible`, `message` | — |
-| **ConfirmDialog** | `gync-confirm-dialog` | `visible`, `title`, `message`, `confirmText`, `cancelText` | `confirm`, `cancel` |
-| **SecurityBadge** | `gync-security-badge` | `type`, `text` | — |
-| **PageHeader** | `gync-page-header` | `title`, `subtitle`, `showBack`, `showAction` | `back`, `action` |
-| **Fab** | `gync-fab` | `icon`, `label` | `clicked` |
-| **PatientTable** | `gync-patient-table` | `patients`, `totalCount`, `pageSize` | `filter`, `rowAction` |
+| **PatientCard** | `gyno-patient-card` | `patient`, `avatar` | `clicked`, `delete` |
+| **ConsultationCard** | `gyno-consultation-card` | `consultation` | `clicked` |
+| **StatusCard** | `gyno-status-card` | `name`, `initials`, `lastVisit`, `chips` | `clicked` |
+| **FormField** | `gyno-form-field` | `label`, `type`, `placeholder`, `error`, `value` | `valueChange` (via model) |
+| **SearchBar** | `gyno-search-bar` | `placeholder`, `value` | `search` |
+| **PhotoThumbnail** | `gyno-photo-thumbnail` | `type`, `src`, `encrypted`, `size` | `clicked` |
+| **EmptyState** | `gyno-empty-state` | `icon`, `message`, `actionLabel` | `action` |
+| **LoadingOverlay** | `gyno-loading-overlay` | `visible`, `message` | — |
+| **ConfirmDialog** | `gyno-confirm-dialog` | `visible`, `title`, `message`, `confirmText`, `cancelText` | `confirm`, `cancel` |
+| **SecurityBadge** | `gyno-security-badge` | `type`, `text` | — |
+| **PageHeader** | `gyno-page-header` | `title`, `subtitle`, `showBack`, `showAction` | `back`, `action` |
+| **Fab** | `gyno-fab` | `icon`, `label` | `clicked` |
+| **PatientTable** | `gyno-patient-table` | `patients`, `totalCount`, `pageSize` | `filter`, `rowAction` |
 
 **Mejoras de estilos:**
 - ~882 líneas de SCSS del `ui-kit.page.scss` movidas a `global.scss` como estilos compartidos
@@ -115,8 +115,8 @@ Se extrajeron todos los patrones visuales del UI Kit a componentes standalone re
 
 - [ ] AES-256-CTR encripta/desencripta correctamente
 - [ ] Cada foto tiene IV único de 128 bits
-- [ ] Foto encriptada se guarda como `.gync` en directorio privado
-- [ ] Foto `.gync` NO aparece en galería del sistema
+- [ ] Foto encriptada se guarda como `.gyno` en directorio privado
+- [ ] Foto `.gyno` NO aparece en galería del sistema
 - [ ] Visor desencripta y muestra sin fugas a disco
 - [ ] Foto desencriptada solo está en RAM
 - [ ] Múltiples fotos por consulta funcionan

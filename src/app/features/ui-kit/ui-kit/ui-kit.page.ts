@@ -2,23 +2,23 @@ import { Component, inject } from '@angular/core';
 import { IonicModule, ToastController, AlertController, PopoverController } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { GyncPatientCardComponent } from 'src/app/shared/components/gync-patient-card/gync-patient-card.component';
-import { GyncConsultationCardComponent } from 'src/app/shared/components/gync-consultation-card/gync-consultation-card.component';
-import { GyncStatusCardComponent } from 'src/app/shared/components/gync-status-card/gync-status-card.component';
-import { GyncFormFieldComponent } from 'src/app/shared/components/gync-form-field/gync-form-field.component';
-import { GyncSearchBarComponent } from 'src/app/shared/components/gync-search-bar/gync-search-bar.component';
-import { GyncPhotoThumbnailComponent } from 'src/app/shared/components/gync-photo-thumbnail/gync-photo-thumbnail.component';
-import { GyncEmptyStateComponent } from 'src/app/shared/components/gync-empty-state/gync-empty-state.component';
-import { GyncLoadingOverlayComponent } from 'src/app/shared/components/gync-loading-overlay/gync-loading-overlay.component';
-import { GyncConfirmDialogComponent } from 'src/app/shared/components/gync-confirm-dialog/gync-confirm-dialog.component';
-import { GyncSecurityBadgeComponent } from 'src/app/shared/components/gync-security-badge/gync-security-badge.component';
-import { GyncPageHeaderComponent } from 'src/app/shared/components/gync-page-header/gync-page-header.component';
-import { GyncPatientTableComponent } from 'src/app/shared/components/gync-patient-table/gync-patient-table.component';
-import { GyncFabComponent } from 'src/app/shared/components/gync-fab/gync-fab.component';
-import { GyncSectionHeaderComponent } from 'src/app/shared/components/gync-section-header/gync-section-header.component';
+import { GynoPatientCardComponent } from 'src/app/shared/components/gyno-patient-card/gyno-patient-card.component';
+import { GynoConsultationCardComponent } from 'src/app/shared/components/gyno-consultation-card/gyno-consultation-card.component';
+import { GynoStatusCardComponent } from 'src/app/shared/components/gyno-status-card/gyno-status-card.component';
+import { GynoFormFieldComponent } from 'src/app/shared/components/gyno-form-field/gyno-form-field.component';
+import { GynoSearchBarComponent } from 'src/app/shared/components/gyno-search-bar/gyno-search-bar.component';
+import { GynoPhotoThumbnailComponent } from 'src/app/shared/components/gyno-photo-thumbnail/gyno-photo-thumbnail.component';
+import { GynoEmptyStateComponent } from 'src/app/shared/components/gyno-empty-state/gyno-empty-state.component';
+import { GynoLoadingOverlayComponent } from 'src/app/shared/components/gyno-loading-overlay/gyno-loading-overlay.component';
+import { GynoConfirmDialogComponent } from 'src/app/shared/components/gyno-confirm-dialog/gyno-confirm-dialog.component';
+import { GynoSecurityBadgeComponent } from 'src/app/shared/components/gyno-security-badge/gyno-security-badge.component';
+import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-header/gyno-page-header.component';
+import { GynoPatientTableComponent } from 'src/app/shared/components/gyno-patient-table/gyno-patient-table.component';
+import { GynoFabComponent } from 'src/app/shared/components/gyno-fab/gyno-fab.component';
+import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
 import { Patient, Consultation } from 'src/app/shared/models/patient.model';
-import { StatusChip } from 'src/app/shared/components/gync-status-card/gync-status-card.component';
-import { TablePatient } from 'src/app/shared/components/gync-patient-table/gync-patient-table.component';
+import { StatusChip } from 'src/app/shared/components/gyno-status-card/gyno-status-card.component';
+import { TablePatient } from 'src/app/shared/components/gyno-patient-table/gyno-patient-table.component';
 import { phoneMask, digitsOnlyMask, lettersOnlyMask } from 'src/app/shared/utils/masks';
 
 @Component({
@@ -28,11 +28,11 @@ import { phoneMask, digitsOnlyMask, lettersOnlyMask } from 'src/app/shared/utils
   standalone: true,
   imports: [
     IonicModule, CommonModule, FormsModule,
-    GyncPatientCardComponent, GyncConsultationCardComponent, GyncStatusCardComponent,
-    GyncFormFieldComponent, GyncSearchBarComponent, GyncPhotoThumbnailComponent,
-    GyncEmptyStateComponent, GyncLoadingOverlayComponent, GyncConfirmDialogComponent,
-    GyncSecurityBadgeComponent, GyncPageHeaderComponent, GyncPatientTableComponent,
-    GyncFabComponent, GyncSectionHeaderComponent,
+    GynoPatientCardComponent, GynoConsultationCardComponent, GynoStatusCardComponent,
+    GynoFormFieldComponent, GynoSearchBarComponent, GynoPhotoThumbnailComponent,
+    GynoEmptyStateComponent, GynoLoadingOverlayComponent, GynoConfirmDialogComponent,
+    GynoSecurityBadgeComponent, GynoPageHeaderComponent, GynoPatientTableComponent,
+    GynoFabComponent, GynoSectionHeaderComponent,
   ],
 })
 export class UiKitPage {

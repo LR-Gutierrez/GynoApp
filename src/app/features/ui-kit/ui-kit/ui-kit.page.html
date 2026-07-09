@@ -2,7 +2,7 @@
   <ion-toolbar class="toolbar-transparent">
     <ion-title>
       <span class="title-text text-2xl font-bold text-on-surface tracking-tight font-sans">UI Kit</span>
-      <span class="subtitle-text block text-xs font-semibold text-on-surface-variant tracking-widest uppercase opacity-70">GyncApp Design System</span>
+      <span class="subtitle-text block text-xs font-semibold text-on-surface-variant tracking-widest uppercase opacity-70">GynoApp Design System</span>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -12,7 +12,7 @@
   <!-- SECCIÓN: COLORES -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="color-palette-outline" title="Colores"></gync-section-header>
+    <gyno-section-header icon="color-palette-outline" title="Colores"></gyno-section-header>
     <div class="color-grid grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- Primary -->
       <div class="color-group bg-surface-container-low p-4 rounded-xl border border-outline-variant">
@@ -85,7 +85,7 @@
   <!-- SECCIÓN: TIPOGRAFÍA -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="text-outline" title="Tipografía"></gync-section-header>
+    <gyno-section-header icon="text-outline" title="Tipografía"></gyno-section-header>
     <div class="typography-grid bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
       <div class="typography-item flex flex-col gap-1 py-2 border-b border-surface-container-high last:border-none">
         <span class="typography-label text-[10px] font-semibold text-on-surface-variant tracking-widest uppercase font-sans">Display LG — 32px / 700</span>
@@ -118,7 +118,7 @@
   <!-- SECCIÓN: BOTONES -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="shapes-outline" title="Botones"></gync-section-header>
+    <gyno-section-header icon="shapes-outline" title="Botones"></gyno-section-header>
     <div class="button-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
       <div class="button-group bg-surface-container-low p-4 rounded-xl border border-outline-variant flex flex-col gap-2">
         <h3 class="text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans">Solid</h3>
@@ -151,28 +151,28 @@
   <!-- SECCIÓN: CARDS -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="copy-outline" title="Cards"></gync-section-header>
+    <gyno-section-header icon="copy-outline" title="Cards"></gyno-section-header>
     <div class="text-xs font-semibold text-on-surface-variant tracking-widest uppercase my-4 mx-0 font-sans">Patient Card</div>
-    <gync-patient-card [patient]="samplePatient" (clicked)="onAction('patient')"></gync-patient-card>
+    <gyno-patient-card [patient]="samplePatient" (clicked)="onAction('patient')"></gyno-patient-card>
 
     <div class="text-xs font-semibold text-on-surface-variant tracking-widest uppercase my-4 mx-0 font-sans">Consultation Card</div>
-    <gync-consultation-card [consultation]="sampleConsultation" (clicked)="onAction('consultation')"></gync-consultation-card>
+    <gyno-consultation-card [consultation]="sampleConsultation" (clicked)="onAction('consultation')"></gyno-consultation-card>
 
     <div class="text-xs font-semibold text-on-surface-variant tracking-widest uppercase my-4 mx-0 font-sans">Status Card</div>
-    <gync-status-card
+    <gyno-status-card
       name="Ana Gómez"
       initials="AG"
       lastVisit="15/06/2026"
       [chips]="sampleStatusChips"
       (clicked)="onAction('status')"
-    ></gync-status-card>
+    ></gyno-status-card>
   </section>
 
   <!-- ========================================== -->
   <!-- SECCIÓN: BADGES -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="ribbon-outline" title="Badges"></gync-section-header>
+    <gyno-section-header icon="ribbon-outline" title="Badges"></gyno-section-header>
     <div class="badges-grid flex flex-wrap gap-2 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
       <ion-badge class="badge-primary">Primary</ion-badge>
       <ion-badge class="badge-secondary">Secondary</ion-badge>
@@ -188,7 +188,7 @@
   <!-- SECCIÓN: CHIPS -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="ellipsis-horizontal-circle-outline" title="Chips"></gync-section-header>
+    <gyno-section-header icon="ellipsis-horizontal-circle-outline" title="Chips"></gyno-section-header>
     <div class="chips-grid flex flex-wrap gap-2 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
       <ion-chip class="chip-primary"><ion-label>Primary</ion-label></ion-chip>
       <ion-chip class="chip-secondary"><ion-label>Secondary</ion-label></ion-chip>
@@ -203,15 +203,15 @@
   <!-- SECCIÓN: FORMULARIOS -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="document-text-outline" title="Formularios"></gync-section-header>
+    <gyno-section-header icon="document-text-outline" title="Formularios"></gyno-section-header>
     <div class="form-demo bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
-      <gync-form-field label="Nombre completo" placeholder="Ingrese el nombre completo" [mask]="lettersOnlyMask" [(value)]="formValue"></gync-form-field>
+      <gyno-form-field label="Nombre completo" placeholder="Ingrese el nombre completo" [mask]="lettersOnlyMask" [(value)]="formValue"></gyno-form-field>
       <div class="form-row flex gap-3 mt-4 first:mt-0">
-        <gync-form-field label="Edad" placeholder="Edad" [mask]="digitsOnlyMask" class="flex-1"></gync-form-field>
-        <gync-form-field label="Teléfono" placeholder="Teléfono" [mask]="phoneMask" class="flex-1"></gync-form-field>
+        <gyno-form-field label="Edad" placeholder="Edad" [mask]="digitsOnlyMask" class="flex-1"></gyno-form-field>
+        <gyno-form-field label="Teléfono" placeholder="Teléfono" [mask]="phoneMask" class="flex-1"></gyno-form-field>
       </div>
-      <gync-form-field label="Motivo de Consulta" placeholder="Ingrese el motivo" [(value)]="formValue" [error]="formError || ''"></gync-form-field>
-      <gync-form-field label="Notas Privadas" type="textarea" placeholder="Ingrese notas privadas..." [(value)]="formValue"></gync-form-field>
+      <gyno-form-field label="Motivo de Consulta" placeholder="Ingrese el motivo" [(value)]="formValue" [error]="formError || ''"></gyno-form-field>
+      <gyno-form-field label="Notas Privadas" type="textarea" placeholder="Ingrese notas privadas..." [(value)]="formValue"></gyno-form-field>
     </div>
   </section>
 
@@ -219,30 +219,30 @@
   <!-- SECCIÓN: SEARCH BAR -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="search-outline" title="Search Bar"></gync-section-header>
-    <gync-search-bar placeholder="Buscar pacientes..." [(value)]="searchValue" (search)="onSearch($event)"></gync-search-bar>
+    <gyno-section-header icon="search-outline" title="Search Bar"></gyno-section-header>
+    <gyno-search-bar placeholder="Buscar pacientes..." [(value)]="searchValue" (search)="onSearch($event)"></gyno-search-bar>
   </section>
 
   <!-- ========================================== -->
   <!-- SECCIÓN: MULTIMEDIA -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="image-outline" title="Multimedia"></gync-section-header>
+    <gyno-section-header icon="image-outline" title="Multimedia"></gyno-section-header>
     <div class="media-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="media-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant text-center">
-        <gync-photo-thumbnail type="placeholder"></gync-photo-thumbnail>
+        <gyno-photo-thumbnail type="placeholder"></gyno-photo-thumbnail>
         <span class="thumbnail-label block font-sans text-xs text-on-surface-variant mt-2">Placeholder</span>
       </div>
       <div class="media-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant text-center">
-        <gync-photo-thumbnail type="loading"></gync-photo-thumbnail>
+        <gyno-photo-thumbnail type="loading"></gyno-photo-thumbnail>
         <span class="thumbnail-label block font-sans text-xs text-on-surface-variant mt-2">Cargando</span>
       </div>
       <div class="media-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant text-center">
-        <gync-photo-thumbnail type="encrypted" src="https://picsum.photos/seed/gync/400/400"></gync-photo-thumbnail>
+        <gyno-photo-thumbnail type="encrypted" src="https://picsum.photos/seed/gyno/400/400"></gyno-photo-thumbnail>
         <span class="thumbnail-label block font-sans text-xs text-on-surface-variant mt-2">Encriptada</span>
       </div>
       <div class="media-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant text-center">
-        <gync-photo-thumbnail type="camera" (clicked)="onAction('camera')"></gync-photo-thumbnail>
+        <gyno-photo-thumbnail type="camera" (clicked)="onAction('camera')"></gyno-photo-thumbnail>
         <span class="thumbnail-label block font-sans text-xs text-on-surface-variant mt-2">Tomar foto</span>
       </div>
     </div>
@@ -252,15 +252,15 @@
   <!-- SECCIÓN: FEEDBACK -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="chatbubble-ellipses-outline" title="Feedback"></gync-section-header>
+    <gyno-section-header icon="chatbubble-ellipses-outline" title="Feedback"></gyno-section-header>
     <div class="feedback-grid grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30">
-        <gync-empty-state
+        <gyno-empty-state
           icon="folder-open-outline"
           message="No hay pacientes"
           actionLabel="Agregar"
           (action)="onAction('add')"
-        ></gync-empty-state>
+        ></gyno-empty-state>
       </div>
       <div class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30 flex flex-col gap-3">
         <div class="feedback-actions flex flex-wrap gap-2">
@@ -275,42 +275,42 @@
         </div>
       </div>
       <div class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30 flex flex-col gap-3">
-        <gync-security-badge type="active" text="Encrypted Session Active"></gync-security-badge>
-        <gync-security-badge type="locked" text="Session Locked" class="mt-2"></gync-security-badge>
+        <gyno-security-badge type="active" text="Encrypted Session Active"></gyno-security-badge>
+        <gyno-security-badge type="locked" text="Session Locked" class="mt-2"></gyno-security-badge>
       </div>
     </div>
 
-    <gync-loading-overlay [visible]="showLoading" message="Cargando datos..."></gync-loading-overlay>
-    <gync-confirm-dialog
+    <gyno-loading-overlay [visible]="showLoading" message="Cargando datos..."></gyno-loading-overlay>
+    <gyno-confirm-dialog
       [visible]="showConfirm"
       title="Confirmar Acción"
       message="¿Estás seguro de que deseas realizar esta acción?"
       (confirm)="handleConfirm()"
       (cancel)="toggleConfirm()"
-    ></gync-confirm-dialog>
+    ></gyno-confirm-dialog>
   </section>
 
   <!-- ========================================== -->
   <!-- SECCIÓN: NAVEGACIÓN -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="compass-outline" title="Navegación"></gync-section-header>
+    <gyno-section-header icon="compass-outline" title="Navegación"></gyno-section-header>
     <div class="navigation-grid grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="nav-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
         <h3 class="text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans">Page Header</h3>
-        <gync-page-header
+        <gyno-page-header
           title="Perfil del Paciente"
           subtitle="María García · 34 años"
           [showBack]="true"
           [showAction]="true"
           (back)="onAction('back')"
           (action)="openProfileActionPopover($event)"
-        ></gync-page-header>
+        ></gyno-page-header>
       </div>
       <div class="nav-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
         <h3 class="text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans">Floating Action Button</h3>
         <div class="fab-container flex items-center justify-center h-25 bg-surface-container-low rounded-lg">
-          <gync-fab icon="add-outline" (clicked)="onAction('fab')"></gync-fab>
+          <gyno-fab icon="add-outline" (clicked)="onAction('fab')"></gyno-fab>
         </div>
       </div>
       <div class="nav-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
@@ -328,7 +328,7 @@
   <!-- SECCIÓN: DIVIDERS -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-section-header icon="remove-outline" title="Dividers"></gync-section-header>
+    <gyno-section-header icon="remove-outline" title="Dividers"></gyno-section-header>
     <div class="divider-demo bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
       <p class="font-sans text-sm font-normal leading-5 text-on-surface m-0 mb-2">Contenido arriba</p>
       <ion-item-divider class="divider-custom"><ion-label>Divider con texto</ion-label></ion-item-divider>
@@ -342,11 +342,11 @@
   <!-- SECCIÓN: LISTAS -->
   <!-- ========================================== -->
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
-    <gync-patient-table
+    <gyno-patient-table
       [patients]="samplePatients"
       [totalCount]="128"
       (filter)="openFilterPopover($event)"
       (rowAction)="openActionPopover($event.event, $event.patient.name)"
-    ></gync-patient-table>
+    ></gyno-patient-table>
   </section>
 </ion-content>

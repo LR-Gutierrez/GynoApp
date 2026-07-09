@@ -1,5 +1,5 @@
 {
-  "name": "gync-app",
+  "name": "gyno-app",
   "integrations": {
     "capacitor": {}
   },

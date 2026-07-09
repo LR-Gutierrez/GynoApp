@@ -1,5 +1,5 @@
 ---
-name: GyncApp
+name: GynoApp
 colors:
   surface: "#f9f9ff"
   surface-dim: "#cfdaf1"

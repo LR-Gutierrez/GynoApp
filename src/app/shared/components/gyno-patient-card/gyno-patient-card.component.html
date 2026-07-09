@@ -1,0 +1,54 @@
+<div
+  class="cursor-pointer rounded-xl border border-outline-variant bg-surface-container-lowest overflow-hidden transition-all duration-200 hover:border-primary-600 hover:shadow-[0_4px_12px_rgba(15,82,186,0.08)] mb-3 py-3"
+  (click)="clicked.emit()"
+>
+  <div class="flex items-center gap-3 px-4 py-3.5">
+    <gyno-avatar [name]="avatar() || patient().name"></gyno-avatar>
+    <div class="flex flex-col">
+      <span class="font-sans text-sm font-semibold text-on-surface">{{
+        patient().name
+      }}</span>
+      <span class="font-sans text-xs text-on-surface-variant"
+        >{{ patient().age }} años &middot; {{ patient().phone }}</span
+      >
+    </div>
+  </div>
+  <div class="px-4 pb-3.5">
+    @if (patient().address) {
+      <div class="flex items-center gap-2 py-0.5">
+        <ion-icon
+          name="location-outline"
+          class="text-base text-outline min-w-5"
+        ></ion-icon>
+        <span class="font-sans text-xs text-on-surface-variant">{{
+          patient().address
+        }}</span>
+      </div>
+    }
+    @if (patient().alergias) {
+      <div class="flex items-center gap-2 py-0.5">
+        <ion-icon
+          name="medkit-outline"
+          class="text-base text-outline min-w-5"
+        ></ion-icon>
+        <span class="font-sans text-xs text-on-surface-variant"
+          >Alergia: {{ patient().alergias }}</span
+        >
+      </div>
+    }
+    <div class="flex gap-2 mt-3">
+      <ion-button
+        size="small"
+        class="btn-outline-gyno text-white"
+        (click)="$event.stopPropagation(); delete.emit()"
+        >EDITAR</ion-button
+      >
+      <ion-button
+        size="small"
+        class="btn-primary-gyno text-white"
+        (click)="$event.stopPropagation(); clicked.emit()"
+        >HISTORIAL</ion-button
+      >
+    </div>
+  </div>
+</div>

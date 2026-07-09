@@ -1,10 +1,10 @@
-# GyncApp
+# GynoApp
 
 Una aplicación móvil diseñada para ayudar a ginecólogos a organizar y proteger la información de sus pacientes.
 
 ## ¿Qué problema resuelve?
 
-Llevar el control de consultas, fotos y documentos médicos en el consultorio puede ser complicado. GyncApp te permite tener toda esa información en tu teléfono o tablet, organizada y protegida.
+Llevar el control de consultas, fotos y documentos médicos en el consultorio puede ser complicado. GynoApp te permite tener toda esa información en tu teléfono o tablet, organizada y protegida.
 
 ## ¿Qué puedes hacer con la app?
 

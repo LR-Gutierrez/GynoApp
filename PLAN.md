@@ -1,4 +1,4 @@
-# GyncApp — Plan de Desarrollo
+# GynoApp — Plan de Desarrollo
 
 App híbrida (Ionic + Angular) para gestión de historia clínica con álbum fotográfico encriptado, estilo MIUI Secret Album.
 
@@ -13,14 +13,14 @@ App híbrida (Ionic + Angular) para gestión de historia clínica con álbum fot
 | Base de datos | SQLite via `@capacitor-community/sqlite` |
 | Criptografía | Web Crypto API (AES-256-CTR, PBKDF2) |
 | Estilos | Tailwind CSS |
-| Almacenamiento fotos | Directorio privado de la app (extensión `.gync`) |
+| Almacenamiento fotos | Directorio privado de la app (extensión `.gyno`) |
 
 ---
 
 ## Arquitectura del Proyecto
 
 ```
-gync-app/
+gyno-app/
 ├── src/
 │   ├── app/
 │   │   ├── core/
@@ -243,7 +243,7 @@ Crear componentes visuales puramente estéticos para definir el look & feel ante
 | 6.1 | ConsultationFormPage | Formulario con todos los campos |
 | 6.2 | CryptoService | AES-256-CTR + PBKDF2 con Web Crypto API |
 | 6.3 | Tomar foto | Capacitor Camera plugin |
-| 6.4 | Encriptar foto | IV único (128 bits) + AES-256-CTR → archivo `.gync` |
+| 6.4 | Encriptar foto | IV único (128 bits) + AES-256-CTR → archivo `.gyno` |
 | 6.5 | Guardar foto encriptada | Almacenar en directorio privado de la app |
 | 6.6 | PhotoViewerPage | Desencriptar y mostrar foto en visor |
 | 6.7 | Múltiples fotos por consulta | Galería de thumbnails |
@@ -251,8 +251,8 @@ Crear componentes visuales puramente estéticos para definir el look & feel ante
 **✅ Auditoría Etapa 6:**
 - [ ] AES-256-CTR encripta/desencripta correctamente
 - [ ] Cada foto tiene IV único de 128 bits
-- [ ] Foto encriptada se guarda como `.gync` en directorio privado
-- [ ] Foto `.gync` NO aparece en galería del sistema
+- [ ] Foto encriptada se guarda como `.gyno` en directorio privado
+- [ ] Foto `.gyno` NO aparece en galería del sistema
 - [ ] Visor desencripta y muestra sin fugas a disco
 - [ ] Foto desencriptada solo está en RAM
 - [ ] Múltiples fotos por consulta funcionan
@@ -265,8 +265,8 @@ Crear componentes visuales puramente estéticos para definir el look & feel ante
 |---|-------|-------------|
 | 7.1 | BackupService | Empaquetar DB + fotos en archivo único |
 | 7.2 | Encriptar backup | Backup completo encriptado con clave derivada del PIN |
-| 7.3 | Exportar .gyncbak | Guardar en Descargas o compartir |
-| 7.4 | Importar .gyncbak | Leer, desencriptar, restaurar DB + fotos |
+| 7.3 | Exportar .gynobak | Guardar en Descargas o compartir |
+| 7.4 | Importar .gynobak | Leer, desencriptar, restaurar DB + fotos |
 | 7.5 | SettingsPage | Ajustes: exportar, importar, cambiar PIN |
 
 **✅ Auditoría Etapa 7:**
@@ -322,6 +322,6 @@ Al final de cada etapa se ejecuta `npx ionic build` para confirmar que no hay er
 | Encriptación | AES-256-CTR (Web Crypto API) | Nativo en browser, sin librerías extra |
 | Derivación de clave | PBKDF2 con 600,000 iteraciones | OWASP recommended |
 | IV | Aleatorio 128 bits por archivo | Más seguro que IV fijo de MIUI |
-| Contenedor de fotos | `.gync` con header: `IV (16 bytes) + data` | Formato simple auto-contenido |
+| Contenedor de fotos | `.gyno` con header: `IV (16 bytes) + data` | Formato simple auto-contenido |
 | Almacenamiento | Directorio privado de la app | No accesible desde galería |
 | DB local | SQLite | Persistente, rápida, consultas complejas |
