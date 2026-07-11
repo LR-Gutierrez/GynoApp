@@ -1,10 +1,9 @@
 import { Component, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-header/gyno-page-header.component';
 import { GynoFormFieldComponent } from 'src/app/shared/components/gyno-form-field/gyno-form-field.component';
+import { GynoLoadingButtonComponent } from 'src/app/shared/components/gyno-loading-button/gyno-loading-button.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -12,11 +11,17 @@ import { GynoFormFieldComponent } from 'src/app/shared/components/gyno-form-fiel
   standalone: true,
   imports: [
     IonicModule,
-    CommonModule,
-    FormsModule,
-    RouterModule,
     GynoPageHeaderComponent,
     GynoFormFieldComponent,
+    GynoLoadingButtonComponent,
+  ],
+  styles: [
+    `
+      :host i[class^='mgc_']::before,
+      :host i[class*=' mgc_']::before {
+        color: inherit !important;
+      }
+    `,
   ],
 })
 export class ResetPasswordPage {
@@ -27,7 +32,10 @@ export class ResetPasswordPage {
   readonly confirmPassword = signal('');
   readonly showNewPassword = signal(false);
   readonly showConfirmPassword = signal(false);
+  readonly loading = signal(false);
   readonly error = signal('');
+
+  constructor(private router: Router) {}
 
   goBack() {
     if (this.step() === 'code') {
@@ -47,7 +55,11 @@ export class ResetPasswordPage {
       this.error.set('Ingresa tu correo electrónico');
       return;
     }
-    this.step.set('code');
+    this.loading.set(true);
+    setTimeout(() => {
+      this.loading.set(false);
+      this.step.set('code');
+    }, 800);
   }
 
   verifyCode() {
@@ -56,7 +68,11 @@ export class ResetPasswordPage {
       this.error.set('Ingresa el código de verificación');
       return;
     }
-    this.step.set('new-password');
+    this.loading.set(true);
+    setTimeout(() => {
+      this.loading.set(false);
+      this.step.set('new-password');
+    }, 800);
   }
 
   resetPassword() {
@@ -72,6 +88,14 @@ export class ResetPasswordPage {
       return;
     }
 
-    this.step.set('success');
+    this.loading.set(true);
+    setTimeout(() => {
+      this.loading.set(false);
+      this.step.set('success');
+    }, 1000);
+  }
+
+  goToLogin() {
+    this.router.navigate(['/auth']);
   }
 }

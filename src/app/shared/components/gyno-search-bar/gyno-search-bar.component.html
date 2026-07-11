@@ -1,5 +1,7 @@
-<div class="search-bar flex items-center bg-surface-container-low rounded-lg border border-outline-variant px-3 transition-colors duration-200 focus-within:border-primary-600">
-  <ion-icon name="search-outline" class="text-lg text-outline shrink-0"></ion-icon>
+<div
+  class="search-bar flex items-center gap-2 bg-surface-container-low rounded-lg border border-outline-variant px-3 transition-colors duration-200 focus-within:border-primary-600"
+>
+  <i class="not-italic text-lg text-outline shrink-0 mgc_search_line"></i>
   <ion-input
     class="search-input"
     [placeholder]="placeholder()"
@@ -8,7 +10,7 @@
   ></ion-input>
   @if (value()) {
     <ion-button fill="clear" class="search-clear shrink-0" (click)="clear()">
-      <ion-icon name="close-circle"></ion-icon>
+      <i class="not-italic text-lg mgc_close_circle_line"></i>
     </ion-button>
   }
 </div>

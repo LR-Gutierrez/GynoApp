@@ -16,6 +16,8 @@ import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-hea
 import { GynoPatientTableComponent } from 'src/app/shared/components/gyno-patient-table/gyno-patient-table.component';
 import { GynoFabComponent } from 'src/app/shared/components/gyno-fab/gyno-fab.component';
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
+import { GynoFilterPopoverComponent } from 'src/app/shared/components/gyno-filter-popover/gyno-filter-popover.component';
+import { GynoActionPopoverComponent } from 'src/app/shared/components/gyno-action-popover/gyno-action-popover.component';
 import { Patient, Consultation } from 'src/app/shared/models/patient.model';
 import { StatusChip } from 'src/app/shared/components/gyno-status-card/gyno-status-card.component';
 import { TablePatient } from 'src/app/shared/components/gyno-patient-table/gyno-patient-table.component';
@@ -32,7 +34,7 @@ import { phoneMask, digitsOnlyMask, lettersOnlyMask } from 'src/app/shared/utils
     GynoFormFieldComponent, GynoSearchBarComponent, GynoPhotoThumbnailComponent,
     GynoEmptyStateComponent, GynoLoadingOverlayComponent, GynoConfirmDialogComponent,
     GynoSecurityBadgeComponent, GynoPageHeaderComponent, GynoPatientTableComponent,
-    GynoFabComponent, GynoSectionHeaderComponent,
+    GynoFabComponent, GynoSectionHeaderComponent, GynoFilterPopoverComponent, GynoActionPopoverComponent,
   ],
 })
 export class UiKitPage {
@@ -138,7 +140,7 @@ export class UiKitPage {
 
   async openFilterPopover(event: MouseEvent) {
     const popover = await this.popoverController.create({
-      component: FilterPopoverComponent,
+      component: GynoFilterPopoverComponent,
       event, side: 'bottom', alignment: 'start', showBackdrop: false,
     });
     await popover.present();
@@ -146,7 +148,7 @@ export class UiKitPage {
 
   async openActionPopover(event: MouseEvent, patientName: string) {
     const popover = await this.popoverController.create({
-      component: ActionPopoverComponent,
+      component: GynoActionPopoverComponent,
       componentProps: { patientName },
       event, side: 'bottom', alignment: 'start', showBackdrop: false,
     });
@@ -177,38 +179,4 @@ export class ProfileActionPopoverComponent {
   close() { this.popoverController.dismiss(); }
 }
 
-@Component({
-  selector: 'app-filter-popover',
-  template: `
-    <ion-list>
-      <ion-item button (click)="close()">Por fecha</ion-item>
-      <ion-item button (click)="close()">Por nombre</ion-item>
-      <ion-item button (click)="close()">Por estado</ion-item>
-      <ion-item button lines="none" (click)="close()">Limpiar filtros</ion-item>
-    </ion-list>
-  `,
-  standalone: true,
-  imports: [IonicModule],
-})
-export class FilterPopoverComponent {
-  private popoverController = inject(PopoverController);
-  close() { this.popoverController.dismiss(); }
-}
 
-@Component({
-  selector: 'app-action-popover',
-  template: `
-    <ion-list>
-      <ion-item button (click)="close()">Ver perfil</ion-item>
-      <ion-item button (click)="close()">Editar</ion-item>
-      <ion-item button (click)="close()">Historial</ion-item>
-      <ion-item button lines="none" (click)="close()">Eliminar</ion-item>
-    </ion-list>
-  `,
-  standalone: true,
-  imports: [IonicModule],
-})
-export class ActionPopoverComponent {
-  private popoverController = inject(PopoverController);
-  close() { this.popoverController.dismiss(); }
-}

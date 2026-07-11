@@ -16,6 +16,14 @@ import { GynoSecurityBadgeComponent } from 'src/app/shared/components/gyno-secur
     GynoPageHeaderComponent,
     GynoSecurityBadgeComponent,
   ],
+  styles: [
+    `
+      :host i[class^='mgc_']::before,
+      :host i[class*=' mgc_']::before {
+        color: inherit !important;
+      }
+    `,
+  ],
 })
 export class BiometricSetupPage {
   private platform = inject(Platform);

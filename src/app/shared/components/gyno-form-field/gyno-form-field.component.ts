@@ -13,10 +13,11 @@ import type { MaskitoOptions } from '@maskito/core';
 })
 export class GynoFormFieldComponent {
   readonly label = input.required<string>();
-  readonly type = input<'text' | 'number' | 'email' | 'tel' | 'textarea'>('text');
+  readonly type = input<'text' | 'number' | 'email' | 'tel' | 'password' | 'textarea'>('text');
   readonly placeholder = input<string>('');
   readonly error = input<string>('');
   readonly icon = input<string>('');
   readonly value = model<string>('');
   readonly mask = input<MaskitoOptions | null>(null);
+  readonly showPassword = model(false);
 }

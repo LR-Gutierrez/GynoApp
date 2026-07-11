@@ -6,6 +6,14 @@ import { IonicModule } from '@ionic/angular';
   templateUrl: './gyno-security-badge.component.html',
   standalone: true,
   imports: [IonicModule],
+  styles: [
+    `
+      :host i[class^='mgc_']::before,
+      :host i[class*=' mgc_']::before {
+        color: inherit !important;
+      }
+    `,
+  ],
 })
 export class GynoSecurityBadgeComponent {
   readonly type = input<'active' | 'locked'>('active');
@@ -17,8 +25,8 @@ export class GynoSecurityBadgeComponent {
       : 'bg-error-container border-error text-error';
   }
 
-  get iconName(): string {
-    return this.type() === 'active' ? 'shield-checkmark-outline' : 'lock-closed-outline';
+  get iconClass(): string {
+    return this.type() === 'active' ? 'mgc_shield_line' : 'mgc_lock_line';
   }
 
   get dotColor(): string {

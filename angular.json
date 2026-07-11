@@ -30,7 +30,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/tailwind.scss", "src/global.scss", "src/theme/variables.scss"],
+            "styles": ["node_modules/mingcute_icon/font/Mingcute.css", "src/tailwind.scss", "src/global.scss", "src/theme/variables.scss"],
             "scripts": []
           },
           "configurations": {

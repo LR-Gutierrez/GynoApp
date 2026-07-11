@@ -38,6 +38,7 @@
     "@maskito/core": "^5.3.1",
     "@maskito/kit": "^5.3.1",
     "ionicons": "^7.0.0",
+    "mingcute_icon": "^2.9.72",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.3.2",
     "tslib": "^2.3.0",

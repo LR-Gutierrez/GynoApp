@@ -7,12 +7,16 @@ const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthPageModule)
   },
   {
+    path: 'home',
+    loadChildren: () => import('./features/home/home.module').then(m => m.HomePageModule)
+  },
+  {
     path: 'ui-kit',
     loadChildren: () => import('./features/ui-kit/ui-kit/ui-kit.module').then(m => m.UiKitPageModule)
   },
   {
     path: '',
-    redirectTo: 'auth',
+    redirectTo: 'home',
     pathMatch: 'full'
   },
 ];

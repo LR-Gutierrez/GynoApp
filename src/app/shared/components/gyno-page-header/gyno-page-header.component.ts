@@ -4,6 +4,14 @@ import { IonicModule } from '@ionic/angular';
 @Component({
   selector: 'gyno-page-header',
   templateUrl: './gyno-page-header.component.html',
+  styles: [
+    `
+      :host i[class^='mgc_']::before,
+      :host i[class*=' mgc_']::before {
+        color: inherit !important;
+      }
+    `,
+  ],
   standalone: true,
   imports: [IonicModule],
 })

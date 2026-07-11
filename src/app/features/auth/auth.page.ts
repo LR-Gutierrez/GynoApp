@@ -1,11 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { IonicModule } from '@ionic/angular';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { GynoFormFieldComponent } from 'src/app/shared/components/gyno-form-field/gyno-form-field.component';
+import { GynoLoadingButtonComponent } from 'src/app/shared/components/gyno-loading-button/gyno-loading-button.component';
 import { GynoSecurityBadgeComponent } from 'src/app/shared/components/gyno-security-badge/gyno-security-badge.component';
-import { GynoLoadingOverlayComponent } from 'src/app/shared/components/gyno-loading-overlay/gyno-loading-overlay.component';
 
 @Component({
   selector: 'app-auth',
@@ -13,11 +11,9 @@ import { GynoLoadingOverlayComponent } from 'src/app/shared/components/gyno-load
   standalone: true,
   imports: [
     IonicModule,
-    CommonModule,
-    FormsModule,
     GynoFormFieldComponent,
+    GynoLoadingButtonComponent,
     GynoSecurityBadgeComponent,
-    GynoLoadingOverlayComponent,
   ],
   animations: [
     trigger('slideIn', [
@@ -29,6 +25,14 @@ import { GynoLoadingOverlayComponent } from 'src/app/shared/components/gyno-load
         animate('150ms ease-in', style({ transform: 'translateX(-16px)', opacity: 0 })),
       ]),
     ]),
+  ],
+  styles: [
+    `
+      :host i[class^='mgc_']::before,
+      :host i[class*=' mgc_']::before {
+        color: inherit !important;
+      }
+    `,
   ],
 })
 export class AuthPage {
@@ -47,10 +51,6 @@ export class AuthPage {
   readonly showNewPassword = signal(false);
   readonly showConfirmPassword = signal(false);
   readonly resetStep = signal<'email' | 'code' | 'new-password' | 'success'>('email');
-
-  togglePassword() {
-    this.showPassword.update(v => !v);
-  }
 
   async login() {
     this.error.set('');

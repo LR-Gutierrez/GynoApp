@@ -310,7 +310,7 @@
       <div class="nav-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
         <h3 class="text-xs font-semibold text-on-surface-variant tracking-widest uppercase mb-2 font-sans">Floating Action Button</h3>
         <div class="fab-container flex items-center justify-center h-25 bg-surface-container-low rounded-lg">
-          <gyno-fab icon="add-outline" (clicked)="onAction('fab')"></gyno-fab>
+          <gyno-fab icon="mgc_add_line" (clicked)="onAction('fab')"></gyno-fab>
         </div>
       </div>
       <div class="nav-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
@@ -349,4 +349,6 @@
       (rowAction)="openActionPopover($event.event, $event.patient.name)"
     ></gyno-patient-table>
   </section>
+  <gyno-filter-popover *ngIf="false" />
+  <gyno-action-popover *ngIf="false" />
 </ion-content>

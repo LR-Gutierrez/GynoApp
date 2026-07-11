@@ -11,6 +11,27 @@
       rows="3"
       [(ngModel)]="value"
     ></ion-textarea>
+  } @else if (type() === 'password') {
+    <div class="relative">
+      <ion-input
+        class="form-input"
+        [type]="showPassword() ? 'text' : 'password'"
+        [placeholder]="placeholder()"
+        [(ngModel)]="value"
+      ></ion-input>
+      <button
+        type="button"
+        class="absolute right-1 top-1/2 -translate-y-1/2 z-10 mt-0 h-8 w-8 border-0 bg-transparent inline-flex items-center justify-center cursor-pointer text-on-surface-variant hover:text-on-surface transition-colors"
+        (click)="showPassword.set(!showPassword())"
+        [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+      >
+        @if (showPassword()) {
+          <i class="not-italic text-lg mgc_eye_close_line"></i>
+        } @else {
+          <i class="not-italic text-lg mgc_eye_line"></i>
+        }
+      </button>
+    </div>
   } @else if (mask()) {
     <input
       class="form-input-native"

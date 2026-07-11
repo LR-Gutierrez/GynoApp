@@ -1,7 +1,7 @@
 <div class="page-header flex items-center gap-2 py-1">
   @if (showBack()) {
     <ion-button fill="clear" class="back-button shrink-0" (click)="back.emit()">
-      <ion-icon name="arrow-back-outline"></ion-icon>
+      <i class="not-italic text-lg mgc_arrow_left_line"></i>
     </ion-button>
   }
   <div class="header-content flex-1 min-w-0">
@@ -12,7 +12,7 @@
   </div>
   @if (showAction()) {
     <ion-button fill="clear" class="header-action shrink-0" (click)="action.emit($event)">
-      <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+      <i class="not-italic text-lg mgc_more_3_line"></i>
     </ion-button>
   }
 </div>
