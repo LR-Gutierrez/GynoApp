@@ -205,6 +205,13 @@
     </div>
 
   </div>
+
+  <gyno-pin-input
+    [visible]="showPinInput()"
+    reason="Desbloquea las fotos de la paciente"
+    (unlock)="onPinUnlocked()"
+    (cancel)="onPinCancelled()"
+  />
 </ion-content>
 
     <!-- Photo viewer overlay -->

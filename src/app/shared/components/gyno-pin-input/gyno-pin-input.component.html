@@ -1,0 +1,72 @@
+@if (visible()) {
+  <div class="pin-enter fixed inset-0 z-[60] bg-black/60 flex items-end justify-center">
+    <!-- Backdrop dismiss -->
+    <div class="absolute inset-0" (click)="onCancel()"></div>
+
+    <!-- Sheet -->
+    <div
+      class="relative w-full max-w-sm md:max-w-md lg:max-w-lg bg-surface-container-lowest rounded-t-2xl px-8 pt-8 pb-10 shadow-2xl"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Handle -->
+      <div class="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-6"></div>
+
+      <!-- Title -->
+      <h3 class="font-sans text-xl font-bold text-on-surface text-center m-0 mb-1 tracking-tight">
+        Ingresa tu PIN
+      </h3>
+      <p class="font-sans text-sm text-on-surface-variant text-center m-0 mb-8">
+        {{ reason() }}
+      </p>
+
+      <!-- PIN dots (tapping focuses the hidden input for keyboard input) -->
+      <div
+        class="relative flex items-center justify-center gap-3 mb-10"
+        (click)="focusInput()"
+      >
+        <!-- Hidden input to capture physical / on-screen keyboard input -->
+        <input
+          #pinInput
+          type="tel"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="6"
+          autocomplete="off"
+          class="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-transparent caret-transparent"
+          (input)="onInput()"
+          (keydown)="onKeydown($event)"
+        />
+        @for (i of [0,1,2,3,4,5]; track i) {
+          <div
+            class="pin-dot relative"
+            [class.filled]="i < pin().length"
+            [class.error]="error()"
+          ></div>
+        }
+      </div>
+
+      <!-- Keypad -->
+      <div class="flex flex-col items-center gap-3">
+        @for (row of [['1','2','3'], ['4','5','6'], ['7','8','9']]; track row) {
+          <div class="flex items-center gap-6">
+            @for (d of row; track d) {
+              <button type="button" class="key-btn" (click)="onDigit(d)">{{ d }}</button>
+            }
+          </div>
+        }
+        <div class="flex items-center gap-6">
+          <div class="key-btn empty"></div>
+          <button type="button" class="key-btn" (click)="onDigit('0')">0</button>
+          <button type="button" class="key-btn backspace" (click)="onBackspace()">
+            <i class="not-italic text-2xl mgc_delete_back_line"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit button -->
+      <ion-button class="btn-primary w-full mt-6" [disabled]="pin().length < 6" (click)="onSubmit()">
+        Confirmar
+      </ion-button>
+    </div>
+  </div>
+}

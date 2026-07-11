@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, HostListener } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -9,6 +9,7 @@ import { GynoAvatarComponent } from 'src/app/shared/components/gyno-avatar/gyno-
 import { GynoPhotoThumbnailComponent } from 'src/app/shared/components/gyno-photo-thumbnail/gyno-photo-thumbnail.component';
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
+import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
 
 interface TimelineConsultation {
   id: string;
@@ -31,6 +32,7 @@ interface TimelineConsultation {
     GynoPhotoThumbnailComponent,
     GynoSectionHeaderComponent,
     GynoBottomNavComponent,
+    GynoPinInputComponent,
   ],
   styles: [
     `
@@ -227,6 +229,21 @@ export class PatientDetailPage {
     this.singlePhotoView.set(false);
     document.body.style.overflow = '';
     if (this.chromeTimer) clearTimeout(this.chromeTimer);
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onViewerKeydown(e: KeyboardEvent) {
+    if (this.selectedIndex() < 0) return;
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      this.prevPhoto();
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      this.nextPhoto();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      this.closePhoto();
+    }
   }
 
   onViewerClick(e: MouseEvent) {
@@ -463,6 +480,26 @@ export class PatientDetailPage {
     // Single tap — let event bubble to onViewerClick for chrome toggle
   }
 
+  readonly showPinInput = signal(false);
+  private pendingPinSrc = '';
+
+  onPinUnlocked() {
+    this.showPinInput.set(false);
+    if (this.pendingPinSrc) {
+      this.openPhoto(this.pendingPinSrc, true);
+      this.pendingPinSrc = '';
+    } else {
+      this.galleryUnlocked.set(true);
+    }
+    this.galleryLoading.set(false);
+  }
+
+  onPinCancelled() {
+    this.showPinInput.set(false);
+    this.pendingPinSrc = '';
+    this.galleryLoading.set(false);
+  }
+
   async unlockSinglePhoto(src: string) {
     if (Capacitor.isNativePlatform()) {
       try {
@@ -474,7 +511,8 @@ export class PatientDetailPage {
         // Usuario canceló o falló la autenticación
       }
     } else {
-      this.openPhoto(src, true);
+      this.pendingPinSrc = src;
+      this.showPinInput.set(true);
     }
   }
 
@@ -495,7 +533,8 @@ export class PatientDetailPage {
         success = false;
       }
     } else {
-      success = true;
+      this.showPinInput.set(true);
+      return;
     }
     this.galleryUnlocked.set(success);
     this.galleryLoading.set(false);

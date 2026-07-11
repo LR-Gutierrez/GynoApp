@@ -50,6 +50,13 @@
         <!-- Unlocked photos -->
         @if (unlocked) {
           <div class="grid grid-cols-3 gap-2 mb-4">
+            <div
+              class="gallery-item aspect-square rounded-xl overflow-hidden border-2 border-dashed border-outline-variant cursor-pointer bg-surface-container-low flex flex-col items-center justify-center gap-1"
+              (click)="takePhoto()"
+            >
+              <gyno-photo-thumbnail type="camera" />
+              <span class="font-sans text-[11px] font-medium text-on-surface-variant">Tomar foto</span>
+            </div>
             @for (photo of consultPhotos; track photo.id) {
               <div
                 class="gallery-item aspect-square rounded-xl overflow-hidden border border-outline-variant cursor-pointer"
@@ -103,6 +110,13 @@
       }
     }
   </div>
+
+  <gyno-pin-input
+    [visible]="showPinInput()"
+    reason="Desbloquea las fotos de esta consulta"
+    (unlock)="onPinUnlocked()"
+    (cancel)="onPinCancelled()"
+  />
 </ion-content>
 
 <!-- Photo viewer overlay -->
