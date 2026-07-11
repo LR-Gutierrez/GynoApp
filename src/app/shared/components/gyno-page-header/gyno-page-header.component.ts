@@ -6,6 +6,10 @@ import { IonicModule } from '@ionic/angular';
   templateUrl: './gyno-page-header.component.html',
   styles: [
     `
+      :host {
+        display: block;
+        padding-top: var(--ion-safe-area-top, 0px);
+      }
       :host i[class^='mgc_']::before,
       :host i[class*=' mgc_']::before {
         color: inherit !important;

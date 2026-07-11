@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -34,6 +35,7 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
   ],
 })
 export class HomePage {
+  private router = inject(Router);
   private popoverController = inject(PopoverController);
 
   private originalPatients: TablePatient[] = [
@@ -68,7 +70,7 @@ export class HomePage {
   }
 
   onRecentCardClicked(patient: RecentPatient) {
-    console.log('Recent card clicked:', patient);
+    this.router.navigate(['/home/patient', patient.id]);
   }
 
   onViewAll() {
@@ -133,7 +135,9 @@ export class HomePage {
     });
     await popover.present();
     const { data } = await popover.onWillDismiss();
-    if (data?.action) {
+    if (data?.action === 'profile') {
+      this.router.navigate(['/home/patient', event.patient.id]);
+    } else if (data?.action) {
       console.log(`Action "${data.action}" for ${event.patient.name}`);
     }
   }

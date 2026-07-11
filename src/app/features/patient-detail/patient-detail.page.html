@@ -1,0 +1,351 @@
+<gyno-page-header
+  [title]="patient.name"
+  [showBack]="true"
+  (back)="goBack()"
+/>
+
+<ion-content>
+  <div class="px-4 pt-4 pb-4">
+
+    <!-- Patient Info Card -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 mb-6">
+      <div class="flex items-start gap-4">
+        <gyno-avatar [name]="patient.name" size="lg" />
+        <div class="flex-1 min-w-0">
+          <h2 class="font-sans text-xl font-bold text-on-surface m-0 mb-1 tracking-tight">
+            {{ patient.name }}
+          </h2>
+          <p class="flex items-center gap-2 font-sans text-sm text-on-surface-variant m-0 mb-1">
+            <i class="not-italic text-base text-primary-600 mgc_phone_call_line shrink-0"></i>
+            <span>{{ patient.phone }}</span>
+          </p>
+          @if (patient.address) {
+            <p class="flex items-center gap-2 font-sans text-sm text-on-surface-variant m-0">
+              <i class="not-italic text-base text-primary-600 mgc_location_line shrink-0"></i>
+              <span>{{ patient.address }}</span>
+            </p>
+          }
+        </div>
+      </div>
+      <!-- Badges -->
+      <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-outline-variant">
+        <span class="inline-flex items-center gap-1.5 font-sans text-xs font-semibold bg-primary-fixed text-primary-900 px-3 py-1.5 rounded-full">
+          <i class="not-italic mgc_cake_line"></i>
+          {{ patient.age }} años
+        </span>
+        @if (patient.alergias) {
+          <span class="inline-flex items-center gap-1.5 font-sans text-xs font-semibold bg-error-container text-error px-3 py-1.5 rounded-full">
+            <i class="not-italic mgc_close_circle_fill"></i>
+            {{ patient.alergias }}
+          </span>
+        }
+        @if (patient.factorRiesgo) {
+          <span class="inline-flex items-center gap-1.5 font-sans text-xs font-semibold bg-[#fff4e5] text-[#b93815] px-3 py-1.5 rounded-full">
+            <i class="not-italic mgc_alert_line"></i>
+            {{ patient.factorRiesgo }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-3 mb-8">
+      <ion-button class="btn-primary flex-1" (click)="newConsultation()">
+        <i class="not-italic text-lg mgc_plus_line" slot="start"></i>
+        Nueva Consulta
+      </ion-button>
+      <ion-button fill="outline" class="btn-outline-primary w-12 h-12 shrink-0" (click)="callPatient()">
+        <i class="not-italic text-lg mgc_phone_call_line"></i>
+      </ion-button>
+      <ion-button fill="outline" class="btn-outline-primary w-12 h-12 shrink-0" (click)="sendWhatsApp()">
+        <i class="not-italic text-lg text-[#25D366] mgc_whatsapp_line"></i>
+      </ion-button>
+    </div>
+
+    <!-- Consultation Timeline Section -->
+    <div class="mb-8">
+      <gyno-section-header
+        title="Historial de Consultas"
+        icon="mgc_history_anticlockwise_line"
+      />
+
+      <div class="relative pl-8">
+        <!-- Vertical line -->
+        <div class="absolute left-[11px] top-2 bottom-2 w-0.5 bg-outline-variant/60"></div>
+
+        @for (consultation of consultations; track consultation.id; let last = $last) {
+          <div class="relative pb-6 last:pb-0">
+            <!-- Timeline dot -->
+            <div class="absolute -left-6 top-1.5 w-[9px] h-[9px] rounded-full bg-primary-600 border-2 border-surface-container-lowest ring-2 ring-primary-100"></div>
+
+            <!-- Card -->
+            <div
+              class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 shadow-sm cursor-pointer active:bg-surface-container-low transition-colors duration-150"
+              (click)="navigateToConsultation(consultation.id)"
+            >
+              <!-- Header row -->
+              <div class="flex items-center justify-between mb-3">
+                <span class="inline-flex items-center font-sans text-xs font-bold text-primary-900 bg-primary-fixed px-3 py-1 rounded-full tracking-wide">
+                  <i class="not-italic text-sm mr-1.5 mgc_calendar_line"></i>
+                  {{ consultation.dateLabel }}
+                </span>
+                <button
+                  type="button"
+                  class="w-8 h-8 border-0 bg-transparent text-on-surface-variant rounded-full inline-flex items-center justify-center cursor-pointer hover:bg-surface-container-low transition-colors"
+                  aria-label="Opciones"
+                  (click)="$event.stopPropagation()"
+                >
+                  <i class="not-italic text-lg mgc_more_2_line"></i>
+                </button>
+              </div>
+              <!-- Body -->
+              <h4 class="font-sans text-base font-semibold text-on-surface m-0 mb-1.5">
+                {{ consultation.title }}
+              </h4>
+              <p class="font-sans text-sm text-on-surface-variant m-0 leading-relaxed line-clamp-3">
+                {{ consultation.description }}
+              </p>
+              <div class="flex items-center justify-end mt-3">
+                <span class="font-sans text-xs font-medium text-primary-600 inline-flex items-center gap-1">
+                  Ver detalle
+                  <i class="not-italic text-sm mgc_arrow_right_line"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Secure Gallery Section -->
+    <div class="mb-6">
+      <div class="flex items-baseline justify-between mb-5 pb-3 border-b-2 border-surface-container-high">
+        <h2 class="flex items-center gap-2 font-sans text-xl !font-semibold text-on-surface tracking-tight m-0">
+          <i class="not-italic text-[22px] leading-none text-primary mgc_image_line"></i>
+          Galería Segura
+        </h2>
+      </div>
+
+      @let unlocked = galleryUnlocked();
+      @let loading = galleryLoading();
+
+      <!-- Loading skeleton -->
+      @if (loading) {
+        <div class="grid grid-cols-3 gap-2 mb-4">
+          @for (_ of [1,2,3,4,5,6]; track $index) {
+            <div class="skeleton-item aspect-square rounded-xl bg-surface-container-high overflow-hidden">
+              <div class="skeleton-shimmer w-full h-full"></div>
+            </div>
+          }
+        </div>
+        <ion-button disabled class="btn-primary w-full opacity-50">
+          <i class="not-italic text-lg mgc_fingerprint_line" slot="start"></i>
+          Verificando…
+        </ion-button>
+      }
+
+      <!-- Unlocked photos -->
+      @if (unlocked) {
+        <div class="grid grid-cols-3 gap-2 mb-4">
+          @for (photo of encryptedPhotos; track photo.id) {
+            <div
+              class="gallery-item aspect-square rounded-xl overflow-hidden border border-outline-variant cursor-pointer"
+              [style.animation-delay]="0.08 * $index + 's'"
+              (click)="openPhoto(photo.src)"
+            >
+              <img
+                [src]="photo.src"
+                alt="Foto de consulta"
+                class="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+          }
+        </div>
+        <ion-button fill="outline" class="btn-outline-primary w-full" (click)="lockGallery()">
+          <i class="not-italic text-lg mgc_lock_line" slot="start"></i>
+          Bloquear galería
+        </ion-button>
+      }
+
+      <!-- Locked encrypted (only visible when not loading and not unlocked) -->
+      @if (!unlocked && !loading) {
+        <div class="grid grid-cols-3 gap-2 mb-4">
+          @for (photo of encryptedPhotos; track photo.id) {
+            <div
+              class="gallery-item aspect-square cursor-pointer"
+              [style.animation-delay]="0.08 * $index + 's'"
+              (click)="unlockSinglePhoto(photo.src)"
+            >
+              <gyno-photo-thumbnail
+                type="encrypted"
+                [src]="photo.src"
+                size="md"
+              />
+            </div>
+          }
+        </div>
+        <ion-button class="btn-primary w-full" (click)="unlockGallery()">
+          <i class="not-italic text-lg mgc_fingerprint_line" slot="start"></i>
+          Ver fotos
+        </ion-button>
+      }
+    </div>
+
+    <!-- Encryption info -->
+    <div class="bg-surface-container-low rounded-xl p-4 mb-8 flex items-start gap-3">
+      <i class="not-italic text-xl text-primary-600 mt-0.5 shrink-0 mgc_shield_line"></i>
+      <div>
+        <p class="font-sans text-xs text-on-surface-variant m-0 leading-relaxed">
+          Todos los archivos están cifrados bajo la norma HIPAA y solo son visibles para
+          el personal médico autorizado. Las imágenes se almacenan localmente en el
+          dispositivo con cifrado de extremo a extremo.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
+
+    <!-- Photo viewer overlay -->
+    @let viewerIdx = selectedIndex();
+    @if (viewerIdx >= 0) {
+      <div
+        class="viewer-enter fixed inset-0 z-50 bg-black select-none"
+        (click)="onViewerClick($event)"
+        (touchstart)="onDragStart($event)"
+        (touchmove)="onDragMove($event)"
+        (touchend)="onDragEnd($event)"
+        (mousedown)="onDragStart($event)"
+        (mousemove)="onDragMove($event)"
+        (mouseup)="onDragEnd($event)"
+        style="touch-action: none"
+      >
+        <!-- Chrome: Top bar -->
+        <div
+          class="chrome-area absolute top-0 inset-x-0 z-20"
+          [class.chrome-visible]="chromeVisible()"
+          [class.chrome-hidden]="!chromeVisible()"
+        >
+          <div class="flex items-center justify-between px-5 pb-3"
+               style="padding-top: max(env(safe-area-inset-top), 12px)">
+            <span class="font-sans text-sm font-medium tracking-wide text-white/80">
+              {{ singlePhotoView() ? '1 / 1' : viewerIdx + 1 + ' / ' + photoCount }}
+            </span>
+            <button
+              type="button"
+              class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md text-white inline-flex items-center justify-center border-0 cursor-pointer active:bg-white/30 transition-colors duration-150"
+              (click)="closePhoto()"
+              aria-label="Cerrar"
+            >
+              <i class="not-italic text-xl mgc_close_line"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Side nav buttons (chrome) — hidden in single-photo mode -->
+        @if (!singlePhotoView()) {
+          <div
+            class="chrome-area absolute inset-x-0 top-0 bottom-0 flex items-center justify-between pointer-events-none z-10 px-3"
+            [class.chrome-visible]="chromeVisible()"
+            [class.chrome-hidden]="!chromeVisible()"
+          >
+            @if (viewerIdx > 0) {
+              <button
+                type="button"
+                class="pointer-events-auto w-10 h-10 rounded-full bg-white/15 backdrop-blur-md text-white inline-flex items-center justify-center border-0 cursor-pointer active:bg-white/30 transition-colors duration-150"
+                (click)="prevPhoto($event)"
+                aria-label="Anterior"
+              >
+                <i class="not-italic text-xl mgc_arrow_left_line"></i>
+              </button>
+            } @else {
+              <div></div>
+            }
+            @if (viewerIdx < photoCount - 1) {
+              <button
+                type="button"
+                class="pointer-events-auto w-10 h-10 rounded-full bg-white/15 backdrop-blur-md text-white inline-flex items-center justify-center border-0 cursor-pointer active:bg-white/30 transition-colors duration-150"
+                (click)="nextPhoto($event)"
+                aria-label="Siguiente"
+              >
+                <i class="not-italic text-xl mgc_arrow_right_line"></i>
+              </button>
+            } @else {
+              <div></div>
+            }
+          </div>
+        }
+
+        <!-- Image -->
+        <div
+          class="w-full h-full flex items-center justify-center overflow-auto relative"
+        >
+          @if (imageLoaded()) {
+            <!-- Current photo -->
+            <img
+              [src]="encryptedPhotos[viewerIdx].src"
+              alt="Foto ampliada"
+              class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
+              draggable="false"
+              (click)="onPhotoClick($event)"
+              [style.transform]="'translateX(' + viewerDragX() + 'px) scale(' + viewerZoom() + ')'"
+              [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
+              style="transform-origin: center center; will-change: transform"
+            />
+
+            <!-- Target photo (shown during swipe) -->
+            @let targetIdx = swipeTargetIdx();
+            @if (targetIdx >= 0) {
+              @let offset = targetIdx > viewerIdx ? viewWidth : -viewWidth;
+              <img
+                [src]="encryptedPhotos[targetIdx].src"
+                alt=""
+                class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
+                draggable="false"
+                [style.transform]="'translateX(' + (viewerDragX() + offset) + 'px) scale(1)'"
+                [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
+                style="transform-origin: center center; will-change: transform"
+              />
+            }
+          } @else {
+            <div class="flex flex-col items-center gap-3 text-white/30">
+              <i class="not-italic text-4xl mgc_image_line"></i>
+              <span class="font-sans text-xs">Cargando…</span>
+            </div>
+          }
+          <img
+            [src]="encryptedPhotos[viewerIdx].src"
+            alt=""
+            class="hidden"
+            (load)="onImageLoad()"
+            (error)="onImageLoad()"
+          />
+        </div>
+
+        <!-- Chrome: Bottom dots — hidden in single-photo mode -->
+        @if (!singlePhotoView()) {
+          <div
+            class="chrome-area absolute bottom-0 inset-x-0 z-20"
+            [class.chrome-visible]="chromeVisible()"
+            [class.chrome-hidden]="!chromeVisible()"
+          >
+            <div class="flex items-center justify-center gap-1.5 pt-4"
+                 style="padding-bottom: max(env(safe-area-inset-bottom), 16px)">
+              @for (photo of encryptedPhotos; track photo.id; let i = $index) {
+                <button
+                  type="button"
+                  class="dot w-1.5 h-1.5 rounded-full border-0 cursor-pointer transition-all duration-200"
+                  [class.dot-active]="i === viewerIdx"
+                  [class.dot-inactive]="i !== viewerIdx"
+                  (click)="selectedIndex.set(i); showChromeTemporarily()"
+                  [attr.aria-label]="'Foto ' + (i + 1)"
+                ></button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+<gyno-bottom-nav />

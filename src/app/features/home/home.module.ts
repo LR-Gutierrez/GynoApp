@@ -5,6 +5,8 @@ import { IonicModule } from '@ionic/angular';
 import { HomePageRoutingModule } from './home-routing.module';
 import { HomePage } from './home.page';
 import { PlaceholderPage } from './placeholder.page';
+import { PatientDetailPage } from '../patient-detail/patient-detail.page';
+import { ConsultationDetailPage } from '../consultation-detail/consultation-detail.page';
 
 @NgModule({
   imports: [
@@ -14,6 +16,8 @@ import { PlaceholderPage } from './placeholder.page';
     HomePageRoutingModule,
     HomePage,
     PlaceholderPage,
+    PatientDetailPage,
+    ConsultationDetailPage,
   ],
   declarations: [],
 })
