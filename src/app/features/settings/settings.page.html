@@ -60,7 +60,7 @@
         <button
           type="button"
           class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
-          (click)="changePin()"
+          (click)="openChangePin()"
         >
           <div
             class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
@@ -99,7 +99,7 @@
           <div class="flex items-center justify-center shrink-0 w-6">
             <ion-toggle
               [checked]="biometricEnabled()"
-              (ionChange)="biometricEnabled.set($event.detail.checked)"
+              (ionChange)="toggleBiometric($event.detail.checked)"
               color="primary"
               style="
                 --padding-start: 0;
@@ -353,6 +353,22 @@
   [profile]="profileService.profile()"
   (saveProfile)="onSaveProfile($event)"
   (cancelProfile)="onCancelEdit()"
+/>
+
+<gyno-pin-input
+  [visible]="showChangePin()"
+  [title]="changePinTitle"
+  [subtitle]="changePinSubtitle"
+  [error]="pinError()"
+  [showBack]="changePinShowBack"
+  [showConfirm]="changePinShowConfirm"
+  confirmLabel="Cambiar PIN"
+  [confirmDisabled]="pinLoading()"
+  [resetKey]="(changePinStep() === 'old' ? 0 : changePinStep() === 'new' ? 1 : 2) + resetPinFlag()"
+  (pinComplete)="onPinComplete($event)"
+  (back)="onPinBack()"
+  (confirm)="onPinConfirm()"
+  (cancel)="onPinCancel()"
 />
 
 <gyno-bottom-nav />

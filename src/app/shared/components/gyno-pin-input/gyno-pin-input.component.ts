@@ -1,6 +1,7 @@
 import { Component, input, output, signal, computed, ViewChild, ElementRef, effect } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 @Component({
   selector: 'gyno-pin-input',
@@ -26,6 +27,7 @@ import { CommonModule } from '@angular/common';
         border-color: var(--color-primary);
         transform: scale(1.1);
       }
+
       .pin-dot.error {
         border-color: var(--color-error);
         background: transparent;
@@ -75,7 +77,6 @@ import { CommonModule } from '@angular/common';
       .backdrop-enter {
         animation: backdropFade 0.3s ease-out;
       }
-
       @keyframes backdropFade {
         from { opacity: 0; }
         to { opacity: 1; }
@@ -84,38 +85,38 @@ import { CommonModule } from '@angular/common';
       .sheet-enter {
         animation: sheetSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
       }
-
       @keyframes sheetSlideUp {
         from { transform: translateY(100%); }
         to { transform: translateY(0); }
       }
 
-      .is-dragging {
-        transition: none !important;
-      }
-
-      .is-closing {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      }
-
-      .is-snapping {
-        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      }
+      .is-dragging { transition: none !important; }
+      .is-closing { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+      .is-snapping { transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important; }
     `,
   ],
 })
 export class GynoPinInputComponent {
   readonly visible = input(false);
-  readonly correctPin = input('000000');
-  readonly reason = input('Desbloquea las fotos');
+  readonly title = input('Ingresa tu PIN');
+  readonly subtitle = input('');
+  readonly error = input('');
+  readonly showBack = input(false);
+  readonly showConfirm = input(false);
+  readonly confirmLabel = input('Confirmar');
+  readonly confirmDisabled = input(false);
+  readonly pinLength = input(6);
+  readonly resetKey = input(0);
 
-  readonly unlock = output<void>();
+  readonly pinChange = output<string>();
+  readonly pinComplete = output<string>();
+  readonly confirm = output<void>();
+  readonly back = output<void>();
   readonly cancel = output<void>();
 
   @ViewChild('pinInput') pinInputRef!: ElementRef<HTMLInputElement>;
 
   readonly pin = signal<string[]>([]);
-  readonly error = signal(false);
 
   readonly dragOffsetY = signal(0);
   readonly isDragging = signal(false);
@@ -123,8 +124,8 @@ export class GynoPinInputComponent {
   readonly isSnapping = signal(false);
 
   private focusTimer: ReturnType<typeof setTimeout> | null = null;
+  private holdTimer: ReturnType<typeof setInterval> | null = null;
   private dragStartY = 0;
-  private currentDragY = 0;
 
   readonly sheetTransform = computed(() => {
     if (this.isClosing()) return 'translateY(100%)';
@@ -135,25 +136,47 @@ export class GynoPinInputComponent {
   constructor() {
     effect(() => {
       if (this.visible()) {
-        this.reset();
+        this.clearPin();
         this.isClosing.set(false);
         this.isSnapping.set(false);
         this.isDragging.set(false);
         this.dragOffsetY.set(0);
-        this.focusTimer = setTimeout(() => this.pinInputRef?.nativeElement.focus(), 200);
       }
+    });
+
+    effect(() => {
+      this.resetKey();
+      this.clearPin();
     });
   }
 
-  reset() {
+  private clearPin() {
     this.pin.set([]);
-    this.error.set(false);
+    this.pushToInput('');
   }
+
+  private close() {
+    if (this.focusTimer) clearTimeout(this.focusTimer);
+    this.clearPin();
+    this.cancel.emit();
+  }
+
+  resumeFocus() {
+    if (this.focusTimer) clearTimeout(this.focusTimer);
+    this.focusTimer = setTimeout(() => this.pinInputRef?.nativeElement.focus(), 200);
+  }
+
+  onCancel() {
+    if (this.isDragging() || this.isSnapping()) return;
+    this.isClosing.set(true);
+    setTimeout(() => this.close(), 300);
+  }
+
+  // --- Drag to dismiss ---
 
   onHandlePointerDown(e: MouseEvent | TouchEvent) {
     e.preventDefault();
     this.dragStartY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    this.currentDragY = this.dragStartY;
     this.isDragging.set(true);
     this.dragOffsetY.set(0);
     this.isClosing.set(false);
@@ -165,7 +188,6 @@ export class GynoPinInputComponent {
 
   private onPointerMove = (e: MouseEvent | TouchEvent) => {
     const y = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    this.currentDragY = y;
     const delta = y - this.dragStartY;
     if (delta > 0) {
       this.dragOffsetY.set(Math.min(delta, window.innerHeight * 0.6));
@@ -179,7 +201,6 @@ export class GynoPinInputComponent {
     document.removeEventListener('touchend', this.onPointerUp);
 
     const offset = this.dragOffsetY();
-
     if (offset > 100) {
       this.isClosing.set(true);
       setTimeout(() => this.close(), 300);
@@ -195,23 +216,51 @@ export class GynoPinInputComponent {
     }
   };
 
-  private close() {
-    if (this.focusTimer) clearTimeout(this.focusTimer);
-    this.reset();
-    this.pushToInput('');
-    this.cancel.emit();
+  // --- PIN input ---
+
+  onDigit(d: string) {
+    const current = this.getPinString();
+    if (current.length >= this.pinLength()) return;
+    Haptics.impact({ style: ImpactStyle.Light });
+    const next = current + d;
+    this.pushToInput(next);
+    this.pin.set(next.split(''));
+    this.pinChange.emit(next);
+    if (next.length === this.pinLength()) {
+      this.pinComplete.emit(next);
+    }
   }
 
-  onCancel() {
-    if (this.isDragging() || this.isSnapping()) return;
-    this.isClosing.set(true);
-    setTimeout(() => this.close(), 300);
+  onBackspace() {
+    const current = this.getPinString();
+    if (current.length === 0) return;
+    Haptics.impact({ style: ImpactStyle.Light });
+    const next = current.slice(0, -1);
+    this.pushToInput(next);
+    this.pin.set(next.split(''));
+    this.pinChange.emit(next);
   }
 
-  private fromInput() {
+  onBackspaceHoldStart() {
+    this.holdTimer = setInterval(() => {
+      if (this.getPinString().length === 0) {
+        this.onBackspaceHoldEnd();
+        return;
+      }
+      this.onBackspace();
+    }, 80);
+  }
+
+  onBackspaceHoldEnd() {
+    if (this.holdTimer) {
+      clearInterval(this.holdTimer);
+      this.holdTimer = null;
+    }
+  }
+
+  private getPinString(): string {
     const el = this.pinInputRef?.nativeElement;
-    if (!el) return '';
-    return el.value.replace(/\D/g, '').slice(0, 6);
+    return el ? el.value.replace(/\D/g, '').slice(0, this.pinLength()) : '';
   }
 
   private pushToInput(val: string) {
@@ -219,62 +268,8 @@ export class GynoPinInputComponent {
     if (el) el.value = val;
   }
 
-  onInput() {
-    const val = this.fromInput();
-    this.pushToInput(val);
-    this.error.set(false);
-    this.pin.set(val.split(''));
-  }
-
-  onKeydown(e: KeyboardEvent) {
-    if (e.key === 'Backspace' || e.key === 'Delete') {
-      e.preventDefault();
-      const val = this.fromInput().slice(0, -1);
-      this.pushToInput(val);
-      this.pin.set(val.split(''));
-      this.error.set(false);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      this.onSubmit();
-    } else if (/^[0-9]$/.test(e.key)) {
-      // Let the input event handle it
-    }
-  }
-
-  onDigit(d: string) {
-    const current = this.fromInput();
-    if (current.length >= 6) return;
-    const next = current + d;
-    this.pushToInput(next);
-    this.error.set(false);
-    this.pin.set(next.split(''));
-    this.pinInputRef?.nativeElement.focus();
-  }
-
-  onBackspace() {
-    const current = this.fromInput();
-    const next = current.slice(0, -1);
-    this.pushToInput(next);
-    this.pin.set(next.split(''));
-    this.error.set(false);
-    this.pinInputRef?.nativeElement.focus();
-  }
-
-  onSubmit() {
-    const val = this.fromInput();
-    if (val.length === 6 && val === this.correctPin()) {
-      this.unlock.emit();
-      this.reset();
-      this.pushToInput('');
-    } else if (val.length === 6) {
-      this.error.set(true);
-      setTimeout(() => {
-        this.pin.set([]);
-        this.error.set(false);
-        this.pushToInput('');
-      }, 600);
-      this.pinInputRef?.nativeElement.focus();
-    }
+  onBackClick() {
+    this.back.emit();
   }
 
   focusInput() {
