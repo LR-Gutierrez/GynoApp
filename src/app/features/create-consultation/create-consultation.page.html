@@ -1,0 +1,175 @@
+<gyno-page-header
+  title="Nueva Consulta"
+  [showBack]="true"
+  (back)="goBack()"
+/>
+
+<ion-content>
+  <div class="px-4 pt-4 pb-6">
+
+    <!-- Patient Info Summary -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-sans text-sm font-bold shrink-0">
+          {{ patient.name.charAt(0) }}{{ patient.name.split(' ').pop()?.charAt(0) }}
+        </div>
+        <div class="min-w-0">
+          <h3 class="font-sans text-base font-semibold text-on-surface m-0 truncate">
+            {{ patient.name }}
+          </h3>
+          <p class="font-sans text-sm text-on-surface-variant m-0">
+            <i class="not-italic text-sm mgc_cake_line mr-1"></i>
+            {{ patient.age }} años · {{ patient.phone }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 mb-6">
+      <h2 class="font-sans text-base font-semibold text-on-surface m-0 mb-5 flex items-center gap-2">
+        <i class="not-italic text-lg text-primary-600 mgc_edit_line"></i>
+        Datos de la consulta
+      </h2>
+
+      <!-- Date -->
+      <gyno-date-picker
+        label="Fecha de la consulta"
+        [(value)]="date"
+      />
+
+      <!-- Motivo (required) -->
+      <gyno-form-field
+        label="Motivo de consulta"
+        placeholder="Ej: Control de rutina"
+        icon="mgc_heart_pulse_line"
+        [value]="motivo()"
+        (valueChange)="motivo.set($event); motivoError.set('')"
+        [error]="motivoError()"
+      />
+
+      <!-- Diagnóstico -->
+      <gyno-form-field
+        label="Diagnóstico"
+        type="textarea"
+        placeholder="Describe el diagnóstico de la paciente..."
+        icon="mgc_stethoscope_line"
+        [value]="diagnostico()"
+        (valueChange)="diagnostico.set($event)"
+      />
+
+      <!-- Tratamiento -->
+      <gyno-form-field
+        label="Tratamiento"
+        type="textarea"
+        placeholder="Describe el tratamiento indicado..."
+        icon="mgc_medicine_bottle_line"
+        [value]="tratamiento()"
+        (valueChange)="tratamiento.set($event)"
+      />
+
+      <!-- Receta -->
+      <gyno-form-field
+        label="Receta / Medicamentos"
+        type="textarea"
+        placeholder="Indicaciones médicas y medicamentos recetados..."
+        icon="mgc_donate_line"
+        [value]="receta()"
+        (valueChange)="receta.set($event)"
+      />
+
+      <!-- Exámenes -->
+      <gyno-form-field
+        label="Exámenes solicitados"
+        type="textarea"
+        placeholder="Laboratorios, ecografías, estudios complementarios..."
+        icon="mgc_flask_line"
+        [value]="examenes()"
+        (valueChange)="examenes.set($event)"
+      />
+
+      <!-- Notas -->
+      <gyno-form-field
+        label="Notas adicionales"
+        type="textarea"
+        placeholder="Cualquier información relevante..."
+        icon="mgc_file_text_line"
+        [value]="notas()"
+        (valueChange)="notas.set($event)"
+      />
+    </div>
+
+    <!-- Media Section -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 mb-6">
+      <h2 class="font-sans text-base font-semibold text-on-surface m-0 mb-4 flex items-center gap-2">
+        <i class="not-italic text-lg text-primary-600 mgc_gallery_line"></i>
+        Fotos y videos
+      </h2>
+
+      @let currentMedia = media();
+      <div class="grid grid-cols-3 gap-2">
+        <!-- Add media button -->
+        <div
+          class="aspect-square rounded-xl overflow-hidden border-2 border-dashed border-outline-variant cursor-pointer bg-surface-container-low flex flex-col items-center justify-center gap-1 hover:bg-surface-container transition-colors"
+          (click)="addMedia()"
+        >
+          <i class="not-italic text-2xl text-outline mgc_upload_2_line"></i>
+          <span class="font-sans text-[11px] font-medium text-on-surface-variant">Agregar</span>
+        </div>
+
+        @for (item of currentMedia; track item.id) {
+          <div class="relative aspect-square rounded-xl overflow-hidden border border-outline-variant group"
+            [style.animation-delay]="0.08 * $index + 's'"
+          >
+            @if (item.type === 'video') {
+              <video
+                [src]="item.src"
+                class="w-full h-full object-cover"
+                muted
+                preload="metadata"
+              ></video>
+              <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div class="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+                  <i class="not-italic text-lg text-white mgc_play_fill"></i>
+                </div>
+              </div>
+            } @else {
+              <img [src]="item.src" alt="Foto" class="w-full h-full object-cover" loading="lazy" />
+            }
+            <button
+              type="button"
+              class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center border-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              (click)="removeMedia(item.id)"
+              aria-label="Eliminar"
+            >
+              <i class="not-italic text-sm mgc_close_line"></i>
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (currentMedia.length > 0) {
+        <p class="font-sans text-xs text-on-surface-variant mt-3 m-0">
+          {{ currentMedia.length }} {{ currentMedia.length === 1 ? 'archivo seleccionado' : 'archivos seleccionados' }}
+        </p>
+      }
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col gap-3">
+      <gyno-loading-button
+        label="Guardar Consulta"
+        loadingLabel="Guardando..."
+        icon="mgc_save_line"
+        [isLoading]="saving()"
+        (clicked)="save()"
+      />
+
+      <ion-button fill="outline" class="btn-outline-primary" (click)="goBack()">
+        <i class="not-italic text-lg mgc_close_line" slot="start"></i>
+        Cancelar
+      </ion-button>
+    </div>
+
+  </div>
+</ion-content>

@@ -1,0 +1,172 @@
+<gyno-page-header
+  title="Agendar Cita"
+  [showBack]="true"
+  (back)="goBack()"
+/>
+
+<ion-content>
+  <div class="px-3 sm:px-4 pt-3 sm:pt-4 pb-6">
+
+    <!-- Patient selector -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 sm:p-5 mb-5">
+      <h2 class="font-sans text-sm sm:text-base font-semibold text-on-surface m-0 mb-4 flex items-center gap-2">
+        <i class="not-italic text-lg text-primary-600 mgc_user_add_line"></i>
+        Paciente
+      </h2>
+
+      @let selected = selectedPatient();
+      @if (selected) {
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-primary-fixed/40 border border-primary-fixed-dim">
+          <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-sans text-sm font-bold shrink-0">
+            {{ selected.name.charAt(0) }}{{ selected.name.split(' ').pop()?.charAt(0) }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-semibold text-on-surface m-0 truncate">{{ selected.name }}</p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">{{ selected.age }} años · {{ selected.phone }}</p>
+          </div>
+          <button
+            type="button"
+            class="w-8 h-8 rounded-full border-0 bg-transparent text-on-surface-variant hover:text-error hover:bg-error-container/40 flex items-center justify-center cursor-pointer transition-colors shrink-0"
+            (click)="selectedPatientId.set(''); showPatientList.set(false)"
+            aria-label="Cambiar paciente"
+          >
+            <i class="not-italic text-lg mgc_close_line"></i>
+          </button>
+        </div>
+      }
+
+      @if (!selected || showPatientList()) {
+        <div class="relative">
+          <div class="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-outline-variant bg-surface-container-low mb-3 focus-within:border-primary-600 transition-colors">
+            <i class="not-italic text-lg text-outline mgc_search_line shrink-0"></i>
+            <input
+              type="text"
+              placeholder="Buscar paciente por nombre o teléfono..."
+              class="flex-1 border-0 bg-transparent outline-none font-sans text-sm text-on-surface placeholder:text-outline"
+              [value]="searchQuery()"
+              (input)="searchQuery.set(($any($event.target)).value)"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1 max-h-64 overflow-y-auto">
+            @for (p of filteredPatients(); track p.id) {
+              <button
+                type="button"
+                class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent hover:bg-surface-container-low cursor-pointer text-left transition-colors"
+                [class.bg-primary-fixed/40]="p.id === selectedPatientId()"
+                (click)="selectPatient(p.id)"
+              >
+                <div class="w-9 h-9 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-sans text-xs font-bold shrink-0">
+                  {{ p.name.charAt(0) }}{{ p.name.split(' ').pop()?.charAt(0) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-sans text-sm font-semibold text-on-surface m-0 truncate">{{ p.name }}</p>
+                  <p class="font-sans text-xs text-on-surface-variant m-0">{{ p.age }} años · {{ p.phone }}</p>
+                </div>
+                @if (p.id === selectedPatientId()) {
+                  <i class="not-italic text-lg text-primary-600 mgc_check_line shrink-0"></i>
+                }
+              </button>
+            }
+            @if (filteredPatients().length === 0) {
+              <p class="font-sans text-sm text-on-surface-variant text-center py-4 m-0">
+                No se encontraron pacientes
+              </p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Appointment details -->
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 sm:p-5 mb-6">
+      <h2 class="font-sans text-sm sm:text-base font-semibold text-on-surface m-0 mb-5 flex items-center gap-2">
+        <i class="not-italic text-lg text-primary-600 mgc_calendar_add_line"></i>
+        Detalles de la cita
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <gyno-date-picker
+          label="Fecha"
+          [(value)]="date"
+        />
+
+        <div class="form-field">
+          <label class="form-label font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1.5 block">
+            Hora
+          </label>
+          <div class="relative">
+            <div
+              class="form-input-native flex items-center cursor-pointer"
+              (click)="openTimePicker()"
+            >
+              <i class="not-italic text-lg text-outline mr-2 mgc_time_line shrink-0"></i>
+              <span class="flex-1 font-sans text-sm text-on-surface">{{ time() }}</span>
+              <i class="not-italic text-lg text-outline shrink-0 mgc_arrow_down_line"></i>
+            </div>
+
+            @if (showTimePicker()) {
+              <div
+                class="absolute top-full left-0 right-0 z-50 mt-1 bg-surface-container-lowest rounded-lg border border-outline-variant shadow-lg p-2 select-none"
+                (click)="$event.stopPropagation()"
+              >
+                <ion-picker class="!w-full">
+                  <ion-picker-column
+                    [value]="time().split(':')[0]"
+                    (ionChange)="onHourChange($event)"
+                  >
+                    @for (h of hours; track h) {
+                      <ion-picker-column-option [value]="h">{{ h }}</ion-picker-column-option>
+                    }
+                  </ion-picker-column>
+                  <ion-picker-column
+                    [value]="time().split(':')[1]"
+                    (ionChange)="onMinuteChange($event)"
+                  >
+                    @for (m of minutes; track m) {
+                      <ion-picker-column-option [value]="m">{{ m }}</ion-picker-column-option>
+                    }
+                  </ion-picker-column>
+                </ion-picker>
+                <ion-button
+                  expand="block"
+                  class="btn-primary-gyno"
+                  (click)="showTimePicker.set(false)"
+                >
+                  Listo
+                </ion-button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <gyno-form-field
+        label="Motivo de la cita"
+        placeholder="Ej: Control de rutina"
+        icon="mgc_heart_pulse_line"
+        [value]="reason()"
+        (valueChange)="reason.set($event); reasonError.set('')"
+        [error]="reasonError()"
+      />
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col gap-3">
+      <gyno-loading-button
+        label="Agendar Cita"
+        loadingLabel="Agendando..."
+        icon="mgc_calendar_check_line"
+        [isLoading]="saving()"
+        (clicked)="save()"
+      />
+
+      <ion-button fill="outline" class="btn-outline-primary" (click)="goBack()">
+        <i class="not-italic text-lg mgc_close_line" slot="start"></i>
+        Cancelar
+      </ion-button>
+    </div>
+
+  </div>
+
+</ion-content>

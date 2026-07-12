@@ -1,0 +1,113 @@
+<div class="form-field mb-4">
+  @if (label()) {
+    <label class="form-label font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1.5 block">
+      {{ label() }}
+    </label>
+  }
+
+  <div class="relative">
+    <div
+      class="form-input-native flex items-center cursor-pointer"
+      [class.border-primary]="open()"
+      (click)="toggle()"
+    >
+      <i class="not-italic text-lg text-outline mr-2 mgc_calendar_line shrink-0"></i>
+      @if (displayText()) {
+        <span class="font-sans text-sm text-on-surface flex-1">{{ displayText() }}</span>
+      } @else {
+        <span class="font-sans text-sm text-outline flex-1">{{ placeholder() }}</span>
+      }
+      <i
+        class="not-italic text-lg text-outline transition-transform duration-200 shrink-0"
+        [class.rotate-180]="open()"
+        mgc_arrow_down_line
+      ></i>
+    </div>
+
+    @if (open()) {
+      <div
+        class="absolute top-full left-0 right-0 z-50 mt-1 bg-surface-container-lowest rounded-lg border border-outline-variant shadow-lg p-3 select-none"
+        (click)="$event.stopPropagation()"
+      >
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-0.5">
+            <button
+              type="button"
+              class="w-7 h-7 rounded-full border-0 bg-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center cursor-pointer transition-colors"
+              (click)="prevYear()"
+              aria-label="Año anterior"
+            >
+              <i class="not-italic text-base mgc_arrow_to_left_line"></i>
+            </button>
+            <button
+              type="button"
+              class="w-7 h-7 rounded-full border-0 bg-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center cursor-pointer transition-colors"
+              (click)="prevMonth()"
+              aria-label="Mes anterior"
+            >
+              <i class="not-italic text-base mgc_arrow_left_line"></i>
+            </button>
+          </div>
+          <span class="font-sans text-xs font-semibold text-on-surface select-none">
+            {{ months[viewMonth()] }} {{ viewYear() }}
+          </span>
+          <div class="flex items-center gap-0.5">
+            <button
+              type="button"
+              class="w-7 h-7 rounded-full border-0 bg-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center cursor-pointer transition-colors"
+              (click)="nextMonth()"
+              aria-label="Mes siguiente"
+            >
+              <i class="not-italic text-base mgc_arrow_right_line"></i>
+            </button>
+            <button
+              type="button"
+              class="w-7 h-7 rounded-full border-0 bg-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center cursor-pointer transition-colors"
+              (click)="nextYear()"
+              aria-label="Año siguiente"
+            >
+              <i class="not-italic text-base mgc_arrow_to_right_line"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Weekday headers -->
+        <div class="grid grid-cols-7 mb-1">
+          @for (day of weekDays; track $index) {
+            <div class="font-sans text-[11px] font-semibold text-on-surface-variant text-center py-0.5">
+              {{ day }}
+            </div>
+          }
+        </div>
+
+        <!-- Days grid -->
+        <div class="grid grid-cols-7 -mx-0.5">
+          @for (day of calendarDays(); track $index) {
+            @if (day === null) {
+              <div></div>
+            } @else {
+              <button
+                type="button"
+                class="w-8 h-8 rounded-full border-0 font-sans text-xs cursor-pointer transition-all duration-150 flex items-center justify-center mx-auto"
+                [class.text-on-surface]="!isSelected(day) && !isToday(day)"
+                [class.text-primary]="isToday(day) && !isSelected(day)"
+                [class.font-semibold]="isToday(day)"
+                [class.bg-primary-600]="isSelected(day)"
+                [class.text-white]="isSelected(day)"
+                [class.hover:bg-surface-container-high]="!isSelected(day)"
+                (click)="selectDay(day)"
+              >
+                {{ day }}
+              </button>
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (error()) {
+    <span class="form-error block font-sans text-xs text-error mt-1">{{ error() }}</span>
+  }
+</div>

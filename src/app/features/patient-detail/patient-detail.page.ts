@@ -167,7 +167,7 @@ export class PatientDetailPage {
   }
 
   newConsultation() {
-    console.log('Nueva consulta para:', this.patient.name);
+    this.router.navigate(['/home/patient', this.patient.id, 'consultation', 'new']);
   }
 
   callPatient() {

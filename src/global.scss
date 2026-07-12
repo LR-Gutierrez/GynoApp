@@ -767,3 +767,234 @@ ion-popover ion-item:hover {
   height: 36px;
   min-height: 36px;
 }
+
+// ==========================================
+// FULLCALENDAR THEME OVERRIDES
+// ==========================================
+
+// -- Layout & structure --
+.fc {
+  font-family: "Inter", sans-serif;
+}
+
+.fc .fc-scrollgrid {
+  border-color: #e2e8f0;
+  border-radius: 8px;
+}
+
+.fc .fc-scrollgrid-table {
+  border-radius: 8px;
+}
+
+// -- Header toolbar --
+.fc .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 12px;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111c2c;
+}
+
+.fc .fc-button {
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 6px 12px;
+  transition: all 0.15s ease;
+}
+
+.fc .fc-button-primary {
+  background-color: #f0f3ff;
+  border-color: #e2e8f0;
+  color: #111c2c;
+}
+
+.fc .fc-button-primary:not(:disabled):hover {
+  background-color: #d9e2ff;
+  border-color: #b0c6ff;
+  color: #003c90;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #0f52ba;
+  border-color: #0f52ba;
+  color: #ffffff;
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: #f0f3ff;
+  border-color: #e2e8f0;
+  color: #434653;
+  opacity: 0.5;
+}
+
+.fc .fc-button .fc-icon {
+  font-size: 1.2em;
+  color: inherit;
+}
+
+// -- Column headers --
+.fc .fc-col-header-cell {
+  background: #f9f9ff;
+  border-color: #e2e8f0;
+  padding: 4px 0;
+}
+
+.fc .fc-col-header-cell-cushion {
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #434653;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 0;
+  text-decoration: none !important;
+}
+
+// -- Day cells --
+.fc .fc-daygrid-day {
+  border-color: #e2e8f0;
+  transition: background 0.15s ease;
+}
+
+.fc .fc-daygrid-day:hover {
+  background: #f0f3ff;
+}
+
+.fc .fc-daygrid-day-top {
+  justify-content: center;
+  padding: 2px 0;
+}
+
+.fc .fc-daygrid-day-number {
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111c2c;
+  padding: 4px;
+  text-decoration: none !important;
+  border-radius: 9999px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// -- Today highlight --
+.fc .fc-day-today .fc-daygrid-day-number {
+  background: #d9e2ff;
+  color: #003c90;
+  font-weight: 700;
+}
+
+.fc .fc-day-today {
+  background: #eef2ff !important;
+}
+
+// -- Other month days --
+.fc .fc-day-other .fc-daygrid-day-number {
+  color: #737784;
+  opacity: 0.5;
+}
+
+.fc .fc-day-other {
+  background: transparent;
+}
+
+// -- Event styles --
+.fc .fc-daygrid-event {
+  border-radius: 6px;
+  margin: 1px 4px;
+  padding: 0;
+  font-size: 11px;
+  font-family: "Inter", sans-serif;
+  border: none;
+  cursor: pointer;
+}
+
+.fc .fc-daygrid-event:hover {
+  filter: brightness(1.15);
+  opacity: 1;
+}
+
+.fc .fc-daygrid-event .fc-event-main {
+  padding: 2px 6px;
+}
+
+.fc .fc-daygrid-event .fc-event-title {
+  font-weight: 600;
+  font-size: 11px;
+  padding: 0;
+  color: inherit !important;
+}
+
+.fc .fc-daygrid-event .fc-event-time {
+  font-weight: 500;
+  font-size: 10px;
+  margin-right: 4px;
+  color: inherit !important;
+}
+
+.fc .fc-daygrid-event .fc-event-main-frame {
+  color: inherit;
+}
+
+// -- Event status variants --
+.fc-event-scheduled {
+  background-color: #0f52ba;
+  border-color: #0f52ba;
+  color: #ffffff;
+}
+
+.fc-event-scheduled:hover {
+  background-color: #0d46a4;
+}
+
+.fc-event-completed {
+  background-color: #008a85;
+  border-color: #008a85;
+  color: #ffffff;
+}
+
+.fc-event-completed:hover {
+  background-color: #007975;
+}
+
+.fc-event-cancelled {
+  background-color: #737784;
+  border-color: #737784;
+  color: #ffffff;
+}
+
+.fc-event-cancelled:hover {
+  background-color: #656974;
+}
+
+// -- More link --
+.fc .fc-daygrid-more-link {
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f52ba;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.fc .fc-daygrid-more-link:hover {
+  background: #d9e2ff;
+}
+
+// -- Weekend styling (optional: keep subtle) --
+.fc .fc-day-sat, .fc .fc-day-sat .fc-scrollgrid-sync-inner,
+.fc .fc-day-sun, .fc .fc-day-sun .fc-scrollgrid-sync-inner {
+  background: transparent;
+}
+
+// -- Remove default blue stripe on today --
+.fc .fc-day-today .fc-daygrid-day-frame {
+  background: transparent;
+}

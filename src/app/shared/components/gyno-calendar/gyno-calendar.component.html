@@ -1,0 +1,87 @@
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4">
+  <!-- Month/Year navigation -->
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-0.5">
+      <button
+        type="button"
+        class="w-8 h-8 rounded-full border-0 bg-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center cursor-pointer transition-colors"
+        (click)="prevYear()"
+        aria-label="Año anterior"
+      >
+        <i class="not-italic text-lg mgc_arrow_to_left_line"></i>
+      </button>
+      <button
+        type="button"
+        class="w-8 h-8 rounded-full border-0 bg-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center cursor-pointer transition-colors"
+        (click)="prevMonth()"
+        aria-label="Mes anterior"
+      >
+        <i class="not-italic text-lg mgc_arrow_left_line"></i>
+      </button>
+    </div>
+
+    <span class="font-sans text-sm font-bold text-on-surface select-none">
+      {{ months[viewMonth()] }} {{ viewYear() }}
+    </span>
+
+    <div class="flex items-center gap-0.5">
+      <button
+        type="button"
+        class="w-8 h-8 rounded-full border-0 bg-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center cursor-pointer transition-colors"
+        (click)="nextMonth()"
+        aria-label="Mes siguiente"
+      >
+        <i class="not-italic text-lg mgc_arrow_right_line"></i>
+      </button>
+      <button
+        type="button"
+        class="w-8 h-8 rounded-full border-0 bg-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center cursor-pointer transition-colors"
+        (click)="nextYear()"
+        aria-label="Año siguiente"
+      >
+        <i class="not-italic text-lg mgc_arrow_to_right_line"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Weekday headers -->
+  <div class="grid grid-cols-7 mb-2">
+    @for (day of weekDays; track $index) {
+      <div class="font-sans text-xs font-semibold text-on-surface-variant text-center py-1">
+        {{ day }}
+      </div>
+    }
+  </div>
+
+  <!-- Days grid -->
+  @for (week of weekRows(); track $index) {
+    <div class="grid grid-cols-7">
+      @for (day of week; track $index) {
+        @if (day === null) {
+          <div></div>
+        } @else {
+          <button
+            type="button"
+            class="relative flex flex-col items-center pt-1.5 pb-1 rounded-lg border-0 cursor-pointer transition-all duration-150 font-sans text-sm outline-none"
+            [class.bg-primary-600]="isSelected(day)"
+            [class.text-white]="isSelected(day)"
+            [class.text-on-surface]="!isSelected(day) && !isToday(day)"
+            [class.text-primary-600]="isToday(day) && !isSelected(day)"
+            [class.font-bold]="isToday(day)"
+            [class.hover:bg-surface-container-high]="!isSelected(day)"
+            (click)="selectDay(day)"
+          >
+            {{ day }}
+            @if (hasMarker(day)) {
+              <span
+                class="mt-0.5 w-1.5 h-1.5 rounded-full"
+                [class.bg-white]="isSelected(day)"
+                [class.bg-primary-600]="!isSelected(day)"
+              ></span>
+            }
+          </button>
+        }
+      }
+    </div>
+  }
+</div>

@@ -49,7 +49,7 @@ export class GynoBottomNavComponent {
       route: '/home/schedule',
       iconFill: 'mgc_calendar_fill',
       iconLine: 'mgc_calendar_line',
-      label: 'Agenda',
+      label: 'Agendar Cita',
       exact: false,
     },
     {

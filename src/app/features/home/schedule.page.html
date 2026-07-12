@@ -1,0 +1,109 @@
+<gyno-topbar title="Agendar Cita" />
+
+<ion-content>
+  <div class="px-4 pt-4 pb-4">
+    <full-calendar
+      [options]="calendarOptions"
+      [events]="calendarEvents()"
+      class="block mb-5"
+    />
+
+    <!-- Appointments section -->
+    @let display = selectedDisplay(); @if (display !== null) {
+    <div class="mb-4">
+      <div class="flex items-baseline justify-between mb-3">
+        <h2 class="font-sans text-base font-bold text-on-surface m-0">
+          {{ display.day }} {{ display.month }} {{ display.year }}
+        </h2>
+        <span class="font-sans text-xs font-medium text-on-surface-variant">
+          {{ dayAppointments().length }} {{ dayAppointments().length === 1 ?
+          'cita' : 'citas' }}
+        </span>
+      </div>
+
+      @let appointments = dayAppointments(); @if (appointments.length === 0) {
+      <div
+        class="bg-surface-container-low rounded-xl py-8 flex flex-col items-center gap-2 text-center"
+      >
+        <i
+          class="not-italic text-3xl text-on-surface-variant/40 mgc_calendar_off_line"
+        ></i>
+        <p class="font-sans text-sm text-on-surface-variant m-0">
+          No hay citas para este día
+        </p>
+      </div>
+      } @else {
+      <div class="flex flex-col gap-2">
+        @for (appt of appointments; track appt.id) {
+        <div
+          class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 cursor-pointer active:bg-surface-container-low transition-colors duration-150"
+          (click)="openAppointment(appt)"
+        >
+          <div class="flex items-start gap-3">
+            <!-- Time indicator -->
+            <div class="flex flex-col items-center pt-0.5 min-w-[48px]">
+              <span class="font-sans text-sm font-bold text-on-surface"
+                >{{ appt.time }}</span
+              >
+              <div
+                class="mt-1.5 w-6 h-0.5 rounded-full"
+                [class.bg-primary-500]="appt.status === 'scheduled'"
+                [class.bg-success]="appt.status === 'completed'"
+                [class.bg-outline]="appt.status === 'cancelled'"
+              ></div>
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <h4
+                class="font-sans text-sm font-semibold text-on-surface m-0 mb-0.5 truncate"
+              >
+                {{ appt.patientName }}
+              </h4>
+              <p class="font-sans text-xs text-on-surface-variant m-0 truncate">
+                {{ appt.reason }}
+              </p>
+              <span
+                class="inline-block mt-1.5 font-sans text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                [class.bg-primary-fixed]="appt.status === 'scheduled'"
+                [class.text-primary-700]="appt.status === 'scheduled'"
+                [class.bg-success-container]="appt.status === 'completed'"
+                [class.text-success]="appt.status === 'completed'"
+                [class.bg-surface-container-high]="appt.status === 'cancelled'"
+                [class.text-on-surface-variant]="appt.status === 'cancelled'"
+              >
+                {{ statusLabel(appt.status) }}
+              </span>
+            </div>
+
+            <i
+              class="not-italic text-lg text-on-surface-variant mt-1 mgc_arrow_right_line"
+            ></i>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+    } @else {
+    <div
+      class="bg-surface-container-low rounded-xl py-8 flex flex-col items-center gap-2 text-center"
+    >
+      <i
+        class="not-italic text-3xl text-on-surface-variant/40 mgc_calendar_line"
+      ></i>
+      <p class="font-sans text-sm text-on-surface-variant m-0">
+        Selecciona un día para ver las citas
+      </p>
+    </div>
+    }
+  </div>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button class="fab-button" (click)="addAppointment()">
+      <i class="not-italic text-xl !text-white mgc_add_line"></i>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+<gyno-bottom-nav />
