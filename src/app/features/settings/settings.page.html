@@ -1,0 +1,358 @@
+<gyno-topbar title="Ajustes" />
+
+<ion-content>
+  <div class="px-3 sm:px-4 pt-3 sm:pt-4 pb-6 flex flex-col gap-5">
+    <div
+      class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 sm:p-5"
+    >
+      <div class="flex items-center gap-4">
+        @if (profileService.profile().photoUrl; as photo) {
+          <img
+            [src]="photo"
+            alt="Foto de perfil"
+            class="w-16 h-16 rounded-full object-cover border-2 border-outline-variant shrink-0"
+          />
+        } @else {
+          <div
+            class="w-16 h-16 rounded-full bg-primary-600 text-white flex items-center justify-center font-sans text-xl font-bold shrink-0 shadow-sm"
+          >
+            {{ profileService.initials() }}
+          </div>
+        }
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <h2
+              class="font-sans text-base font-bold text-on-surface m-0 truncate"
+            >
+              {{ profileService.displayName() }}
+            </h2>
+            <button
+              type="button"
+              class="shrink-0 w-7 h-7 rounded-full bg-transparent flex items-center justify-center cursor-pointer"
+              (click)="openEditModal()"
+              aria-label="Editar perfil"
+            >
+              <i class="not-italic text-base text-outline mgc_edit_2_line"></i>
+            </button>
+          </div>
+          <p class="font-sans text-sm text-on-surface-variant m-0">
+            {{ profileService.profile().specialty }}
+          </p>
+          <span
+            class="inline-block mt-2 font-sans text-[11px] font-semibold text-primary-700 bg-primary-fixed px-2.5 py-0.5 rounded-full"
+          >
+            {{ profileService.profile().badge }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 sm:p-5"
+    >
+      <h3
+        class="font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase m-0 mb-3 flex items-center gap-2"
+      >
+        <i class="not-italic text-sm mgc_shield_line"></i>
+        Seguridad
+      </h3>
+      <div class="flex flex-col gap-1">
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
+          (click)="changePin()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_lock_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Cambiar PIN
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              Actualiza tu código de seguridad
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+
+        <div
+          class="flex items-center gap-3 w-full p-3 px-3 rounded-xl bg-transparent  transition-colors"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_fingerprint_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Biométrico
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              Acceso con huella digital
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <ion-toggle
+              [checked]="biometricEnabled()"
+              (ionChange)="biometricEnabled.set($event.detail.checked)"
+              color="primary"
+              style="
+                --padding-start: 0;
+                --padding-end: 0;
+                margin: 0;
+                width: 44px;
+                overflow: visible;
+              "
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
+          (click)="selectAutoLock()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_time_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Bloqueo automático
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              {{ getAutoLockLabel() }}
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 sm:p-5"
+    >
+      <h3
+        class="font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase m-0 mb-3 flex items-center gap-2"
+      >
+        <i class="not-italic text-sm mgc_world_line"></i>
+        Idioma y notificaciones
+      </h3>
+      <div class="flex flex-col gap-1">
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
+          (click)="selectLanguage()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_translate_2_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Idioma
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              {{ language() }}
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+
+        <div
+          class="flex items-center gap-3 w-full p-3 px-3 rounded-xl bg-transparent  transition-colors"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_notification_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Notificaciones
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              Alertas de citas y recordatorios
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <ion-toggle
+              [checked]="notificationsEnabled()"
+              (ionChange)="notificationsEnabled.set($event.detail.checked)"
+              color="primary"
+              style="
+                --padding-start: 0;
+                --padding-end: 0;
+                margin: 0;
+                width: 44px;
+                overflow: visible;
+              "
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 sm:p-5"
+    >
+      <h3
+        class="font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase m-0 mb-3 flex items-center gap-2"
+      >
+        <i class="not-italic text-sm mgc_storage_line"></i>
+        Datos
+      </h3>
+      <div class="flex flex-col gap-1">
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
+          (click)="exportHistory()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_download_2_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Exportar historial
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              Descarga el historial completo de citas
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
+          (click)="cleanCache()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_delete_2_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Limpiar caché
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              Libera espacio de almacenamiento temporal
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 sm:p-5"
+    >
+      <h3
+        class="font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase m-0 mb-3 flex items-center gap-2"
+      >
+        <i class="not-italic text-sm mgc_information_line"></i>
+        Acerca de
+      </h3>
+      <div class="flex flex-col gap-1">
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
+          (click)="openPrivacy()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_shield_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Aviso de privacidad
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
+          (click)="openTerms()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_document_2_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Términos y condiciones
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
+          (click)="openSupport()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_headphone_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Soporte técnico
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              Ayuda y contacto
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="flex items-center justify-center gap-2 w-full p-3.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-error cursor-pointer transition-colors font-sans text-sm font-semibold"
+      (click)="logout()"
+    >
+      <i class="not-italic text-lg mgc_exit_line"></i>
+      Cerrar sesión
+    </button>
+  </div>
+</ion-content>
+
+<app-edit-profile-modal
+  [visible]="showEditModal()"
+  [profile]="profileService.profile()"
+  (saveProfile)="onSaveProfile($event)"
+  (cancelProfile)="onCancelEdit()"
+/>
+
+<gyno-bottom-nav />

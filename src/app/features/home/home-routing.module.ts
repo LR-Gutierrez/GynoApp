@@ -7,6 +7,7 @@ import { ConsultationDetailPage } from '../consultation-detail/consultation-deta
 import { CreateConsultationPage } from '../create-consultation/create-consultation.page';
 import { SchedulePage } from './schedule.page';
 import { CreateAppointmentPage } from '../create-appointment/create-appointment.page';
+import { SettingsPage } from '../settings/settings.page';
 
 const routes: Routes = [
   { path: '', component: HomePage },
@@ -15,7 +16,7 @@ const routes: Routes = [
   { path: 'patient/:id/consultation/:consultationId', component: ConsultationDetailPage },
   { path: 'schedule', component: SchedulePage },
   { path: 'schedule/new', component: CreateAppointmentPage },
-  { path: 'settings', component: PlaceholderPage },
+  { path: 'settings', component: SettingsPage },
 ];
 
 @NgModule({

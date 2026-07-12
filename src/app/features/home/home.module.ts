@@ -10,6 +10,7 @@ import { ConsultationDetailPage } from '../consultation-detail/consultation-deta
 import { CreateConsultationPage } from '../create-consultation/create-consultation.page';
 import { CreateAppointmentPage } from '../create-appointment/create-appointment.page';
 import { SchedulePage } from './schedule.page';
+import { SettingsPage } from '../settings/settings.page';
 
 @NgModule({
   imports: [
@@ -24,6 +25,7 @@ import { SchedulePage } from './schedule.page';
     CreateConsultationPage,
     CreateAppointmentPage,
     SchedulePage,
+    SettingsPage,
   ],
   declarations: [],
 })

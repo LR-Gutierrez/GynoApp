@@ -37,6 +37,14 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 /* @import "@ionic/angular/css/palettes/dark.system.css"; */
 
+@font-face {
+  font-family: 'MingCute';
+  src: url('~mingcute_icon/font/MingCute.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
 :root {
   --ion-color-primary: #0f52ba;
   --ion-color-primary-rgb: 15, 82, 186;
@@ -766,6 +774,14 @@ ion-popover ion-item:hover {
   --color: var(--color-on-surface-variant, #434653);
   height: 36px;
   min-height: 36px;
+}
+
+// ==========================================
+// EDIT PROFILE MODAL
+// ==========================================
+.edit-profile-modal {
+  --height: 90%;
+  --border-radius: 16px 16px 0 0;
 }
 
 // ==========================================

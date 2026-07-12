@@ -1,4 +1,4 @@
-import { Component, input, output, signal, ViewChild, ElementRef, effect } from '@angular/core';
+import { Component, input, output, signal, computed, ViewChild, ElementRef, effect } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 
@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
       :host i[class*=' mgc_']::before {
         color: inherit !important;
       }
+
       .pin-dot {
         width: 14px;
         height: 14px;
@@ -33,6 +34,7 @@ import { CommonModule } from '@angular/common';
       .pin-dot.error.filled {
         background: var(--color-error);
       }
+
       @keyframes shake {
         0%, 100% { transform: translateX(0); }
         20% { transform: translateX(-6px); }
@@ -40,6 +42,7 @@ import { CommonModule } from '@angular/common';
         60% { transform: translateX(-4px); }
         80% { transform: translateX(4px); }
       }
+
       .key-btn {
         width: 72px;
         height: 72px;
@@ -68,12 +71,35 @@ import { CommonModule } from '@angular/common';
         cursor: default;
         pointer-events: none;
       }
-      .pin-enter {
-        animation: pinFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+      .backdrop-enter {
+        animation: backdropFade 0.3s ease-out;
       }
-      @keyframes pinFadeIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
+
+      @keyframes backdropFade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .sheet-enter {
+        animation: sheetSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes sheetSlideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+
+      .is-dragging {
+        transition: none !important;
+      }
+
+      .is-closing {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      }
+
+      .is-snapping {
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
       }
     `,
   ],
@@ -91,12 +117,29 @@ export class GynoPinInputComponent {
   readonly pin = signal<string[]>([]);
   readonly error = signal(false);
 
+  readonly dragOffsetY = signal(0);
+  readonly isDragging = signal(false);
+  readonly isClosing = signal(false);
+  readonly isSnapping = signal(false);
+
   private focusTimer: ReturnType<typeof setTimeout> | null = null;
+  private dragStartY = 0;
+  private currentDragY = 0;
+
+  readonly sheetTransform = computed(() => {
+    if (this.isClosing()) return 'translateY(100%)';
+    if (this.isDragging() || this.isSnapping()) return `translateY(${this.dragOffsetY()}px)`;
+    return null;
+  });
 
   constructor() {
     effect(() => {
       if (this.visible()) {
         this.reset();
+        this.isClosing.set(false);
+        this.isSnapping.set(false);
+        this.isDragging.set(false);
+        this.dragOffsetY.set(0);
         this.focusTimer = setTimeout(() => this.pinInputRef?.nativeElement.focus(), 200);
       }
     });
@@ -105,6 +148,64 @@ export class GynoPinInputComponent {
   reset() {
     this.pin.set([]);
     this.error.set(false);
+  }
+
+  onHandlePointerDown(e: MouseEvent | TouchEvent) {
+    e.preventDefault();
+    this.dragStartY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    this.currentDragY = this.dragStartY;
+    this.isDragging.set(true);
+    this.dragOffsetY.set(0);
+    this.isClosing.set(false);
+    document.addEventListener('mousemove', this.onPointerMove);
+    document.addEventListener('mouseup', this.onPointerUp);
+    document.addEventListener('touchmove', this.onPointerMove, { passive: false });
+    document.addEventListener('touchend', this.onPointerUp);
+  }
+
+  private onPointerMove = (e: MouseEvent | TouchEvent) => {
+    const y = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    this.currentDragY = y;
+    const delta = y - this.dragStartY;
+    if (delta > 0) {
+      this.dragOffsetY.set(Math.min(delta, window.innerHeight * 0.6));
+    }
+  };
+
+  private onPointerUp = () => {
+    document.removeEventListener('mousemove', this.onPointerMove);
+    document.removeEventListener('mouseup', this.onPointerUp);
+    document.removeEventListener('touchmove', this.onPointerMove);
+    document.removeEventListener('touchend', this.onPointerUp);
+
+    const offset = this.dragOffsetY();
+
+    if (offset > 100) {
+      this.isClosing.set(true);
+      setTimeout(() => this.close(), 300);
+    } else if (offset > 0) {
+      this.isSnapping.set(true);
+      this.isDragging.set(false);
+      requestAnimationFrame(() => {
+        this.dragOffsetY.set(0);
+        setTimeout(() => this.isSnapping.set(false), 280);
+      });
+    } else {
+      this.isDragging.set(false);
+    }
+  };
+
+  private close() {
+    if (this.focusTimer) clearTimeout(this.focusTimer);
+    this.reset();
+    this.pushToInput('');
+    this.cancel.emit();
+  }
+
+  onCancel() {
+    if (this.isDragging() || this.isSnapping()) return;
+    this.isClosing.set(true);
+    setTimeout(() => this.close(), 300);
   }
 
   private fromInput() {
@@ -178,12 +279,5 @@ export class GynoPinInputComponent {
 
   focusInput() {
     this.pinInputRef?.nativeElement.focus();
-  }
-
-  onCancel() {
-    if (this.focusTimer) clearTimeout(this.focusTimer);
-    this.reset();
-    this.pushToInput('');
-    this.cancel.emit();
   }
 }
