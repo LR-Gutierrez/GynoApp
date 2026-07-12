@@ -64,31 +64,31 @@ Se extrajeron todos los patrones visuales del UI Kit a componentes standalone re
 
 ## Etapa 3: Base de Datos Local
 
-**Estado:** 🔴 PENDIENTE
+**Estado:** ✅ COMPLETADA
 
-- [ ] DB se crea al iniciar la app
-- [ ] Tablas tienen columnas y tipos correctos
-- [ ] CRUD pacientes funciona correctamente
-- [ ] CRUD consultas funciona correctamente
-- [ ] Relación paciente → consulta → foto es correcta (FK)
-- [ ] Migraciones funcionan sin perder datos
+- [x] DB se crea al iniciar la app
+- [x] Tablas tienen columnas y tipos correctos
+- [x] CRUD pacientes funciona correctamente
+- [x] CRUD consultas funciona correctamente
+- [x] Relación paciente → consulta → foto es correcta (FK)
+- [x] Migraciones funcionan sin perder datos
 
-**Build:** ❌ No ejecutado
+**Build:** ✅ `ng build` exitoso
 
 ---
 
 ## Etapa 4: Autenticación
 
-**Estado:** 🔴 PENDIENTE
+**Estado:** ✅ COMPLETADA
 
-- [ ] PIN se registra y verifica correctamente
-- [ ] Biometría funciona como alternativa al PIN
-- [ ] AuthGuard redirige a `/auth` si no hay sesión
-- [ ] Master key se deriva consistentemente (mismo PIN → misma key)
-- [ ] PIN almacenado como hash, no en texto plano
-- [ ] Al cerrar app se limpia la master key de memoria
+- [x] PIN se registra y verifica correctamente
+- [x] Biometría funciona como alternativa al PIN
+- [x] AuthGuard redirige a `/auth` si no hay sesión
+- [x] Master key se deriva consistentemente (mismo PIN → misma key)
+- [x] PIN almacenado como hash, no en texto plano
+- [x] Al cerrar app se limpia la master key de memoria
 
-**Build:** ❌ No ejecutado
+**Build:** ✅ `ng build` exitoso
 
 ---
 
@@ -160,14 +160,14 @@ Se extrajeron todos los patrones visuales del UI Kit a componentes standalone re
 |-------|--------|
 | 1. Scaffolding | ✅ |
 | 2. UI Kit + Componentes | ✅ |
-| 3. Base de Datos | 🔴 |
-| 4. Autenticación | 🔴 |
+| 3. Base de Datos | ✅ |
+| 4. Autenticación | ✅ |
 | 5. Pacientes | 🔴 |
 | 6. Consultas + Fotos | 🔴 |
 | 7. Exportación | 🔴 |
 | 8. Pulido | 🔴 |
 
-**Progreso:** 2 / 8 etapas completadas
+**Progreso:** 4 / 8 etapas completadas
 
 ---
 

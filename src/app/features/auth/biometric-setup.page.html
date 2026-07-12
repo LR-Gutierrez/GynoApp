@@ -29,7 +29,17 @@
       </p>
     </div>
 
-    <ion-button class="btn-primary w-full" (click)="enableBiometrics()">
+    @if (error()) {
+      <div class="flex items-center gap-2 text-error bg-error-container/30 rounded-lg px-4 py-2.5 mb-4 w-full">
+        <i class="not-italic text-lg shrink-0 mgc_alert_circle_line"></i>
+        <span class="font-sans text-sm font-medium">{{ error() }}</span>
+      </div>
+    }
+
+    <ion-button class="btn-primary w-full" (click)="enableBiometrics()" [disabled]="loading()">
+      @if (loading()) {
+        <ion-spinner name="crescent" class="mr-2"></ion-spinner>
+      }
       <i class="not-italic text-lg mgc_fingerprint_line" slot="start"></i>
       Activar Acceso Biométrico
     </ion-button>
@@ -42,7 +52,7 @@
     <div class="mt-auto mb-8 pt-6 text-center">
       <p class="font-sans text-xs text-on-surface-variant">
         <i class="not-italic align-middle mr-1 mgc_information_line"></i>
-        La biometría solo está disponible en dispositivos Android compatibles
+        Usa huella digital, reconocimiento facial o PIN del dispositivo
       </p>
     </div>
   </div>

@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { IonicModule, Platform } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-header/gyno-page-header.component';
 import { GynoSecurityBadgeComponent } from 'src/app/shared/components/gyno-security-badge/gyno-security-badge.component';
 
@@ -27,6 +29,11 @@ import { GynoSecurityBadgeComponent } from 'src/app/shared/components/gyno-secur
 })
 export class BiometricSetupPage {
   private platform = inject(Platform);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+
+  readonly error = signal('');
+  readonly loading = signal(false);
 
   get isAndroid(): boolean {
     return this.platform.is('android');
@@ -36,11 +43,33 @@ export class BiometricSetupPage {
     history.back();
   }
 
-  enableBiometrics() {
-    console.log('Biometric enabled');
+  async enableBiometrics() {
+    this.error.set('');
+    this.loading.set(true);
+
+    const bio = await this.auth.checkBiometricAvailability();
+
+    if (!bio.available) {
+      this.error.set(
+        'Este dispositivo no tiene métodos biométricos disponibles. ' +
+        'Puedes saltar este paso y usar solo PIN.'
+      );
+      this.loading.set(false);
+      return;
+    }
+
+    const ok = await this.auth.authenticateWithBiometrics();
+    if (ok) {
+      await this.auth.enableBiometrics();
+      this.router.navigate(['/home']);
+    } else {
+      this.error.set('No se pudo completar la autenticación. Intenta de nuevo.');
+    }
+
+    this.loading.set(false);
   }
 
   skip() {
-    history.back();
+    this.router.navigate(['/home']);
   }
 }

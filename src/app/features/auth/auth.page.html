@@ -1,240 +1,122 @@
 <ion-content>
-  <div class="flex flex-col items-center min-h-full max-w-sm mx-auto relative overflow-hidden px-4">
+  <div class="flex flex-col items-center min-h-full max-w-sm mx-auto px-4">
 
     <!-- Branding -->
-    <div class="flex flex-col items-center pt-12 pb-2 shrink-0">
+    <div class="flex flex-col items-center pt-16 pb-8 shrink-0">
       <div class="w-16 h-16 rounded-2xl bg-primary-600 flex items-center justify-center mb-4 shadow-lg">
         <i class="not-italic text-3xl text-white mgc_shield_line"></i>
       </div>
       <h1 class="font-sans text-2xl font-bold text-on-surface m-0 tracking-tight">GynoApp</h1>
       <p class="font-sans text-sm text-on-surface-variant m-0 mt-1">
-        {{ view() === 'login' ? 'Acceso seguro a tus pacientes' : 'Recupera tu acceso' }}
+        @if (step() === 'login') {
+          Desbloquea GynoApp
+        } @else if (step() === 'register') {
+          Crea un PIN de seguridad
+        } @else {
+          Confirma tu PIN
+        }
       </p>
     </div>
 
-    <gyno-security-badge
-      class="mb-7 shrink-0"
-      type="active"
-      text="Datos cifrados localmente"
-    />
+    <!-- Security badge -->
+    @if (step() === 'login') {
+      <div class="flex items-center gap-2 bg-surface-dim/50 rounded-full px-4 py-1.5 mb-6">
+        <i class="not-italic text-sm mgc_lock_line text-primary-600"></i>
+        <span class="font-sans text-xs font-medium text-on-surface-variant">Sesión bloqueada</span>
+      </div>
+    }
 
-    <!-- Views container -->
-    <div class="w-full relative">
-      @if (view() === 'login') {
-        <div @slideIn>
-          <div class="w-full bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm mb-4">
-            <gyno-form-field
-              label="Correo electrónico"
-              type="email"
-              placeholder="medico@consultorio.com"
-              [value]="email()"
-              (valueChange)="email.set($event)"
-              icon="mail-outline"
-            />
+    <!-- PIN dots -->
+    <div class="flex items-center justify-center gap-3 mb-8">
+      @for (i of [0,1,2,3,4,5]; track i) {
+        <div
+          class="pin-dot"
+          [class.filled]="i < pin().length"
+          [class.error]="error()"
+        ></div>
+      }
+    </div>
 
-            <gyno-form-field
-              label="Contraseña"
-              type="password"
-              placeholder="Ingresa tu contraseña"
-              [value]="password()"
-              (valueChange)="password.set($event)"
-              [(showPassword)]="showPassword"
-            />
+    <!-- Error -->
+    @if (error()) {
+      <div class="flex items-center gap-2 text-error bg-error-container/30 rounded-lg px-4 py-2.5 mb-4 w-full">
+        <i class="not-italic text-lg shrink-0 mgc_alert_circle_line"></i>
+        <span class="font-sans text-sm font-medium">{{ error() }}</span>
+      </div>
+    }
 
-            @if (error()) {
-              <div class="flex items-center gap-2 text-error bg-error-container/30 rounded-lg px-4 py-2.5 mt-3">
-                <i class="not-italic text-lg shrink-0 mgc_alert_circle_line"></i>
-                <span class="font-sans text-sm font-medium">{{ error() }}</span>
-              </div>
-            }
-          </div>
+    <!-- Confirm step info -->
+    @if (step() === 'confirm') {
+      <p class="font-sans text-sm text-on-surface-variant text-center mb-4">
+        Ingresa nuevamente el PIN para confirmarlo
+      </p>
+    }
 
-          <gyno-loading-button
-            label="Iniciar Sesión"
-            loadingLabel="Iniciando sesión..."
-            icon="mgc_arrow_right_line"
-            [isLoading]="loading()"
-            [disabled]="!email() || !password()"
-            (clicked)="login()"
-          />
-
-          <button
-            class="mt-4 w-full font-sans text-sm text-primary-600 text-center hover:text-primary-800 transition-colors"
-            (click)="switchView('reset')"
-          >
-            <i class="not-italic align-middle mr-1 mgc_question_line"></i>
-            ¿Olvidaste tu contraseña?
+    <!-- Numpad -->
+    <div class="flex flex-col items-center gap-3">
+      @for (row of [['1','2','3'], ['4','5','6'], ['7','8','9']]; track row) {
+        <div class="flex items-center gap-6">
+          @for (d of row; track d) {
+            <button type="button" class="key-btn" (click)="onDigit(d)">{{ d }}</button>
+          }
+        </div>
+      }
+      <div class="flex items-center gap-6">
+        @if (step() === 'confirm') {
+          <button type="button" class="key-btn" (click)="goBackToRegister()">
+            <i class="not-italic text-2xl mgc_arrow_left_line"></i>
           </button>
+        } @else {
+          <div class="key-btn" [class.invisible]="true"></div>
+        }
+        <button type="button" class="key-btn" (click)="onDigit('0')">0</button>
+        <button
+          #backspaceBtn
+          type="button"
+          class="key-btn"
+          (click)="onBackspace()"
+          (mousedown)="onBackspaceHoldStart()"
+          (mouseup)="onBackspaceHoldEnd()"
+          (mouseleave)="onBackspaceHoldEnd()"
+          (touchstart)="onBackspaceHoldStart()"
+          (touchend)="onBackspaceHoldEnd()"
+          (touchcancel)="onBackspaceHoldEnd()"
+        >
+          <i class="not-italic text-2xl mgc_delete_back_line"></i>
+        </button>
+      </div>
+    </div>
 
-          <div class="mt-8 mb-8 text-center">
-            <p class="font-sans text-xs text-on-surface-variant">
-              <i class="not-italic align-middle mr-1 mgc_lock_line"></i>
-              Tus datos están cifrados y almacenados localmente en el dispositivo
-            </p>
-          </div>
-        </div>
-      }
+    <!-- Biometric (login only) -->
+    @if (step() === 'login' && auth.isBiometricEnabled()) {
+      <button
+        class="mt-8 flex items-center gap-2 font-sans text-sm text-primary-600 hover:text-primary-800 transition-colors"
+        (click)="useBiometrics()"
+      >
+        <i class="not-italic text-lg mgc_fingerprint_line"></i>
+        Usar huella digital
+      </button>
+    }
 
-      @if (view() === 'reset') {
-        <div @slideIn>
-          @if (resetStep() === 'email') {
-            <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm mb-4">
-              <button class="flex items-center gap-2 font-sans text-sm text-primary-600 mb-4 hover:text-primary-800 transition-colors" (click)="switchView('login')">
-                <i class="not-italic mgc_arrow_left_line"></i>
-                Volver al inicio de sesión
-              </button>
+    <!-- Submit (confirm step only) -->
+    @if (step() === 'confirm') {
+      <ion-button
+        class="btn-primary w-full max-w-sm mt-6"
+        [disabled]="pin().length < 4 || loading()"
+        (click)="doRegister()"
+      >
+        @if (loading()) {
+          <ion-spinner name="crescent" class="mr-2"></ion-spinner>
+        }
+        Confirmar PIN
+      </ion-button>
+    }
 
-              <div class="flex justify-center mb-4">
-                <div class="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center">
-                  <i class="not-italic text-2xl text-primary-600 mgc_mail_line"></i>
-                </div>
-              </div>
-
-              <p class="font-sans text-sm text-on-surface-variant text-center mb-5">
-                Ingresa tu correo y te enviaremos un código para restablecer tu contraseña.
-              </p>
-
-              <gyno-form-field
-                label="Correo electrónico"
-                type="email"
-                placeholder="medico@consultorio.com"
-                [value]="resetEmail()"
-                (valueChange)="resetEmail.set($event)"
-                icon="mail-outline"
-              />
-
-              @if (error()) {
-                <div class="flex items-center gap-2 text-error bg-error-container/30 rounded-lg px-4 py-2.5 mt-3">
-                  <i class="not-italic text-lg shrink-0 mgc_alert_circle_line"></i>
-                  <span class="font-sans text-sm font-medium">{{ error() }}</span>
-                </div>
-              }
-            </div>
-
-            <gyno-loading-button
-              label="Enviar Código"
-              loadingLabel="Enviando..."
-              icon="mgc_send_line"
-              [isLoading]="loading()"
-              [disabled]="!resetEmail()"
-              (clicked)="sendCode()"
-            />
-          }
-
-          @if (resetStep() === 'code') {
-            <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm mb-4">
-              <button class="flex items-center gap-2 font-sans text-sm text-primary-600 mb-4 hover:text-primary-800 transition-colors" (click)="goBackReset()">
-                <i class="not-italic mgc_arrow_left_line"></i>
-                Cambiar correo
-              </button>
-
-              <div class="flex justify-center mb-4">
-                <div class="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center">
-                  <i class="not-italic text-2xl text-primary-600 mgc_key_2_line"></i>
-                </div>
-              </div>
-
-              <p class="font-sans text-sm text-on-surface-variant text-center mb-5">
-                Hemos enviado un código a <strong class="text-on-surface">{{ resetEmail() }}</strong>
-              </p>
-
-              <gyno-form-field
-                label="Código de verificación"
-                type="text"
-                placeholder="Ingresa el código"
-                [value]="code()"
-                (valueChange)="code.set($event)"
-                icon="qr-code-outline"
-              />
-
-              @if (error()) {
-                <div class="flex items-center gap-2 text-error bg-error-container/30 rounded-lg px-4 py-2.5 mt-3">
-                  <i class="not-italic text-lg shrink-0 mgc_alert_circle_line"></i>
-                  <span class="font-sans text-sm font-medium">{{ error() }}</span>
-                </div>
-              }
-            </div>
-
-            <gyno-loading-button
-              label="Verificar Código"
-              loadingLabel="Verificando..."
-              icon="mgc_check_line"
-              [isLoading]="loading()"
-              [disabled]="!code()"
-              (clicked)="verifyCode()"
-            />
-          }
-
-          @if (resetStep() === 'new-password') {
-            <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm mb-4">
-              <button class="flex items-center gap-2 font-sans text-sm text-primary-600 mb-4 hover:text-primary-800 transition-colors" (click)="goBackReset()">
-                <i class="not-italic mgc_arrow_left_line"></i>
-                Atrás
-              </button>
-
-              <div class="flex justify-center mb-4">
-                <div class="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center">
-                  <i class="not-italic text-2xl text-primary-600 mgc_lock_line"></i>
-                </div>
-              </div>
-
-              <gyno-form-field
-                label="Nueva contraseña"
-                type="password"
-                placeholder="Mínimo 6 caracteres"
-                [value]="newPassword()"
-                (valueChange)="newPassword.set($event)"
-                [(showPassword)]="showNewPassword"
-              />
-
-              <gyno-form-field
-                label="Confirmar contraseña"
-                type="password"
-                placeholder="Repite la contraseña"
-                [value]="confirmPassword()"
-                (valueChange)="confirmPassword.set($event)"
-                [(showPassword)]="showConfirmPassword"
-              />
-
-              @if (error()) {
-                <div class="flex items-center gap-2 text-error bg-error-container/30 rounded-lg px-4 py-2.5 mt-3">
-                  <i class="not-italic text-lg shrink-0 mgc_alert_circle_line"></i>
-                  <span class="font-sans text-sm font-medium">{{ error() }}</span>
-                </div>
-              }
-            </div>
-
-            <gyno-loading-button
-              label="Restablecer Contraseña"
-              loadingLabel="Restableciendo..."
-              icon="mgc_lock_line"
-              [isLoading]="loading()"
-              [disabled]="!newPassword() || !confirmPassword()"
-              (clicked)="resetPassword()"
-            />
-          }
-
-          @if (resetStep() === 'success') {
-            <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-sm mb-4 text-center">
-              <div class="flex justify-center mb-4">
-                <div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center">
-                  <i class="not-italic text-3xl text-secondary mgc_check_circle_line"></i>
-                </div>
-              </div>
-              <h3 class="font-sans text-lg font-semibold text-on-surface m-0 mb-2">Contraseña actualizada</h3>
-              <p class="font-sans text-sm text-on-surface-variant m-0">
-                Tu contraseña se ha restablecido correctamente.
-              </p>
-            </div>
-
-            <gyno-loading-button
-              label="Volver a Iniciar Sesión"
-              icon="mgc_arrow_right_line"
-              (clicked)="switchView('login')"
-            />
-          }
-        </div>
-      }
+    <div class="mt-auto mb-8 pt-8 text-center">
+      <p class="font-sans text-xs text-on-surface-variant">
+        <i class="not-italic align-middle mr-1 mgc_lock_line"></i>
+        Tus datos están cifrados y almacenados localmente en el dispositivo
+      </p>
     </div>
   </div>
 </ion-content>
