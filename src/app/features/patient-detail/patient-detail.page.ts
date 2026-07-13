@@ -1,7 +1,7 @@
-import { Component, signal, inject, HostListener } from '@angular/core';
+import { Component, signal, computed, inject, HostListener, OnInit } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
 import { Capacitor } from '@capacitor/core';
 import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-header/gyno-page-header.component';
@@ -10,6 +10,9 @@ import { GynoPhotoThumbnailComponent } from 'src/app/shared/components/gyno-phot
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
 import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
+import { PatientService } from 'src/app/core/services/patient.service';
+import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { Patient, Consultation, calculateAge } from 'src/app/shared/models/patient.model';
 
 interface TimelineConsultation {
   id: string;
@@ -87,14 +90,63 @@ interface TimelineConsultation {
         transform: scale(0.85);
         transition: all 0.2s ease;
       }
-
     `,
   ],
 })
-export class PatientDetailPage {
+export class PatientDetailPage implements OnInit {
+  readonly loadingPatient = signal(true);
+  readonly loadingConsultations = signal(true);
+  readonly patient = signal<Patient | null>(null);
+  readonly patientAge = computed(() => {
+    const p = this.patient();
+    return p ? calculateAge(p.birthDate) : 0;
+  });
+  readonly consultations = signal<TimelineConsultation[]>([]);
+  readonly encryptedPhotos: { id: string; src: string; consultationId: string }[] = [];
+
   readonly galleryUnlocked = signal(false);
   readonly galleryLoading = signal(false);
   readonly selectedIndex = signal(-1);
+
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private patientService = inject(PatientService);
+  private consultationService = inject(ConsultationService);
+
+  async ngOnInit() {
+    this.loadingPatient.set(true);
+    this.loadingConsultations.set(true);
+    try {
+      const id = this.route.snapshot.paramMap.get('id')!;
+      const p = await this.patientService.getById(id);
+      this.patient.set(p);
+      this.loadingPatient.set(false);
+
+      if (p) {
+        const cons = await this.consultationService.getByPatient(p.id);
+        this.consultations.set(
+          cons.map((c) => ({
+            id: c.id,
+            date: new Date(c.date),
+            dateLabel: this.formatDateLabel(c.date),
+            title: c.motivo,
+            description: c.diagnostico + (c.tratamiento ? `\nTx: ${c.tratamiento}` : ''),
+          }))
+        );
+      }
+    } catch (e) {
+      console.error('Error loading patient:', e);
+    } finally {
+      this.loadingPatient.set(false);
+      this.loadingConsultations.set(false);
+    }
+  }
+
+  private formatDateLabel(iso: string): string {
+    const d = new Date(iso);
+    const months = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+    return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+  }
 
   constructor() {
     document.addEventListener('ionBackButton', (ev: any) => {
@@ -113,70 +165,29 @@ export class PatientDetailPage {
     return this.encryptedPhotos.length;
   }
 
-  readonly patient = {
-    id: '1',
-    name: 'María García',
-    age: 34,
-    phone: '+58 412-1234567',
-    address: 'Av. Principal, Caracas 1050',
-    alergias: 'Penicilina',
-    factorRiesgo: 'Diabetes tipo 2',
-  };
-
-  readonly consultations: TimelineConsultation[] = [
-    {
-      id: 'c3',
-      date: new Date('2026-06-15'),
-      dateLabel: '15 JUN, 2026',
-      title: 'Control de rutina',
-      description: 'Presión arterial normal. Peso estable. Se recomienda continuar con tratamiento actual y próxima cita en 3 meses.',
-    },
-    {
-      id: 'c2',
-      date: new Date('2026-03-10'),
-      dateLabel: '10 MAR, 2026',
-      title: 'Seguimiento prenatal',
-      description: 'Ecografía de control muestra desarrollo fetal normal. Se ajusta suplemento de hierro.',
-    },
-    {
-      id: 'c1',
-      date: new Date('2025-11-22'),
-      dateLabel: '22 NOV, 2025',
-      title: 'Primera consulta',
-      description: 'Paciente acude por primera vez. Se realiza historia clínica completa y exámenes de laboratorio generales.',
-    },
-  ];
-
-  readonly encryptedPhotos = [
-    { id: 'p1', src: 'https://picsum.photos/seed/gyno1/400/400', consultationId: 'c3' },
-    { id: 'p2', src: 'https://picsum.photos/seed/gyno2/400/400', consultationId: 'c3' },
-    { id: 'p3', src: 'https://picsum.photos/seed/gyno3/400/400', consultationId: 'c2' },
-    { id: 'p4', src: 'https://picsum.photos/seed/gyno4/400/400', consultationId: 'c2' },
-    { id: 'p5', src: 'https://picsum.photos/seed/gyno5/400/400', consultationId: 'c1' },
-    { id: 'p6', src: 'https://picsum.photos/seed/gyno6/400/400', consultationId: 'c1' },
-  ];
-
-  private router = inject(Router);
-
   goBack() {
     history.back();
   }
 
   navigateToConsultation(consultationId: string) {
-    this.router.navigate(['/home/patient', this.patient.id, 'consultation', consultationId]);
+    this.router.navigate(['/home/patient', this.patient()?.id, 'consultation', consultationId]);
   }
 
   newConsultation() {
-    this.router.navigate(['/home/patient', this.patient.id, 'consultation', 'new']);
+    this.router.navigate(['/home/patient', this.patient()?.id, 'consultation', 'new']);
   }
 
   callPatient() {
-    window.open(`tel:${this.patient.phone}`, '_system');
+    const p = this.patient();
+    if (p) window.open(`tel:${p.phone}`, '_system');
   }
 
   sendWhatsApp() {
-    const msg = encodeURIComponent(`Hola ${this.patient.name}, te escribe la Dra.`);
-    window.open(`https://wa.me/${this.patient.phone.replace(/[^0-9]/g, '')}?text=${msg}`, '_system');
+    const p = this.patient();
+    if (p) {
+      const msg = encodeURIComponent(`Hola ${p.name}, te escribe la Dra.`);
+      window.open(`https://wa.me/${p.phone.replace(/[^0-9]/g, '')}?text=${msg}`, '_system');
+    }
   }
 
   readonly chromeVisible = signal(true);
@@ -184,21 +195,18 @@ export class PatientDetailPage {
   imageLoaded = signal(false);
   readonly singlePhotoView = signal(false);
 
-  // Viewer drag (signal-based to avoid getBoundingClientRect feedback loop)
   readonly viewerDragX = signal(0);
   readonly viewerDragActive = signal(false);
   readonly viewerZoom = signal(1);
-  readonly swipeTargetIdx = signal(-1); // adjacent photo shown during swipe
+  readonly swipeTargetIdx = signal(-1);
   private dragStartX = 0;
   viewWidth = 0;
   private isAnimatingSwipe = false;
 
-  // Pinch zoom
   private pinchStartDist = 0;
   private pinchStartZoom = 1;
   private isPinching = false;
 
-  // Pan when zoomed
   private panStartX = 0;
   private panStartY = 0;
   private panStartScrollLeft = 0;
@@ -333,7 +341,6 @@ export class PatientDetailPage {
     }
     this.isPinching = false;
     if (this.viewerZoom() > 1) {
-      // Pan mode
       this.isPanning = true;
       const clientX = this.getPointerX(e);
       const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
@@ -347,7 +354,7 @@ export class PatientDetailPage {
       return;
     }
     this.isPanning = false;
-    if (this.singlePhotoView()) return; // no swipe nav in single-photo mode
+    if (this.singlePhotoView()) return;
     this.viewWidth = window.innerWidth;
     this.dragStartX = this.getPointerX(e);
     this.viewerDragX.set(0);
@@ -381,7 +388,6 @@ export class PatientDetailPage {
     const dx = this.getPointerX(e) - this.dragStartX;
     this.viewerDragX.set(dx);
 
-    // Show adjacent photo once direction is clear (not in single-photo mode)
     const idx = this.selectedIndex();
     if (!this.singlePhotoView() && this.swipeTargetIdx() === -1 && Math.abs(dx) > 10) {
       if (dx < 0 && idx < this.encryptedPhotos.length - 1) {
@@ -406,7 +412,6 @@ export class PatientDetailPage {
     const dx = this.getPointerXEnd(e) - this.dragStartX;
     const idx = this.selectedIndex();
 
-    // In single-photo mode, always snap back
     if (this.singlePhotoView()) {
       this.swipeTargetIdx.set(-1);
       this.viewerDragX.set(0);
@@ -416,7 +421,6 @@ export class PatientDetailPage {
     const threshold = this.viewWidth * 0.25;
 
     if (dx < -threshold && idx < this.encryptedPhotos.length - 1) {
-      // Navigate to next — animate current off-screen left, target to center
       this.swipeTargetIdx.set(idx + 1);
       this.viewerDragX.set(-this.viewWidth);
       this.isAnimatingSwipe = true;
@@ -429,7 +433,6 @@ export class PatientDetailPage {
         this.imageLoaded.set(false);
       }, 350);
     } else if (dx > threshold && idx > 0) {
-      // Navigate to prev — animate current off-screen right, target to center
       this.swipeTargetIdx.set(idx - 1);
       this.viewerDragX.set(this.viewWidth);
       this.isAnimatingSwipe = true;
@@ -442,7 +445,6 @@ export class PatientDetailPage {
         this.imageLoaded.set(false);
       }, 350);
     } else {
-      // Snap back
       this.swipeTargetIdx.set(-1);
       this.viewerDragX.set(0);
     }
@@ -456,7 +458,6 @@ export class PatientDetailPage {
     if (!img) return;
     const now = Date.now();
     if (now - this.lastTapTime < 300) {
-      // Double tap → zoom
       if (this.tapTimer) {
         clearTimeout(this.tapTimer);
         this.tapTimer = null;
@@ -477,7 +478,6 @@ export class PatientDetailPage {
       return;
     }
     this.lastTapTime = now;
-    // Single tap — let event bubble to onViewerClick for chrome toggle
   }
 
   readonly showPinInput = signal(false);

@@ -1,14 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PatientService } from 'src/app/core/services/patient.service';
+import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { calculateAge } from 'src/app/shared/models/patient.model';
 import { GynoSearchBarComponent } from 'src/app/shared/components/gyno-search-bar/gyno-search-bar.component';
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
 import { GynoHorizontalScrollComponent } from 'src/app/shared/components/gyno-horizontal-scroll/gyno-horizontal-scroll.component';
 import { GynoRecentCardComponent, RecentPatient } from 'src/app/shared/components/gyno-recent-card/gyno-recent-card.component';
 import { GynoPatientTableComponent, TablePatient } from 'src/app/shared/components/gyno-patient-table/gyno-patient-table.component';
-import { GynoFabComponent } from 'src/app/shared/components/gyno-fab/gyno-fab.component';
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
 import { GynoFilterPopoverComponent } from 'src/app/shared/components/gyno-filter-popover/gyno-filter-popover.component';
 import { GynoActionPopoverComponent } from 'src/app/shared/components/gyno-action-popover/gyno-action-popover.component';
@@ -27,46 +29,101 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
     GynoHorizontalScrollComponent,
     GynoRecentCardComponent,
     GynoPatientTableComponent,
-    GynoFabComponent,
     GynoBottomNavComponent,
     GynoFilterPopoverComponent,
     GynoActionPopoverComponent,
     GynoTopbarComponent,
   ],
 })
-export class HomePage {
+export class HomePage implements OnInit {
   private router = inject(Router);
   private popoverController = inject(PopoverController);
+  private patientService = inject(PatientService);
+  private consultationService = inject(ConsultationService);
 
-  private originalPatients: TablePatient[] = [
-    { id: '1', name: 'María García', age: 34, phone: '+58 412-1234567', address: 'Av. Principal, Caracas', createdAt: '2026-01-01', updatedAt: '2026-06-15', ultimaConsulta: '15 Jun 2026', status: 'Control Rutina', statusVariant: 'success' },
-    { id: '2', name: 'Beatriz Gómez', age: 31, phone: '+58 414-1112233', createdAt: '2026-01-05', updatedAt: '2026-06-12', ultimaConsulta: '12 Jun 2026', status: 'Seguimiento', statusVariant: 'warning' },
-    { id: '3', name: 'Claudia Paredes', age: 25, phone: '+58 414-2223344', createdAt: '2026-02-10', updatedAt: '2026-06-10', ultimaConsulta: '10 Jun 2026', status: 'Prenatal', statusVariant: 'info' },
-    { id: '4', name: 'Diana Rivas', age: 39, phone: '+58 414-3334455', createdAt: '2026-02-15', updatedAt: '2026-06-08', ultimaConsulta: '08 Jun 2026', status: 'Control Rutina', statusVariant: 'success' },
-    { id: '5', name: 'Fernanda Pardo', age: 45, phone: '+58 414-4445566', createdAt: '2026-03-01', updatedAt: '2026-06-05', ultimaConsulta: '05 Jun 2026', status: 'Control Rutina', statusVariant: 'success' },
-    { id: '6', name: 'Sofía Martínez', age: 28, phone: '+58 414-5556677', createdAt: '2026-03-10', updatedAt: '2026-06-03', ultimaConsulta: '03 Jun 2026', status: 'Seguimiento', statusVariant: 'warning' },
-  ];
-
-  readonly recentPatients: RecentPatient[] = [
-    { id: '1', name: 'María García', age: 34, consultationId: 'CON-024', lastVisitDate: '15 Jun 2026', lastVisitTime: '10:30 am' },
-    { id: '2', name: 'Beatriz Gómez', age: 31, consultationId: 'CON-023', lastVisitDate: '12 Jun 2026', lastVisitTime: '4:15 pm' },
-    { id: '3', name: 'Claudia Paredes', age: 25, consultationId: 'CON-022', lastVisitDate: '10 Jun 2026', lastVisitTime: '9:00 am' },
-    { id: '4', name: 'Diana Rivas', age: 39, consultationId: 'CON-021', lastVisitDate: '08 Jun 2026', lastVisitTime: '11:45 am' },
-    { id: '5', name: 'Fernanda Pardo', age: 45, consultationId: 'CON-020', lastVisitDate: '05 Jun 2026', lastVisitTime: '3:00 pm' },
-    { id: '6', name: 'Sofía Martínez', age: 28, consultationId: 'CON-019', lastVisitDate: '03 Jun 2026', lastVisitTime: '8:30 am' },
-  ];
-
-  patients = signal<TablePatient[]>([...this.originalPatients]);
+  readonly loading = signal(true);
+  readonly patients = signal<TablePatient[]>([]);
+  readonly recentPatients = signal<RecentPatient[]>([]);
 
   currentPage = 1;
   pageSize = 5;
-  totalCount = 6;
+  totalCount = 0;
 
   sortField = '';
   private sortAsc = true;
+  private allPatients: TablePatient[] = [];
+  private searchQuery = '';
+
+  async ngOnInit() {
+    this.loading.set(true);
+    try {
+      await this.loadPatients();
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  private async loadPatients() {
+    const patients = await this.patientService.getAll();
+    const mapped: TablePatient[] = [];
+    const allCons: { patientId: string; date: string; consultationId: string; motivo: string }[] = [];
+    for (const p of patients) {
+      const consultations = await this.consultationService.getByPatient(p.id);
+      const latest = consultations[0];
+      mapped.push({
+        ...p,
+        age: calculateAge(p.birthDate),
+        ultimaConsulta: latest ? this.formatDate(latest.date) : undefined,
+      });
+      for (const c of consultations) {
+        allCons.push({ patientId: p.id, date: c.date, consultationId: c.id, motivo: c.motivo });
+      }
+    }
+    this.allPatients = mapped;
+    this.applySearch();
+
+    allCons.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const top5 = allCons.slice(0, 5);
+    const recent: RecentPatient[] = [];
+    for (const c of top5) {
+      const p = patients.find(x => x.id === c.patientId);
+      if (p) {
+        const d = new Date(c.date);
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        recent.push({
+          id: p.id,
+          name: p.name,
+          age: calculateAge(p.birthDate),
+          consultationId: c.consultationId,
+          motivo: c.motivo,
+          lastVisitDate: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`,
+          lastVisitTime: `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`,
+        });
+      }
+    }
+    this.recentPatients.set(recent);
+  }
+
+  private applySearch() {
+    const filtered = this.searchQuery
+      ? this.allPatients.filter((p) =>
+          p.name.toLowerCase().includes(this.searchQuery.toLowerCase()),
+        )
+      : [...this.allPatients];
+    this.totalCount = filtered.length;
+    this.patients.set(filtered);
+  }
+
+  private formatDate(iso: string): string {
+    const d = new Date(iso);
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
 
   onSearch(value: string) {
-    console.log('Search:', value);
+    this.searchQuery = value;
+    this.currentPage = 1;
+    this.applySearch();
   }
 
   onRecentCardClicked(patient: RecentPatient) {
@@ -95,7 +152,7 @@ export class HomePage {
   private applyFilter(filter: string) {
     if (filter === 'clear') {
       this.sortField = '';
-      this.patients.set([...this.originalPatients]);
+      this.applySearch();
       return;
     }
     if (this.sortField === filter) {
@@ -104,7 +161,7 @@ export class HomePage {
       this.sortField = filter;
       this.sortAsc = true;
     }
-    const sorted = [...this.originalPatients].sort((a, b) => {
+    const sorted = [...this.patients()].sort((a, b) => {
       let cmp = 0;
       if (filter === 'date') {
         cmp = this.parseDate(b.ultimaConsulta) - this.parseDate(a.ultimaConsulta);
@@ -147,6 +204,6 @@ export class HomePage {
   }
 
   onAddConsultation() {
-    console.log('Add consultation');
+    this.router.navigate(['/home/patient/new']);
   }
 }

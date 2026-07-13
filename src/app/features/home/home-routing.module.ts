@@ -9,9 +9,11 @@ import { SchedulePage } from './schedule.page';
 import { CreateAppointmentPage } from '../create-appointment/create-appointment.page';
 import { SettingsPage } from '../settings/settings.page';
 import { EditProfilePage } from '../edit-profile/edit-profile.page';
+import { PatientFormPage } from '../patient-form/patient-form.page';
 
 const routes: Routes = [
   { path: '', component: HomePage },
+  { path: 'patient/new', component: PatientFormPage },
   { path: 'patient/:id', component: PatientDetailPage },
   { path: 'patient/:id/consultation/new', component: CreateConsultationPage },
   { path: 'patient/:id/consultation/:consultationId', component: ConsultationDetailPage },

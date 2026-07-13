@@ -9,20 +9,30 @@
 
     <!-- Patient Info Summary -->
     <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 mb-6">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-sans text-sm font-bold shrink-0">
-          {{ patient.name.charAt(0) }}{{ patient.name.split(' ').pop()?.charAt(0) }}
+      @if (loadingPatient()) {
+        <div class="flex items-center gap-3 animate-pulse">
+          <div class="w-10 h-10 rounded-full bg-outline-variant shrink-0"></div>
+          <div class="flex-1 min-w-0 space-y-2">
+            <div class="h-4 bg-outline-variant rounded w-40"></div>
+            <div class="h-3 bg-outline-variant rounded w-56"></div>
+          </div>
         </div>
-        <div class="min-w-0">
-          <h3 class="font-sans text-base font-semibold text-on-surface m-0 truncate">
-            {{ patient.name }}
-          </h3>
-          <p class="font-sans text-sm text-on-surface-variant m-0">
-            <i class="not-italic text-sm mgc_cake_line mr-1"></i>
-            {{ patient.age }} años · {{ patient.phone }}
-          </p>
+      } @else {
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-sans text-sm font-bold shrink-0">
+            {{ patientName().charAt(0) }}{{ patientName().split(' ').pop()?.charAt(0) }}
+          </div>
+          <div class="min-w-0">
+            <h3 class="font-sans text-base font-semibold text-on-surface m-0 truncate">
+              {{ patientName() }}
+            </h3>
+            <p class="font-sans text-sm text-on-surface-variant m-0">
+              <i class="not-italic text-sm mgc_cake_line mr-1"></i>
+              {{ patientAge() }} años · {{ patientPhone() }}
+            </p>
+          </div>
         </div>
-      </div>
+      }
     </div>
 
     <!-- Form Card -->

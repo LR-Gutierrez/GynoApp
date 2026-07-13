@@ -1,111 +1,172 @@
 <gyno-page-header
-  [title]="consultation?.title ?? 'Consulta'"
+  [title]="headerTitle"
   [showBack]="true"
   (back)="goBack()"
 />
 
 <ion-content>
   <div class="px-4 pt-4 pb-4">
-    @if (consultation) {
+    @if (loading()) {
+      <!-- Skeleton -->
       <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 mb-6">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="inline-flex items-center font-sans text-xs font-bold text-primary-900 bg-primary-fixed px-3 py-1 rounded-full tracking-wide">
-            <i class="not-italic text-sm mr-1.5 mgc_calendar_line"></i>
-            {{ consultation.dateLabel }}
-          </span>
+        <div class="h-5 w-32 bg-surface-container-high rounded-full skeleton-shimmer mb-4"></div>
+        <div class="h-6 w-48 bg-surface-container-high rounded skeleton-shimmer mb-3"></div>
+        <div class="space-y-2">
+          <div class="h-4 w-full bg-surface-container-high rounded skeleton-shimmer"></div>
+          <div class="h-4 w-full bg-surface-container-high rounded skeleton-shimmer"></div>
+          <div class="h-4 w-3/4 bg-surface-container-high rounded skeleton-shimmer"></div>
         </div>
-        <h2 class="font-sans text-xl font-bold text-on-surface m-0 mb-3 tracking-tight">
-          {{ consultation.title }}
-        </h2>
-        <p class="font-sans text-sm text-on-surface-variant m-0 leading-relaxed">
-          {{ consultation.description }}
-        </p>
       </div>
 
-      <gyno-section-header
-        icon="mgc_image_line"
-        title="Fotos de la consulta"
-      />
+      <div class="h-6 w-36 bg-surface-container-high rounded skeleton-shimmer mb-4"></div>
 
-      @let unlocked = galleryUnlocked();
-      @let loading = galleryLoading();
-      @let consultPhotos = photos;
-
-      @if (consultPhotos.length > 0) {
-        <!-- Loading skeleton -->
-        @if (loading) {
-          <div class="grid grid-cols-3 gap-2 mb-4">
-            @for (_ of [1,2,3,4,5,6]; track $index) {
-              <div class="aspect-square rounded-xl bg-surface-container-high overflow-hidden">
-                <div class="skeleton-shimmer w-full h-full"></div>
-              </div>
-            }
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        @for (_ of [1,2,3,4,5,6]; track $index) {
+          <div class="aspect-square rounded-xl bg-surface-container-high overflow-hidden">
+            <div class="skeleton-shimmer w-full h-full"></div>
           </div>
-          <ion-button disabled class="btn-primary w-full opacity-50">
-            <i class="not-italic text-lg mgc_fingerprint_line" slot="start"></i>
-            Verificando…
-          </ion-button>
         }
+      </div>
+    } @else {
+      @let c = consultation();
+      @if (c) {
+        <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 mb-6">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="inline-flex items-center font-sans text-xs font-bold text-primary-900 bg-primary-fixed px-3 py-1 rounded-full tracking-wide">
+              <i class="not-italic text-sm mr-1.5 mgc_calendar_line"></i>
+              {{ dateLabel }}
+            </span>
+          </div>
+          <h2 class="font-sans text-xl font-bold text-on-surface m-0 mb-3 tracking-tight">
+            {{ c.motivo }}
+          </h2>
 
-        <!-- Unlocked photos -->
-        @if (unlocked) {
-          <div class="grid grid-cols-3 gap-2 mb-4">
-            <div
-              class="gallery-item aspect-square rounded-xl overflow-hidden border-2 border-dashed border-outline-variant cursor-pointer bg-surface-container-low flex flex-col items-center justify-center gap-1"
-              (click)="takePhoto()"
-            >
-              <gyno-photo-thumbnail type="camera" />
-              <span class="font-sans text-[11px] font-medium text-on-surface-variant">Tomar foto</span>
+          @if (c.diagnostico) {
+            <div class="mb-3">
+              <p class="font-sans text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Diagnóstico</p>
+              <p class="font-sans text-sm text-on-surface m-0 leading-relaxed whitespace-pre-line">{{ c.diagnostico }}</p>
             </div>
-            @for (photo of consultPhotos; track photo.id) {
-              <div
-                class="gallery-item aspect-square rounded-xl overflow-hidden border border-outline-variant cursor-pointer"
-                [style.animation-delay]="0.08 * $index + 's'"
-                (click)="openPhoto(photo.src)"
-              >
-                <img
-                  [src]="photo.src"
-                  alt="Foto de consulta"
-                  class="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-            }
-          </div>
-          <ion-button fill="outline" class="btn-outline-primary w-full" (click)="lockGallery()">
-            <i class="not-italic text-lg mgc_lock_line" slot="start"></i>
-            Bloquear fotos
-          </ion-button>
-        }
+          }
 
-        <!-- Locked encrypted -->
-        @if (!unlocked && !loading) {
-          <div class="grid grid-cols-3 gap-2 mb-4">
-            @for (photo of consultPhotos; track photo.id) {
+          @if (c.tratamiento) {
+            <div class="mb-3">
+              <p class="font-sans text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Tratamiento</p>
+              <p class="font-sans text-sm text-on-surface m-0 leading-relaxed whitespace-pre-line">{{ c.tratamiento }}</p>
+            </div>
+          }
+
+          @if (c.receta) {
+            <div class="mb-3">
+              <p class="font-sans text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Receta</p>
+              <p class="font-sans text-sm text-on-surface m-0 leading-relaxed whitespace-pre-line">{{ c.receta }}</p>
+            </div>
+          }
+
+          @if (c.examenes) {
+            <div class="mb-3">
+              <p class="font-sans text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Exámenes</p>
+              <p class="font-sans text-sm text-on-surface m-0 leading-relaxed whitespace-pre-line">{{ c.examenes }}</p>
+            </div>
+          }
+
+          @if (c.notas) {
+            <div>
+              <p class="font-sans text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Notas</p>
+              <p class="font-sans text-sm text-on-surface m-0 leading-relaxed whitespace-pre-line">{{ c.notas }}</p>
+            </div>
+          }
+        </div>
+
+        <gyno-section-header
+          icon="mgc_image_line"
+          title="Fotos de la consulta"
+        />
+
+        @let unlocked = galleryUnlocked();
+        @let loading = galleryLoading();
+        @let consultPhotos = photos();
+
+        @if (consultPhotos.length > 0) {
+          @if (loading) {
+            <div class="grid grid-cols-3 gap-2 mb-4">
+              @for (_ of [1,2,3,4,5,6]; track $index) {
+                <div class="aspect-square rounded-xl bg-surface-container-high overflow-hidden">
+                  <div class="skeleton-shimmer w-full h-full"></div>
+                </div>
+              }
+            </div>
+            <ion-button disabled class="btn-primary w-full opacity-50">
+              <i class="not-italic text-lg mgc_fingerprint_line" slot="start"></i>
+              Verificando…
+            </ion-button>
+          }
+
+          @if (unlocked) {
+            <div class="grid grid-cols-3 gap-2 mb-4">
               <div
-                class="gallery-item aspect-square cursor-pointer"
-                [style.animation-delay]="0.08 * $index + 's'"
-                (click)="unlockSinglePhoto(photo.src)"
+                class="gallery-item aspect-square rounded-xl overflow-hidden border-2 border-dashed border-outline-variant cursor-pointer bg-surface-container-low flex flex-col items-center justify-center gap-1"
+                (click)="takePhoto()"
               >
-                <gyno-photo-thumbnail
-                  type="encrypted"
-                  [src]="photo.src"
-                  size="md"
-                />
+                <gyno-photo-thumbnail type="camera" />
+                <span class="font-sans text-[11px] font-medium text-on-surface-variant">Tomar foto</span>
               </div>
-            }
+              @for (photo of consultPhotos; track photo.id) {
+                <div
+                  class="gallery-item aspect-square rounded-xl overflow-hidden border border-outline-variant cursor-pointer"
+                  [style.animation-delay]="0.08 * $index + 's'"
+                  (click)="openPhoto(photo.src)"
+                >
+                  <img
+                    [src]="photo.src"
+                    alt="Foto de consulta"
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              }
+            </div>
+            <ion-button fill="outline" class="btn-outline-primary w-full" (click)="lockGallery()">
+              <i class="not-italic text-lg mgc_lock_line" slot="start"></i>
+              Bloquear fotos
+            </ion-button>
+          }
+
+          @if (!unlocked && !loading) {
+            <div class="grid grid-cols-3 gap-2 mb-4">
+              @for (photo of consultPhotos; track photo.id) {
+                <div
+                  class="gallery-item aspect-square cursor-pointer"
+                  [style.animation-delay]="0.08 * $index + 's'"
+                  (click)="unlockSinglePhoto(photo.src)"
+                >
+                  <gyno-photo-thumbnail
+                    type="encrypted"
+                    [src]="photo.src"
+                    size="md"
+                  />
+                </div>
+              }
+            </div>
+            <ion-button class="btn-primary w-full" (click)="unlockGallery()">
+              <i class="not-italic text-lg mgc_fingerprint_line" slot="start"></i>
+              Ver fotos
+            </ion-button>
+          }
+        } @else {
+          <div class="bg-surface-container-low rounded-xl p-5 flex flex-col items-center gap-2 text-center">
+            <i class="not-italic text-3xl text-on-surface-variant/40 mgc_image_line"></i>
+            <p class="font-sans text-sm text-on-surface-variant m-0">
+              No hay fotos asociadas a esta consulta
+            </p>
           </div>
-          <ion-button class="btn-primary w-full" (click)="unlockGallery()">
-            <i class="not-italic text-lg mgc_fingerprint_line" slot="start"></i>
-            Ver fotos
-          </ion-button>
         }
       } @else {
-        <div class="bg-surface-container-low rounded-xl p-5 flex flex-col items-center gap-2 text-center">
-          <i class="not-italic text-3xl text-on-surface-variant/40 mgc_image_line"></i>
-          <p class="font-sans text-sm text-on-surface-variant m-0">
-            No hay fotos asociadas a esta consulta
-          </p>
+        <div class="text-center py-16">
+          <i class="not-italic text-5xl text-on-surface-variant/30 mgc_search_off_line"></i>
+          <p class="font-sans text-base text-on-surface-variant mt-4">Consulta no encontrada</p>
+          <ion-button fill="clear" class="mt-2" (click)="goBack()">
+            Volver
+          </ion-button>
         </div>
       }
     }

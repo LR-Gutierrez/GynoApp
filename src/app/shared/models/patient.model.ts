@@ -1,13 +1,25 @@
 export interface Patient {
   id: string;
   name: string;
-  age: number;
+  cedula?: string;
+  birthDate: string;
   phone: string;
   address?: string;
   antecedentes?: string;
   alergias?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export function calculateAge(birthDate: string): number {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
 }
 
 export interface Consultation {

@@ -1,6 +1,6 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-import { Patient } from '../../models/patient.model';
+import { Patient, calculateAge } from '../../models/patient.model';
 import { GynoAvatarComponent } from '../gyno-avatar/gyno-avatar.component';
 
 @Component({
@@ -12,6 +12,7 @@ import { GynoAvatarComponent } from '../gyno-avatar/gyno-avatar.component';
 export class GynoPatientCardComponent {
   readonly patient = input.required<Patient>();
   readonly avatar = input<string>('');
+  readonly patientAge = computed(() => calculateAge(this.patient().birthDate));
 
   readonly clicked = output<void>();
   readonly delete = output<void>();

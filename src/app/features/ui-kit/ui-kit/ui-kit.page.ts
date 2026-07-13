@@ -68,7 +68,7 @@ export class UiKitPage {
   samplePatient: Patient = {
     id: '1',
     name: 'María García',
-    age: 34,
+    birthDate: '1990-05-15',
     phone: '+58 412-1234567',
     address: 'Av. Principal, Caracas',
     alergias: 'Penicilina',
@@ -83,10 +83,10 @@ export class UiKitPage {
   ];
 
   samplePatients: TablePatient[] = [
-    { id: '1', name: 'Beatriz Gómez', age: 31, phone: '+58 414-1112233', ultimaConsulta: '15 Oct 2023', status: 'Control Rutina', statusVariant: 'success', createdAt: '', updatedAt: '' },
-    { id: '2', name: 'Claudia Paredes', age: 25, phone: '+58 414-2223344', ultimaConsulta: '02 Oct 2023', status: 'Seguimiento', statusVariant: 'danger', createdAt: '', updatedAt: '' },
-    { id: '3', name: 'Diana Rivas', age: 39, phone: '+58 414-3334455', ultimaConsulta: '28 Sep 2023', status: 'Prenatal', statusVariant: 'info', createdAt: '', updatedAt: '' },
-    { id: '4', name: 'Fernanda Pardo', age: 45, phone: '+58 414-4445566', ultimaConsulta: '14 Sep 2023', status: 'Control Rutina', statusVariant: 'success', createdAt: '', updatedAt: '' },
+    { id: '1', name: 'Beatriz Gómez', birthDate: '1995-01-15', phone: '+58 414-1112233', ultimaConsulta: '15 Oct 2023', status: 'Control Rutina', statusVariant: 'success', createdAt: '', updatedAt: '' },
+    { id: '2', name: 'Claudia Paredes', birthDate: '2000-04-20', phone: '+58 414-2223344', ultimaConsulta: '02 Oct 2023', status: 'Seguimiento', statusVariant: 'danger', createdAt: '', updatedAt: '' },
+    { id: '3', name: 'Diana Rivas', birthDate: '1986-08-10', phone: '+58 414-3334455', ultimaConsulta: '28 Sep 2023', status: 'Prenatal', statusVariant: 'info', createdAt: '', updatedAt: '' },
+    { id: '4', name: 'Fernanda Pardo', birthDate: '1980-03-05', phone: '+58 414-4445566', ultimaConsulta: '14 Sep 2023', status: 'Control Rutina', statusVariant: 'success', createdAt: '', updatedAt: '' },
   ];
 
   constructor() {

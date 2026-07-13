@@ -7,6 +7,9 @@ import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-hea
 import { GynoFormFieldComponent } from 'src/app/shared/components/gyno-form-field/gyno-form-field.component';
 import { GynoLoadingButtonComponent } from 'src/app/shared/components/gyno-loading-button/gyno-loading-button.component';
 import { GynoDatePickerComponent } from 'src/app/shared/components/gyno-date-picker/gyno-date-picker.component';
+import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { PatientService } from 'src/app/core/services/patient.service';
+import { calculateAge } from 'src/app/shared/models/patient.model';
 
 interface PendingMedia {
   id: string;
@@ -39,11 +42,14 @@ interface PendingMedia {
 export class CreateConsultationPage implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-
-
+  private consultationService = inject(ConsultationService);
+  private patientService = inject(PatientService);
 
   readonly patientId = signal('');
   readonly patientName = signal('Paciente');
+  readonly patientAge = signal(0);
+  readonly patientPhone = signal('');
+  readonly loadingPatient = signal(true);
 
   readonly date = signal(new Date().toISOString().split('T')[0]);
   readonly motivo = signal('');
@@ -57,17 +63,26 @@ export class CreateConsultationPage implements OnInit {
   readonly motivoError = signal('');
   readonly saving = signal(false);
 
-  readonly patient = {
-    id: '1',
-    name: 'María García',
-    age: 34,
-    phone: '+58 412-1234567',
-  };
-
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.patientId.set(id);
+      this.loadPatient(id);
+    }
+  }
+
+  private async loadPatient(id: string) {
+    try {
+      const patient = await this.patientService.getById(id);
+      if (patient) {
+        this.patientName.set(patient.name);
+        this.patientAge.set(calculateAge(patient.birthDate));
+        this.patientPhone.set(patient.phone);
+      }
+    } catch {
+      console.warn('Could not load patient');
+    } finally {
+      this.loadingPatient.set(false);
     }
   }
 
@@ -104,7 +119,7 @@ export class CreateConsultationPage implements OnInit {
     history.back();
   }
 
-  save() {
+  async save() {
     if (!this.motivo().trim()) {
       this.motivoError.set('El motivo de consulta es obligatorio');
       return;
@@ -113,24 +128,22 @@ export class CreateConsultationPage implements OnInit {
 
     this.saving.set(true);
 
-    const consultation = {
-      patientId: this.patientId(),
-      date: this.date(),
-      motivo: this.motivo().trim(),
-      diagnostico: this.diagnostico().trim(),
-      tratamiento: this.tratamiento().trim(),
-      receta: this.receta().trim(),
-      notas: this.notas().trim(),
-      examenes: this.examenes().trim(),
-      photoIds: [],
-      createdAt: new Date().toISOString(),
-    };
-
-    console.log('Consulta guardada:', consultation);
-
-    setTimeout(() => {
-      this.saving.set(false);
+    try {
+      await this.consultationService.create({
+        patientId: this.patientId(),
+        date: this.date(),
+        motivo: this.motivo().trim(),
+        diagnostico: this.diagnostico().trim(),
+        tratamiento: this.tratamiento().trim(),
+        receta: this.receta().trim() || undefined,
+        notas: this.notas().trim() || undefined,
+        examenes: this.examenes().trim() || undefined,
+        photoIds: [],
+      });
       this.router.navigate(['/home/patient', this.patientId()]);
-    }, 800);
+    } catch {
+      console.warn('Could not save consultation');
+      this.saving.set(false);
+    }
   }
 }

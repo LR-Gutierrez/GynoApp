@@ -3,7 +3,7 @@ import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacito
 import { Platform } from '@ionic/angular';
 
 const DB_NAME = 'gynoapp.db';
-const DB_VERSION = 2;
+const DB_VERSION = 4;
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
@@ -53,7 +53,7 @@ export class DatabaseService {
         `CREATE TABLE IF NOT EXISTS patients (
           id TEXT PRIMARY KEY,
           name TEXT NOT NULL,
-          age INTEGER NOT NULL,
+          birthDate TEXT NOT NULL,
           phone TEXT NOT NULL,
           address TEXT,
           antecedentes TEXT,
@@ -103,9 +103,27 @@ export class DatabaseService {
       );
     }
 
+    if (currentVersion < 3) {
+      try {
+        await connection.run(`ALTER TABLE patients ADD COLUMN cedula TEXT`, [], false);
+      } catch {
+        // la columna ya existe en instalaciones previas
+      }
+    }
+
+    if (currentVersion < 4) {
+      try {
+        await connection.run(`ALTER TABLE patients ADD COLUMN birthDate TEXT`, [], false);
+      } catch {
+        // la columna ya existe en instalaciones previas
+      }
+    }
+
     for (const sql of statements) {
       await connection.run(sql, [], false);
     }
+
+    await connection.run(`PRAGMA user_version = ${DB_VERSION}`, [], false);
   }
 
   async getProfile(): Promise<{ firstName: string; lastName: string; specialty: string; specialties: string[]; badge: string; photoUrl?: string } | null> {

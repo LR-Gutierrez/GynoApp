@@ -6,6 +6,7 @@ export interface RecentPatient {
   name: string;
   age: number;
   consultationId: string;
+  motivo: string;
   lastVisitDate: string;
   lastVisitTime: string;
 }

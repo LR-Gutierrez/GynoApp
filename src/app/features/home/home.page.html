@@ -1,13 +1,13 @@
 <gyno-topbar title="GynoApp" />
 <ion-content>
   <div class="px-4 pt-4 pb-4">
-
     <gyno-search-bar
       class="mb-6 block"
       placeholder="Buscar pacientes..."
       (search)="onSearch($event)"
     />
 
+    @if (recentPatients().length > 0) {
     <gyno-section-header
       icon="mgc_history_anticlockwise_line"
       title="Recientes"
@@ -16,13 +16,14 @@
     />
 
     <gyno-horizontal-scroll class="mb-8 block">
-      @for (patient of recentPatients; track patient.id) {
+      @for (patient of recentPatients(); track patient.consultationId) {
       <gyno-recent-card
         [patient]="patient"
         (clicked)="onRecentCardClicked(patient)"
       />
       }
     </gyno-horizontal-scroll>
+    }
 
     <gyno-patient-table
       [patients]="patients()"
@@ -34,9 +35,12 @@
       (rowAction)="onRowAction($event)"
       (pageChange)="onPageChange($event)"
     />
-  </div>
 
-  <gyno-fab icon="mgc_add_line" (clicked)="onAddConsultation()" />
+    <ion-button class="mt-4 w-full" (click)="onAddConsultation()">
+      <i class="not-italic text-lg text-white! mgc_add_line" slot="start"></i>
+      Nuevo paciente
+    </ion-button>
+  </div>
 </ion-content>
 
 <gyno-filter-popover *ngIf="false" />

@@ -7,6 +7,7 @@ import { GynoStatusPillComponent } from '../gyno-status-pill/gyno-status-pill.co
 import { GynoPaginationComponent } from '../gyno-pagination/gyno-pagination.component';
 
 export interface TablePatient extends Patient {
+  age?: number;
   ultimaConsulta?: string;
   status?: string;
   statusVariant?: 'success' | 'danger' | 'info' | 'warning' | 'neutral';

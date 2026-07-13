@@ -1,4 +1,4 @@
-import { Component, signal, inject, HostListener } from '@angular/core';
+import { Component, signal, inject, HostListener, OnInit } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -9,14 +9,9 @@ import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-hea
 import { GynoPhotoThumbnailComponent } from 'src/app/shared/components/gyno-photo-thumbnail/gyno-photo-thumbnail.component';
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
 import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
-
-interface TimelineConsultation {
-  id: string;
-  date: Date;
-  dateLabel: string;
-  title: string;
-  description: string;
-}
+import { PatientService } from 'src/app/core/services/patient.service';
+import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { Patient, Consultation } from 'src/app/shared/models/patient.model';
 
 @Component({
   selector: 'app-consultation-detail',
@@ -87,55 +82,53 @@ interface TimelineConsultation {
     `,
   ],
 })
-export class ConsultationDetailPage {
+export class ConsultationDetailPage implements OnInit {
   private route = inject(ActivatedRoute);
+  private patientService = inject(PatientService);
+  private consultationService = inject(ConsultationService);
 
-  readonly consultationId = signal('');
+  readonly loading = signal(true);
+  readonly consultation = signal<Consultation | null>(null);
+  readonly patient = signal<Patient | null>(null);
+  readonly photos = signal<{ id: string; src: string; consultationId: string }[]>([]);
+
   readonly galleryUnlocked = signal(false);
   readonly galleryLoading = signal(false);
 
-  readonly allConsultations: TimelineConsultation[] = [
-    {
-      id: 'c3',
-      date: new Date('2026-06-15'),
-      dateLabel: '15 JUN, 2026',
-      title: 'Control de rutina',
-      description:
-        'Presión arterial normal. Peso estable. Se recomienda continuar con tratamiento actual y próxima cita en 3 meses. La paciente reporta sentirse bien y no presenta molestias. Se realiza evaluación física completa y se encuentran resultados dentro de parámetros normales. Se recomienda mantener hábitos saludables y seguir con el tratamiento prescrito.',
-    },
-    {
-      id: 'c2',
-      date: new Date('2026-03-10'),
-      dateLabel: '10 MAR, 2026',
-      title: 'Seguimiento prenatal',
-      description:
-        'Ecografía de control muestra desarrollo fetal normal. Se ajusta suplemento de hierro. La paciente se encuentra en buen estado general, con parámetros vitales estables. Se realiza medición de altura uterina y se ausculta frecuencia cardíaca fetal dentro de rangos normales. Próxima cita en 4 semanas.',
-    },
-    {
-      id: 'c1',
-      date: new Date('2025-11-22'),
-      dateLabel: '22 NOV, 2025',
-      title: 'Primera consulta',
-      description:
-        'Paciente acude por primera vez. Se realiza historia clínica completa y exámenes de laboratorio generales. Se discuten antecedentes familiares y personales. No se reportan alergias conocidas. Se establece plan de seguimiento y se solicitan estudios complementarios.',
-    },
-  ];
-
-  private allPhotos = [
-    { id: 'p1', src: 'https://picsum.photos/seed/gyno1/400/400', consultationId: 'c3' },
-    { id: 'p2', src: 'https://picsum.photos/seed/gyno2/400/400', consultationId: 'c3' },
-    { id: 'p3', src: 'https://picsum.photos/seed/gyno3/400/400', consultationId: 'c2' },
-    { id: 'p4', src: 'https://picsum.photos/seed/gyno4/400/400', consultationId: 'c2' },
-    { id: 'p5', src: 'https://picsum.photos/seed/gyno5/400/400', consultationId: 'c1' },
-    { id: 'p6', src: 'https://picsum.photos/seed/gyno6/400/400', consultationId: 'c1' },
-  ];
-
-  get consultation(): TimelineConsultation | undefined {
-    return this.allConsultations.find(c => c.id === this.consultationId());
+  get headerTitle(): string {
+    return this.patient()?.name ?? 'Consulta';
   }
 
-  get photos() {
-    return this.allPhotos.filter(p => p.consultationId === this.consultationId());
+  get dateLabel(): string {
+    const c = this.consultation();
+    if (!c) return '';
+    const d = new Date(c.date);
+    const months = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+    return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+  }
+
+  async ngOnInit() {
+    this.loading.set(true);
+    try {
+      const consultationId = this.route.snapshot.paramMap.get('consultationId') ?? '';
+      const patientId = this.route.snapshot.paramMap.get('id') ?? '';
+
+      const [c, p] = await Promise.all([
+        this.consultationService.getById(consultationId),
+        this.patientService.getById(patientId),
+      ]);
+
+      this.consultation.set(c);
+      this.patient.set(p);
+    } catch (e) {
+      console.error('Error loading consultation detail:', e);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  goBack() {
+    history.back();
   }
 
   // Photo viewer
@@ -168,15 +161,14 @@ export class ConsultationDetailPage {
   private tapTimer: ReturnType<typeof setTimeout> | null = null;
 
   get viewerPhotos() {
-    return this.photos;
+    return this.photos();
   }
 
   get photoCount(): number {
-    return this.viewerPhotos.length;
+    return this.photos().length;
   }
 
   constructor() {
-    this.consultationId.set(this.route.snapshot.paramMap.get('consultationId') ?? '');
     document.addEventListener('ionBackButton', (ev: any) => {
       if (this.selectedIndex() >= 0) {
         ev.detail.register(10, () => this.closePhoto());
@@ -184,12 +176,8 @@ export class ConsultationDetailPage {
     });
   }
 
-  goBack() {
-    history.back();
-  }
-
   openPhoto(src: string, single = false) {
-    const idx = this.viewerPhotos.findIndex(p => p.src === src);
+    const idx = this.photos().findIndex(p => p.src === src);
     this.selectedIndex.set(idx);
     this.viewerZoom.set(1);
     this.viewerDragX.set(0);
@@ -276,7 +264,7 @@ export class ConsultationDetailPage {
     if (this.singlePhotoView()) return;
     $event?.stopPropagation();
     const idx = this.selectedIndex();
-    if (idx < this.viewerPhotos.length - 1) {
+    if (idx < this.photos().length - 1) {
       this.selectedIndex.set(idx + 1);
       this.viewerZoom.set(1);
       this.viewerDragX.set(0);
@@ -365,7 +353,7 @@ export class ConsultationDetailPage {
 
     const idx = this.selectedIndex();
     if (!this.singlePhotoView() && this.swipeTargetIdx() === -1 && Math.abs(dx) > 10) {
-      if (dx < 0 && idx < this.viewerPhotos.length - 1) {
+      if (dx < 0 && idx < this.photos().length - 1) {
         this.swipeTargetIdx.set(idx + 1);
       } else if (dx > 0 && idx > 0) {
         this.swipeTargetIdx.set(idx - 1);
@@ -395,7 +383,7 @@ export class ConsultationDetailPage {
 
     const threshold = this.viewWidth * 0.25;
 
-    if (dx < -threshold && idx < this.viewerPhotos.length - 1) {
+    if (dx < -threshold && idx < this.photos().length - 1) {
       this.swipeTargetIdx.set(idx + 1);
       this.viewerDragX.set(-this.viewWidth);
       this.isAnimatingSwipe = true;
@@ -501,7 +489,7 @@ export class ConsultationDetailPage {
         });
       }
       const id = 'photo_' + Date.now();
-      this.allPhotos.push({ id, src, consultationId: this.consultationId() });
+      this.photos.update(prev => [...prev, { id, src, consultationId: this.consultation()?.id ?? '' }]);
     } catch {
       // user cancelled
     }
