@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, HostListener, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, HostListener } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
@@ -12,6 +12,8 @@ import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-na
 import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
 import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { Patient, Consultation, calculateAge } from 'src/app/shared/models/patient.model';
 
 interface TimelineConsultation {
@@ -93,7 +95,7 @@ interface TimelineConsultation {
     `,
   ],
 })
-export class PatientDetailPage implements OnInit {
+export class PatientDetailPage {
   readonly loadingPatient = signal(true);
   readonly loadingConsultations = signal(true);
   readonly patient = signal<Patient | null>(null);
@@ -102,7 +104,7 @@ export class PatientDetailPage implements OnInit {
     return p ? calculateAge(p.birthDate) : 0;
   });
   readonly consultations = signal<TimelineConsultation[]>([]);
-  readonly encryptedPhotos: { id: string; src: string; consultationId: string }[] = [];
+  readonly encryptedPhotos = signal<{ id: string; src: string; consultationId: string; mimeType: string }[]>([]);
 
   readonly galleryUnlocked = signal(false);
   readonly galleryLoading = signal(false);
@@ -112,8 +114,10 @@ export class PatientDetailPage implements OnInit {
   private route = inject(ActivatedRoute);
   private patientService = inject(PatientService);
   private consultationService = inject(ConsultationService);
+  private encryptedPhotoService = inject(EncryptedPhotoService);
+  private auth = inject(AuthService);
 
-  async ngOnInit() {
+  async ionViewWillEnter() {
     this.loadingPatient.set(true);
     this.loadingConsultations.set(true);
     try {
@@ -133,6 +137,12 @@ export class PatientDetailPage implements OnInit {
             description: c.diagnostico + (c.tratamiento ? `\nTx: ${c.tratamiento}` : ''),
           }))
         );
+
+        const consultationIds = cons.map(c => c.id);
+        if (consultationIds.length > 0) {
+          const photos = await this.encryptedPhotoService.loadAllPhotos(consultationIds);
+          this.encryptedPhotos.set(photos);
+        }
       }
     } catch (e) {
       console.error('Error loading patient:', e);
@@ -158,11 +168,12 @@ export class PatientDetailPage implements OnInit {
 
   get selectedPhoto(): string | null {
     const idx = this.selectedIndex();
-    return idx >= 0 && idx < this.encryptedPhotos.length ? this.encryptedPhotos[idx].src : null;
+    const photos = this.encryptedPhotos();
+    return idx >= 0 && idx < photos.length ? photos[idx].src : null;
   }
 
   get photoCount(): number {
-    return this.encryptedPhotos.length;
+    return this.encryptedPhotos().length;
   }
 
   goBack() {
@@ -214,7 +225,7 @@ export class PatientDetailPage implements OnInit {
   private isPanning = false;
 
   openPhoto(src: string, single = false) {
-    const idx = this.encryptedPhotos.findIndex(p => p.src === src);
+    const idx = this.encryptedPhotos().findIndex(p => p.src === src);
     this.selectedIndex.set(idx);
     this.viewerZoom.set(1);
     this.viewerDragX.set(0);
@@ -301,7 +312,7 @@ export class PatientDetailPage implements OnInit {
     if (this.singlePhotoView()) return;
     $event?.stopPropagation();
     const idx = this.selectedIndex();
-    if (idx < this.encryptedPhotos.length - 1) {
+    if (idx < this.encryptedPhotos().length - 1) {
       this.selectedIndex.set(idx + 1);
       this.viewerZoom.set(1);
       this.viewerDragX.set(0);
@@ -390,7 +401,7 @@ export class PatientDetailPage implements OnInit {
 
     const idx = this.selectedIndex();
     if (!this.singlePhotoView() && this.swipeTargetIdx() === -1 && Math.abs(dx) > 10) {
-      if (dx < 0 && idx < this.encryptedPhotos.length - 1) {
+      if (dx < 0 && idx < this.encryptedPhotos().length - 1) {
         this.swipeTargetIdx.set(idx + 1);
       } else if (dx > 0 && idx > 0) {
         this.swipeTargetIdx.set(idx - 1);
@@ -420,7 +431,7 @@ export class PatientDetailPage implements OnInit {
 
     const threshold = this.viewWidth * 0.25;
 
-    if (dx < -threshold && idx < this.encryptedPhotos.length - 1) {
+    if (dx < -threshold && idx < this.encryptedPhotos().length - 1) {
       this.swipeTargetIdx.set(idx + 1);
       this.viewerDragX.set(-this.viewWidth);
       this.isAnimatingSwipe = true;
@@ -481,9 +492,19 @@ export class PatientDetailPage implements OnInit {
   }
 
   readonly showPinInput = signal(false);
+  readonly showBiometric = signal(false);
+  readonly pinError = signal('');
+  readonly pinResetKey = signal(0);
   private pendingPinSrc = '';
 
-  onPinUnlocked() {
+  async onPinUnlocked(pin: string) {
+    const valid = await this.auth.verifyPin(pin);
+    if (!valid) {
+      this.pinError.set('PIN incorrecto');
+      this.pinResetKey.update(n => n + 1);
+      return;
+    }
+    this.pinError.set('');
     this.showPinInput.set(false);
     if (this.pendingPinSrc) {
       this.openPhoto(this.pendingPinSrc, true);
@@ -494,10 +515,15 @@ export class PatientDetailPage implements OnInit {
     this.galleryLoading.set(false);
   }
 
+  onPinChanged() {
+    this.pinError.set('');
+  }
+
   onPinCancelled() {
     this.showPinInput.set(false);
     this.pendingPinSrc = '';
     this.galleryLoading.set(false);
+    this.pinError.set('');
   }
 
   async unlockSinglePhoto(src: string) {
@@ -507,13 +533,14 @@ export class PatientDetailPage implements OnInit {
           reason: 'Desbloquea esta foto',
         });
         this.openPhoto(src, true);
+        return;
       } catch {
-        // Usuario canceló o falló la autenticación
+        // biometric failed/cancelled → fallback to PIN
       }
-    } else {
-      this.pendingPinSrc = src;
-      this.showPinInput.set(true);
     }
+    this.pendingPinSrc = src;
+    this.showBiometric.set(Capacitor.isNativePlatform());
+    this.showPinInput.set(true);
   }
 
   lockGallery() {
@@ -522,21 +549,41 @@ export class PatientDetailPage implements OnInit {
 
   async unlockGallery() {
     this.galleryLoading.set(true);
-    let success = false;
     if (Capacitor.isNativePlatform()) {
       try {
         await BiometricAuth.authenticate({
           reason: 'Desbloquea las fotos de la paciente',
         });
-        success = true;
+        this.galleryUnlocked.set(true);
+        this.galleryLoading.set(false);
+        return;
       } catch {
-        success = false;
+        // biometric failed/cancelled → fallback to PIN
       }
-    } else {
-      this.showPinInput.set(true);
-      return;
     }
-    this.galleryUnlocked.set(success);
-    this.galleryLoading.set(false);
+    this.showBiometric.set(Capacitor.isNativePlatform());
+    this.showPinInput.set(true);
+  }
+
+  async onBiometricClick() {
+    try {
+      await BiometricAuth.authenticate({
+        reason: 'Desbloquea las fotos de la paciente',
+      });
+      this.showPinInput.set(false);
+      if (this.pendingPinSrc) {
+        this.openPhoto(this.pendingPinSrc, true);
+        this.pendingPinSrc = '';
+      } else {
+        this.galleryUnlocked.set(true);
+      }
+      this.galleryLoading.set(false);
+    } catch {
+      // user cancelled biometric in the PIN modal — stay on PIN
+    }
+  }
+
+  ionViewWillLeave() {
+    this.encryptedPhotoService.revokeAll();
   }
 }

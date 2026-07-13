@@ -116,12 +116,21 @@
                   [style.animation-delay]="0.08 * $index + 's'"
                   (click)="openPhoto(photo.src)"
                 >
-                  <img
-                    [src]="photo.src"
-                    alt="Foto de consulta"
-                    class="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                  @if (photo.mimeType.startsWith('video/')) {
+                    <video
+                      [src]="photo.src"
+                      class="w-full h-full object-cover"
+                      muted
+                      preload="metadata"
+                    ></video>
+                  } @else {
+                    <img
+                      [src]="photo.src"
+                      alt="Foto de consulta"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  }
                 </div>
               }
             </div>
@@ -174,8 +183,13 @@
 
   <gyno-pin-input
     [visible]="showPinInput()"
-    reason="Desbloquea las fotos de esta consulta"
-    (unlock)="onPinUnlocked()"
+    subtitle="Desbloquea las fotos de esta consulta"
+    [error]="pinError()"
+    [resetKey]="pinResetKey()"
+    [showBiometric]="showBiometric()"
+    (pinComplete)="onPinUnlocked($event)"
+    (pinChange)="onPinChanged()"
+    (biometricClick)="onBiometricClick()"
     (cancel)="onPinCancelled()"
   />
 </ion-content>
@@ -250,36 +264,61 @@
       </div>
     }
 
-    <!-- Image -->
+    <!-- Image / Video -->
     <div
       class="w-full h-full flex items-center justify-center overflow-auto relative"
     >
       @if (imageLoaded()) {
-        <!-- Current photo -->
-        <img
-          [src]="viewerPhotos[viewerIdx].src"
-          alt="Foto ampliada"
-          class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
-          draggable="false"
-          (click)="onPhotoClick($event)"
-          [style.transform]="'translateX(' + viewerDragX() + 'px) scale(' + viewerZoom() + ')'"
-          [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
-          style="transform-origin: center center; will-change: transform"
-        />
-
-        <!-- Target photo (shown during swipe) -->
-        @let targetIdx = swipeTargetIdx();
-        @if (targetIdx >= 0) {
-          @let offset = targetIdx > viewerIdx ? viewWidth : -viewWidth;
+        @let currentPhoto = viewerPhotos[viewerIdx];
+        @if (currentPhoto.mimeType.startsWith('video/')) {
+          <video
+            [src]="currentPhoto.src"
+            class="max-w-full max-h-full object-contain select-none"
+            controls
+            autoplay
+            (loadedmetadata)="onImageLoad()"
+            (error)="onImageLoad()"
+          ></video>
+        } @else {
+          <!-- Current photo -->
           <img
-            [src]="viewerPhotos[targetIdx].src"
-            alt=""
+            [src]="currentPhoto.src"
+            alt="Foto ampliada"
             class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
             draggable="false"
-            [style.transform]="'translateX(' + (viewerDragX() + offset) + 'px) scale(1)'"
+            (click)="onPhotoClick($event)"
+            [style.transform]="'translateX(' + viewerDragX() + 'px) scale(' + viewerZoom() + ')'"
             [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
             style="transform-origin: center center; will-change: transform"
           />
+
+          <!-- Target photo (shown during swipe) -->
+          @let targetIdx = swipeTargetIdx();
+          @if (targetIdx >= 0) {
+            @let targetPhoto = viewerPhotos[targetIdx];
+            @let offset = targetIdx > viewerIdx ? viewWidth : -viewWidth;
+            @if (targetPhoto.mimeType.startsWith('video/')) {
+              <video
+                [src]="targetPhoto.src"
+                class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
+                muted
+                preload="metadata"
+                [style.transform]="'translateX(' + (viewerDragX() + offset) + 'px) scale(1)'"
+                [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
+                style="transform-origin: center center; will-change: transform"
+              ></video>
+            } @else {
+              <img
+                [src]="targetPhoto.src"
+                alt=""
+                class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
+                draggable="false"
+                [style.transform]="'translateX(' + (viewerDragX() + offset) + 'px) scale(1)'"
+                [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
+                style="transform-origin: center center; will-change: transform"
+              />
+            }
+          }
         }
       } @else {
         <div class="flex flex-col items-center gap-3 text-white/30">

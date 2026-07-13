@@ -199,18 +199,27 @@
 
         @if (unlocked) {
           <div class="grid grid-cols-3 gap-2 mb-4">
-            @for (photo of encryptedPhotos; track photo.id) {
+            @for (photo of encryptedPhotos(); track photo.id) {
               <div
                 class="gallery-item aspect-square rounded-xl overflow-hidden border border-outline-variant cursor-pointer"
                 [style.animation-delay]="0.08 * $index + 's'"
                 (click)="openPhoto(photo.src)"
               >
-                <img
-                  [src]="photo.src"
-                  alt="Foto de consulta"
-                  class="w-full h-full object-cover"
-                  loading="lazy"
-                />
+                @if (photo.mimeType.startsWith('video/')) {
+                  <video
+                    [src]="photo.src"
+                    class="w-full h-full object-cover"
+                    muted
+                    preload="metadata"
+                  ></video>
+                } @else {
+                  <img
+                    [src]="photo.src"
+                    alt="Foto de consulta"
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                }
               </div>
             }
           </div>
@@ -222,7 +231,7 @@
 
         @if (!unlocked && !loading) {
           <div class="grid grid-cols-3 gap-2 mb-4">
-            @for (photo of encryptedPhotos; track photo.id) {
+            @for (photo of encryptedPhotos(); track photo.id) {
               <div
                 class="gallery-item aspect-square cursor-pointer"
                 [style.animation-delay]="0.08 * $index + 's'"
@@ -259,8 +268,13 @@
 
   <gyno-pin-input
     [visible]="showPinInput()"
-    reason="Desbloquea las fotos de la paciente"
-    (unlock)="onPinUnlocked()"
+    subtitle="Desbloquea las fotos de la paciente"
+    [error]="pinError()"
+    [resetKey]="pinResetKey()"
+    [showBiometric]="showBiometric()"
+    (pinComplete)="onPinUnlocked($event)"
+    (pinChange)="onPinChanged()"
+    (biometricClick)="onBiometricClick()"
     (cancel)="onPinCancelled()"
   />
 </ion-content>
@@ -334,29 +348,54 @@
 
     <div class="w-full h-full flex items-center justify-center overflow-auto relative">
       @if (imageLoaded()) {
-        <img
-          [src]="encryptedPhotos[viewerIdx].src"
-          alt="Foto ampliada"
-          class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
-          draggable="false"
-          (click)="onPhotoClick($event)"
-          [style.transform]="'translateX(' + viewerDragX() + 'px) scale(' + viewerZoom() + ')'"
-          [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
-          style="transform-origin: center center; will-change: transform"
-        />
-
-        @let targetIdx = swipeTargetIdx();
-        @if (targetIdx >= 0) {
-          @let offset = targetIdx > viewerIdx ? viewWidth : -viewWidth;
+        @let currentPhoto = encryptedPhotos()[viewerIdx];
+        @if (currentPhoto.mimeType.startsWith('video/')) {
+          <video
+            [src]="currentPhoto.src"
+            class="max-w-full max-h-full object-contain select-none"
+            controls
+            autoplay
+            (loadedmetadata)="onImageLoad()"
+            (error)="onImageLoad()"
+          ></video>
+        } @else {
           <img
-            [src]="encryptedPhotos[targetIdx].src"
-            alt=""
+            [src]="encryptedPhotos()[viewerIdx].src"
+            alt="Foto ampliada"
             class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
             draggable="false"
-            [style.transform]="'translateX(' + (viewerDragX() + offset) + 'px) scale(1)'"
+            (click)="onPhotoClick($event)"
+            [style.transform]="'translateX(' + viewerDragX() + 'px) scale(' + viewerZoom() + ')'"
             [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
             style="transform-origin: center center; will-change: transform"
           />
+
+          @let targetIdx = swipeTargetIdx();
+          @if (targetIdx >= 0) {
+            @let targetPhoto = encryptedPhotos()[targetIdx];
+            @let offset = targetIdx > viewerIdx ? viewWidth : -viewWidth;
+            @if (targetPhoto.mimeType.startsWith('video/')) {
+              <video
+                [src]="targetPhoto.src"
+                class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
+                muted
+                preload="metadata"
+                [style.transform]="'translateX(' + (viewerDragX() + offset) + 'px) scale(1)'"
+                [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
+                style="transform-origin: center center; will-change: transform"
+              ></video>
+            } @else {
+              <img
+                [src]="encryptedPhotos()[targetIdx].src"
+                alt=""
+                class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
+                draggable="false"
+                [style.transform]="'translateX(' + (viewerDragX() + offset) + 'px) scale(1)'"
+                [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
+                style="transform-origin: center center; will-change: transform"
+              />
+            }
+          }
         }
       } @else {
         <div class="flex flex-col items-center gap-3 text-white/30">
@@ -365,7 +404,7 @@
         </div>
       }
       <img
-        [src]="encryptedPhotos[viewerIdx].src"
+        [src]="encryptedPhotos()[viewerIdx].src"
         alt=""
         class="hidden"
         (load)="onImageLoad()"
@@ -381,7 +420,7 @@
       >
         <div class="flex items-center justify-center gap-1.5 pt-4"
              style="padding-bottom: max(env(safe-area-inset-bottom), 16px)">
-          @for (photo of encryptedPhotos; track photo.id; let i = $index) {
+          @for (photo of encryptedPhotos(); track photo.id; let i = $index) {
             <button
               type="button"
               class="dot w-1.5 h-1.5 rounded-full border-0 cursor-pointer transition-all duration-200"

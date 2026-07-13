@@ -3,7 +3,7 @@ import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacito
 import { Platform } from '@ionic/angular';
 
 const DB_NAME = 'gynoapp.db';
-const DB_VERSION = 4;
+const DB_VERSION = 6;
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
@@ -11,11 +11,17 @@ export class DatabaseService {
   private sqlite = new SQLiteConnection(CapacitorSQLite);
   private db: SQLiteDBConnection | null = null;
   private initPromise: Promise<SQLiteDBConnection> | null = null;
+  private readonly INIT_TIMEOUT = 15000;
 
   async init() {
     if (this.db) return this.db;
     if (this.initPromise) return this.initPromise;
-    this.initPromise = this._init().then((conn) => {
+
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Database initialization timed out')), this.INIT_TIMEOUT)
+    );
+
+    this.initPromise = Promise.race([this._init(), timeout]).then((conn) => {
       this.db = conn;
       return conn;
     });
@@ -58,6 +64,8 @@ export class DatabaseService {
           address TEXT,
           antecedentes TEXT,
           alergias TEXT,
+          cedula TEXT,
+          age INTEGER,
           createdAt TEXT NOT NULL,
           updatedAt TEXT NOT NULL
         )`,
@@ -114,6 +122,22 @@ export class DatabaseService {
     if (currentVersion < 4) {
       try {
         await connection.run(`ALTER TABLE patients ADD COLUMN birthDate TEXT`, [], false);
+      } catch {
+        // la columna ya existe en instalaciones previas
+      }
+    }
+
+    if (currentVersion < 5) {
+      try {
+        await connection.run(`ALTER TABLE patients ADD COLUMN age INTEGER`, [], false);
+      } catch {
+        // la columna ya existe en instalaciones previas
+      }
+    }
+
+    if (currentVersion < 6) {
+      try {
+        await connection.run(`ALTER TABLE patients ADD COLUMN cedula TEXT`, [], false);
       } catch {
         // la columna ya existe en instalaciones previas
       }

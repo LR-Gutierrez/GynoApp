@@ -216,9 +216,10 @@ export class PatientFormPage {
         antecedentes: this.antecedentes.trim() || undefined,
         alergias: this.alergias.trim() || undefined,
       });
-      this.router.navigate(['/home/patient', patient.id]);
+      await this.router.navigate(['/home/patient', patient.id]);
     } catch (e) {
       console.error('Error al guardar paciente:', e);
+    } finally {
       this.saving = false;
     }
   }

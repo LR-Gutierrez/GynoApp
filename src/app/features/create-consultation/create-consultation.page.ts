@@ -8,6 +8,7 @@ import { GynoFormFieldComponent } from 'src/app/shared/components/gyno-form-fiel
 import { GynoLoadingButtonComponent } from 'src/app/shared/components/gyno-loading-button/gyno-loading-button.component';
 import { GynoDatePickerComponent } from 'src/app/shared/components/gyno-date-picker/gyno-date-picker.component';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
 import { PatientService } from 'src/app/core/services/patient.service';
 import { calculateAge } from 'src/app/shared/models/patient.model';
 
@@ -43,6 +44,7 @@ export class CreateConsultationPage implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private consultationService = inject(ConsultationService);
+  private encryptedPhotoService = inject(EncryptedPhotoService);
   private patientService = inject(PatientService);
 
   readonly patientId = signal('');
@@ -129,7 +131,7 @@ export class CreateConsultationPage implements OnInit {
     this.saving.set(true);
 
     try {
-      await this.consultationService.create({
+      const consultation = await this.consultationService.create({
         patientId: this.patientId(),
         date: this.date(),
         motivo: this.motivo().trim(),
@@ -140,9 +142,22 @@ export class CreateConsultationPage implements OnInit {
         examenes: this.examenes().trim() || undefined,
         photoIds: [],
       });
-      this.router.navigate(['/home/patient', this.patientId()]);
-    } catch {
-      console.warn('Could not save consultation');
+
+      const pendingMedia = this.media();
+      if (pendingMedia.length > 0) {
+        const items = pendingMedia.map(m => ({ dataUrl: m.src, mimeType: m.type === 'video' ? 'video/mp4' : 'image/jpeg' }));
+        console.log('Saving photos...', { consultationId: consultation.id, count: items.length });
+        const photoIds = await this.encryptedPhotoService.savePhotos(consultation.id, items);
+        console.log('Photos saved', { photoIds });
+        consultation.photoIds = photoIds;
+        await this.consultationService.update(consultation);
+        console.log('Consultation updated with photoIds');
+      }
+
+      await this.router.navigate(['/home/patient', this.patientId()]);
+    } catch (e) {
+      console.warn('Could not save consultation', e);
+    } finally {
       this.saving.set(false);
     }
   }

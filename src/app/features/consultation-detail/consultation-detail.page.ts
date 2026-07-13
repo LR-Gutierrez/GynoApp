@@ -11,6 +11,8 @@ import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-secti
 import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
 import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { Patient, Consultation } from 'src/app/shared/models/patient.model';
 
 @Component({
@@ -86,11 +88,13 @@ export class ConsultationDetailPage implements OnInit {
   private route = inject(ActivatedRoute);
   private patientService = inject(PatientService);
   private consultationService = inject(ConsultationService);
+  private encryptedPhotoService = inject(EncryptedPhotoService);
+  private auth = inject(AuthService);
 
   readonly loading = signal(true);
   readonly consultation = signal<Consultation | null>(null);
   readonly patient = signal<Patient | null>(null);
-  readonly photos = signal<{ id: string; src: string; consultationId: string }[]>([]);
+  readonly photos = signal<{ id: string; src: string; consultationId: string; mimeType: string }[]>([]);
 
   readonly galleryUnlocked = signal(false);
   readonly galleryLoading = signal(false);
@@ -120,6 +124,16 @@ export class ConsultationDetailPage implements OnInit {
 
       this.consultation.set(c);
       this.patient.set(p);
+
+      if (c) {
+        const loaded = await this.encryptedPhotoService.loadPhotos(c.id);
+        this.photos.set(loaded.map(photo => ({
+          id: photo.id,
+          src: photo.src,
+          consultationId: c.id,
+          mimeType: photo.mimeType,
+        })));
+      }
     } catch (e) {
       console.error('Error loading consultation detail:', e);
     } finally {
@@ -441,9 +455,19 @@ export class ConsultationDetailPage implements OnInit {
   }
 
   readonly showPinInput = signal(false);
+  readonly showBiometric = signal(false);
+  readonly pinError = signal('');
+  readonly pinResetKey = signal(0);
   private pendingPinSrc = '';
 
-  onPinUnlocked() {
+  async onPinUnlocked(pin: string) {
+    const valid = await this.auth.verifyPin(pin);
+    if (!valid) {
+      this.pinError.set('PIN incorrecto');
+      this.pinResetKey.update(n => n + 1);
+      return;
+    }
+    this.pinError.set('');
     this.showPinInput.set(false);
     if (this.pendingPinSrc) {
       this.openPhoto(this.pendingPinSrc, true);
@@ -454,15 +478,21 @@ export class ConsultationDetailPage implements OnInit {
     this.galleryLoading.set(false);
   }
 
+  onPinChanged() {
+    this.pinError.set('');
+  }
+
   onPinCancelled() {
     this.showPinInput.set(false);
     this.pendingPinSrc = '';
     this.galleryLoading.set(false);
+    this.pinError.set('');
   }
 
   async takePhoto() {
     try {
-      let src: string;
+      let dataUrl: string;
+      let mimeType = 'image/jpeg';
       if (Capacitor.isNativePlatform()) {
         const image = await Camera.getPhoto({
           quality: 90,
@@ -470,9 +500,16 @@ export class ConsultationDetailPage implements OnInit {
           resultType: CameraResultType.Uri,
           source: CameraSource.Prompt,
         });
-        src = image.webPath ?? image.path!;
+        const path = image.path ?? image.webPath!;
+        const reader = new FileReader();
+        const blob = await fetch(path).then(r => r.blob());
+        dataUrl = await new Promise<string>(resolve => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+        mimeType = blob.type || 'image/jpeg';
       } else {
-        src = await new Promise<string>((resolve, reject) => {
+        dataUrl = await new Promise<string>((resolve, reject) => {
           const input = document.createElement('input');
           input.type = 'file';
           input.accept = 'image/*';
@@ -488,8 +525,27 @@ export class ConsultationDetailPage implements OnInit {
           input.click();
         });
       }
-      const id = 'photo_' + Date.now();
-      this.photos.update(prev => [...prev, { id, src, consultationId: this.consultation()?.id ?? '' }]);
+
+      const consultationId = this.consultation()?.id;
+      if (!consultationId) return;
+
+      const photoIds = await this.encryptedPhotoService.savePhotos(consultationId, [
+        { dataUrl, mimeType },
+      ]);
+
+      const loaded = await this.encryptedPhotoService.loadPhotos(consultationId);
+      this.photos.set(loaded.map(photo => ({
+        id: photo.id,
+        src: photo.src,
+        consultationId,
+        mimeType: photo.mimeType,
+      })));
+
+      const c = this.consultation();
+      if (c) {
+        c.photoIds = [...c.photoIds, ...photoIds];
+        await this.consultationService.update(c);
+      }
     } catch {
       // user cancelled
     }
@@ -502,36 +558,57 @@ export class ConsultationDetailPage implements OnInit {
           reason: 'Desbloquea esta foto',
         });
         this.openPhoto(src, true);
+        return;
       } catch {
-        // Usuario canceló o falló la autenticación
+        // biometric failed/cancelled → fallback to PIN
       }
-    } else {
-      this.pendingPinSrc = src;
-      this.showPinInput.set(true);
     }
+    this.pendingPinSrc = src;
+    this.showBiometric.set(Capacitor.isNativePlatform());
+    this.showPinInput.set(true);
   }
 
   async unlockGallery() {
     this.galleryLoading.set(true);
-    let success = false;
     if (Capacitor.isNativePlatform()) {
       try {
         await BiometricAuth.authenticate({
           reason: 'Desbloquea las fotos de esta consulta',
         });
-        success = true;
+        this.galleryUnlocked.set(true);
+        this.galleryLoading.set(false);
+        return;
       } catch {
-        success = false;
+        // biometric failed/cancelled → fallback to PIN
       }
-    } else {
-      this.showPinInput.set(true);
-      return;
     }
-    this.galleryUnlocked.set(success);
-    this.galleryLoading.set(false);
+    this.showBiometric.set(Capacitor.isNativePlatform());
+    this.showPinInput.set(true);
+  }
+
+  async onBiometricClick() {
+    try {
+      await BiometricAuth.authenticate({
+        reason: 'Desbloquea las fotos de esta consulta',
+      });
+      this.showPinInput.set(false);
+      if (this.pendingPinSrc) {
+        this.openPhoto(this.pendingPinSrc, true);
+        this.pendingPinSrc = '';
+      } else {
+        this.galleryUnlocked.set(true);
+      }
+      this.galleryLoading.set(false);
+    } catch {
+      // user cancelled biometric in the PIN modal — stay on PIN
+    }
   }
 
   lockGallery() {
     this.galleryUnlocked.set(false);
+  }
+
+  ionViewWillLeave() {
+    this.encryptedPhotoService.revokeAll();
   }
 }

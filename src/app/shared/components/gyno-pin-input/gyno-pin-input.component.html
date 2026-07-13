@@ -1,5 +1,5 @@
 @if (visible()) {
-  <div class="backdrop-enter fixed inset-0 z-[60] bg-black/60 flex items-end justify-center">
+  <div class="backdrop-enter fixed inset-0 z-[60] bg-black/60 flex items-end justify-center" (window:keydown)="onKeyDown($event)">
     <div class="absolute inset-0" (click)="onCancel()"></div>
 
     <div
@@ -101,6 +101,20 @@
           </button>
         </div>
       </div>
+
+      <!-- Biometric option -->
+      @if (showBiometric()) {
+        <div class="mt-4 w-full flex justify-center">
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-outline bg-transparent text-on-surface-variant font-sans text-sm font-medium cursor-pointer active:scale-95 transition-transform"
+            (click)="biometricClick.emit()"
+          >
+            <i class="not-italic text-lg mgc_fingerprint_line"></i>
+            Usar huella digital
+          </button>
+        </div>
+      }
 
       <!-- Confirm button -->
       @if (showConfirm()) {

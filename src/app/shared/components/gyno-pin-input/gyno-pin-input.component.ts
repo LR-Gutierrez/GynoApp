@@ -105,12 +105,14 @@ export class GynoPinInputComponent {
   readonly showConfirm = input(false);
   readonly confirmLabel = input('Confirmar');
   readonly confirmDisabled = input(false);
+  readonly showBiometric = input(false);
   readonly pinLength = input(6);
   readonly resetKey = input(0);
 
   readonly pinChange = output<string>();
   readonly pinComplete = output<string>();
   readonly confirm = output<void>();
+  readonly biometricClick = output<void>();
   readonly back = output<void>();
   readonly cancel = output<void>();
 
@@ -270,6 +272,25 @@ export class GynoPinInputComponent {
 
   onBackClick() {
     this.back.emit();
+  }
+
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key >= '0' && event.key <= '9') {
+      this.onDigit(event.key);
+      return;
+    }
+    if (event.key === 'Backspace') {
+      this.onBackspace();
+      return;
+    }
+    if (event.key === 'Enter' && this.showConfirm()) {
+      this.confirm.emit();
+      return;
+    }
+    if (event.key === 'Escape') {
+      this.onCancel();
+      return;
+    }
   }
 
   focusInput() {

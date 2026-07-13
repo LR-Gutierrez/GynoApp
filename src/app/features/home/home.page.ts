@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
@@ -35,7 +35,7 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
     GynoTopbarComponent,
   ],
 })
-export class HomePage implements OnInit {
+export class HomePage {
   private router = inject(Router);
   private popoverController = inject(PopoverController);
   private patientService = inject(PatientService);
@@ -54,7 +54,7 @@ export class HomePage implements OnInit {
   private allPatients: TablePatient[] = [];
   private searchQuery = '';
 
-  async ngOnInit() {
+  async ionViewWillEnter() {
     this.loading.set(true);
     try {
       await this.loadPatients();
