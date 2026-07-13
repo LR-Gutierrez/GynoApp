@@ -27,9 +27,9 @@ export class ConsultationService {
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
     await db.run(
-      `INSERT INTO consultations (id, patientId, date, motivo, diagnostico, tratamiento, receta, notas, examenes, photoIds, createdAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, consultation.patientId, consultation.date, consultation.motivo, consultation.diagnostico,
+      `INSERT INTO consultations (id, patientId, date, time, motivo, diagnostico, tratamiento, receta, notas, examenes, photoIds, createdAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, consultation.patientId, consultation.date, consultation.time ?? null, consultation.motivo, consultation.diagnostico,
        consultation.tratamiento, consultation.receta ?? null, consultation.notas ?? null,
        consultation.examenes ?? null, JSON.stringify(consultation.photoIds), now]
     );
@@ -39,9 +39,9 @@ export class ConsultationService {
   async update(consultation: Consultation): Promise<void> {
     const db = await this.database.getDb();
     await db.run(
-      `UPDATE consultations SET date = ?, motivo = ?, diagnostico = ?, tratamiento = ?, receta = ?,
+      `UPDATE consultations SET date = ?, time = ?, motivo = ?, diagnostico = ?, tratamiento = ?, receta = ?,
        notas = ?, examenes = ?, photoIds = ? WHERE id = ?`,
-      [consultation.date, consultation.motivo, consultation.diagnostico, consultation.tratamiento,
+      [consultation.date, consultation.time ?? null, consultation.motivo, consultation.diagnostico, consultation.tratamiento,
        consultation.receta ?? null, consultation.notas ?? null, consultation.examenes ?? null,
        JSON.stringify(consultation.photoIds), consultation.id]
     );
@@ -57,6 +57,7 @@ export class ConsultationService {
       id: row.id,
       patientId: row.patientId,
       date: row.date,
+      time: row.time ?? undefined,
       motivo: row.motivo,
       diagnostico: row.diagnostico,
       tratamiento: row.tratamiento,

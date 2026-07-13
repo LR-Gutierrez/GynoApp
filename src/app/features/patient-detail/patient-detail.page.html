@@ -140,12 +140,17 @@
                         <span class="inline-flex items-center font-sans text-xs font-bold text-primary-900 bg-primary-fixed px-3 py-1 rounded-full tracking-wide">
                           <i class="not-italic text-sm mr-1.5 mgc_calendar_line"></i>
                           {{ consultation.dateLabel }}
+                          @if (consultation.timeLabel) {
+                            <span class="ml-1.5 pl-1.5 border-l border-primary-700/30">
+                              <i class="not-italic text-sm mr-0.5 mgc_time_line"></i>{{ consultation.timeLabel }}
+                            </span>
+                          }
                         </span>
                         <button
                           type="button"
                           class="w-8 h-8 border-0 bg-transparent text-on-surface-variant rounded-full inline-flex items-center justify-center cursor-pointer hover:bg-surface-container-low transition-colors"
                           aria-label="Opciones"
-                          (click)="$event.stopPropagation()"
+                          (click)="$event.stopPropagation(); showConsultationActions($event, consultation.id)"
                         >
                           <i class="not-italic text-lg mgc_more_2_line"></i>
                         </button>
@@ -277,6 +282,8 @@
     (biometricClick)="onBiometricClick()"
     (cancel)="onPinCancelled()"
   />
+
+  <gyno-action-popover *ngIf="false" />
 </ion-content>
 
 @let viewerIdx = selectedIndex();

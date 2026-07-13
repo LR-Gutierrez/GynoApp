@@ -166,7 +166,8 @@ export class SchedulePage {
       const [y, m, d] = key.split('-');
       dateParam = `${y}-${String(parseInt(m) + 1).padStart(2, '0')}-${d.padStart(2, '0')}`;
     } else {
-      dateParam = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      dateParam = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
     this.router.navigate(['/home/schedule/new'], {
       queryParams: { date: dateParam },

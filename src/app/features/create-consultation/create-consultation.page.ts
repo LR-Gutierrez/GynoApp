@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, HostListener, ElementRef } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -46,14 +46,22 @@ export class CreateConsultationPage implements OnInit {
   private consultationService = inject(ConsultationService);
   private encryptedPhotoService = inject(EncryptedPhotoService);
   private patientService = inject(PatientService);
+  private el = inject(ElementRef);
 
   readonly patientId = signal('');
   readonly patientName = signal('Paciente');
   readonly patientAge = signal(0);
   readonly patientPhone = signal('');
   readonly loadingPatient = signal(true);
+  readonly isEditing = signal(false);
+  private editingConsultationId = '';
 
-  readonly date = signal(new Date().toISOString().split('T')[0]);
+  private readonly todayLocal = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; })();
+  readonly date = signal(this.todayLocal);
+  readonly time = signal('');
+  readonly showTimePicker = signal(false);
+  readonly hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  readonly minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
   readonly motivo = signal('');
   readonly diagnostico = signal('');
   readonly tratamiento = signal('');
@@ -67,9 +75,13 @@ export class CreateConsultationPage implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
+    const editId = this.route.snapshot.queryParamMap.get('edit');
     if (id) {
       this.patientId.set(id);
       this.loadPatient(id);
+      if (editId) {
+        this.loadConsultation(editId);
+      }
     }
   }
 
@@ -85,6 +97,26 @@ export class CreateConsultationPage implements OnInit {
       console.warn('Could not load patient');
     } finally {
       this.loadingPatient.set(false);
+    }
+  }
+
+  private async loadConsultation(consultationId: string) {
+    try {
+      const c = await this.consultationService.getById(consultationId);
+      if (c) {
+        this.isEditing.set(true);
+        this.editingConsultationId = consultationId;
+        this.date.set(c.date);
+        this.time.set(c.time ?? '');
+        this.motivo.set(c.motivo);
+        this.diagnostico.set(c.diagnostico);
+        this.tratamiento.set(c.tratamiento);
+        this.receta.set(c.receta ?? '');
+        this.notas.set(c.notas ?? '');
+        this.examenes.set(c.examenes ?? '');
+      }
+    } catch {
+      console.warn('Could not load consultation for editing');
     }
   }
 
@@ -117,6 +149,27 @@ export class CreateConsultationPage implements OnInit {
     this.media.update(m => m.filter(item => item.id !== id));
   }
 
+  openTimePicker() {
+    this.showTimePicker.set(true);
+  }
+
+  onHourChange(event: CustomEvent) {
+    const m = this.time().split(':')[1] ?? '00';
+    this.time.set(`${event.detail.value}:${m}`);
+  }
+
+  onMinuteChange(event: CustomEvent) {
+    const h = this.time().split(':')[0] ?? '00';
+    this.time.set(`${h}:${event.detail.value}`);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(e: MouseEvent) {
+    if (this.showTimePicker() && !this.el.nativeElement.contains(e.target as Node)) {
+      this.showTimePicker.set(false);
+    }
+  }
+
   goBack() {
     history.back();
   }
@@ -131,27 +184,48 @@ export class CreateConsultationPage implements OnInit {
     this.saving.set(true);
 
     try {
-      const consultation = await this.consultationService.create({
-        patientId: this.patientId(),
-        date: this.date(),
-        motivo: this.motivo().trim(),
-        diagnostico: this.diagnostico().trim(),
-        tratamiento: this.tratamiento().trim(),
-        receta: this.receta().trim() || undefined,
-        notas: this.notas().trim() || undefined,
-        examenes: this.examenes().trim() || undefined,
-        photoIds: [],
-      });
-
       const pendingMedia = this.media();
-      if (pendingMedia.length > 0) {
-        const items = pendingMedia.map(m => ({ dataUrl: m.src, mimeType: m.type === 'video' ? 'video/mp4' : 'image/jpeg' }));
-        console.log('Saving photos...', { consultationId: consultation.id, count: items.length });
-        const photoIds = await this.encryptedPhotoService.savePhotos(consultation.id, items);
-        console.log('Photos saved', { photoIds });
-        consultation.photoIds = photoIds;
+
+      if (this.isEditing()) {
+        const consultation = await this.consultationService.getById(this.editingConsultationId);
+        if (!consultation) throw new Error('Consultation not found');
+
+        consultation.date = this.date();
+        consultation.time = this.time() || undefined;
+        consultation.motivo = this.motivo().trim();
+        consultation.diagnostico = this.diagnostico().trim();
+        consultation.tratamiento = this.tratamiento().trim();
+        consultation.receta = this.receta().trim() || undefined;
+        consultation.notas = this.notas().trim() || undefined;
+        consultation.examenes = this.examenes().trim() || undefined;
+
+        if (pendingMedia.length > 0) {
+          const items = pendingMedia.map(m => ({ dataUrl: m.src, mimeType: m.type === 'video' ? 'video/mp4' : 'image/jpeg' }));
+          const photoIds = await this.encryptedPhotoService.savePhotos(consultation.id, items);
+          consultation.photoIds = [...consultation.photoIds, ...photoIds];
+        }
+
         await this.consultationService.update(consultation);
-        console.log('Consultation updated with photoIds');
+      } else {
+        const consultation = await this.consultationService.create({
+          patientId: this.patientId(),
+          date: this.date(),
+          time: this.time() || undefined,
+          motivo: this.motivo().trim(),
+          diagnostico: this.diagnostico().trim(),
+          tratamiento: this.tratamiento().trim(),
+          receta: this.receta().trim() || undefined,
+          notas: this.notas().trim() || undefined,
+          examenes: this.examenes().trim() || undefined,
+          photoIds: [],
+        });
+
+        if (pendingMedia.length > 0) {
+          const items = pendingMedia.map(m => ({ dataUrl: m.src, mimeType: m.type === 'video' ? 'video/mp4' : 'image/jpeg' }));
+          const photoIds = await this.encryptedPhotoService.savePhotos(consultation.id, items);
+          consultation.photoIds = photoIds;
+          await this.consultationService.update(consultation);
+        }
       }
 
       await this.router.navigate(['/home/patient', this.patientId()]);

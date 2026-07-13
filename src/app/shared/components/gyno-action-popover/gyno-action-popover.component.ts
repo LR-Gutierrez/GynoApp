@@ -1,26 +1,37 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { IonicModule, PopoverController } from '@ionic/angular';
+
+export interface GynoActionItem {
+  value: string;
+  label: string;
+  icon: string;
+  destructive?: boolean;
+}
+
+const DEFAULT_ACTIONS: GynoActionItem[] = [
+  { value: 'profile', label: 'Ver perfil', icon: 'mgc_user_1_line' },
+  { value: 'edit', label: 'Editar', icon: 'mgc_edit_2_line' },
+  { value: 'history', label: 'Historial', icon: 'mgc_history_anticlockwise_line' },
+  { value: 'delete', label: 'Eliminar', icon: 'mgc_delete_back_line', destructive: true },
+];
 
 @Component({
   selector: 'gyno-action-popover',
   template: `
     <ion-list class="p-1 bg-surface-container-lowest rounded-xl min-w-40">
-      <ion-item button class="action-option" (click)="select('profile')">
-        <i slot="start" class="not-italic text-lg text-on-surface-variant mr-3 mgc_user_1_line"></i>
-        <ion-label class="font-sans text-sm text-on-surface font-medium">Ver perfil</ion-label>
-      </ion-item>
-      <ion-item button class="action-option" (click)="select('edit')">
-        <i slot="start" class="not-italic text-lg text-on-surface-variant mr-3 mgc_edit_2_line"></i>
-        <ion-label class="font-sans text-sm text-on-surface font-medium">Editar</ion-label>
-      </ion-item>
-      <ion-item button class="action-option" (click)="select('history')">
-        <i slot="start" class="not-italic text-lg text-on-surface-variant mr-3 mgc_history_anticlockwise_line"></i>
-        <ion-label class="font-sans text-sm text-on-surface font-medium">Historial</ion-label>
-      </ion-item>
-      <ion-item button lines="none" class="action-option" (click)="select('delete')">
-        <i slot="start" class="not-italic text-lg text-on-surface-variant mr-3 mgc_delete_back_line"></i>
-        <ion-label class="font-sans text-sm text-on-surface font-medium">Eliminar</ion-label>
-      </ion-item>
+      @for (item of actions; track item.value) {
+        <ion-item
+          button
+          lines="none"
+          class="action-option"
+          [class.action-destructive]="item.destructive"
+          (click)="select(item.value)"
+        >
+          <i slot="start" class="not-italic text-lg mr-3" [class.text-error]="item.destructive" [class.text-on-surface-variant]="!item.destructive" [ngClass]="item.icon"></i>
+          <ion-label class="font-sans text-sm font-medium" [class.text-error]="item.destructive" [class.text-on-surface]="!item.destructive">{{ item.label }}</ion-label>
+        </ion-item>
+      }
     </ion-list>
   `,
   styles: [
@@ -46,11 +57,12 @@ import { IonicModule, PopoverController } from '@ionic/angular';
     `,
   ],
   standalone: true,
-  imports: [IonicModule],
+  imports: [IonicModule, CommonModule],
 })
 export class GynoActionPopoverComponent {
   private popoverController = inject(PopoverController);
-  readonly patientName = input<string>('');
+  @Input() patientName = '';
+  @Input() actions: GynoActionItem[] = DEFAULT_ACTIONS;
 
   select(value: string) {
     this.popoverController.dismiss({ action: value });

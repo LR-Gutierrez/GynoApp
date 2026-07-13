@@ -1,5 +1,5 @@
 import { Component, signal, computed, inject, HostListener } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, PopoverController, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
@@ -10,6 +10,7 @@ import { GynoPhotoThumbnailComponent } from 'src/app/shared/components/gyno-phot
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
 import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
+import { GynoActionPopoverComponent, GynoActionItem } from 'src/app/shared/components/gyno-action-popover/gyno-action-popover.component';
 import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
@@ -20,6 +21,7 @@ interface TimelineConsultation {
   id: string;
   date: Date;
   dateLabel: string;
+  timeLabel: string;
   title: string;
   description: string;
 }
@@ -38,6 +40,7 @@ interface TimelineConsultation {
     GynoSectionHeaderComponent,
     GynoBottomNavComponent,
     GynoPinInputComponent,
+    GynoActionPopoverComponent,
   ],
   styles: [
     `
@@ -116,6 +119,8 @@ export class PatientDetailPage {
   private consultationService = inject(ConsultationService);
   private encryptedPhotoService = inject(EncryptedPhotoService);
   private auth = inject(AuthService);
+  private popoverCtrl = inject(PopoverController);
+  private alertCtrl = inject(AlertController);
 
   async ionViewWillEnter() {
     this.loadingPatient.set(true);
@@ -127,22 +132,7 @@ export class PatientDetailPage {
       this.loadingPatient.set(false);
 
       if (p) {
-        const cons = await this.consultationService.getByPatient(p.id);
-        this.consultations.set(
-          cons.map((c) => ({
-            id: c.id,
-            date: new Date(c.date),
-            dateLabel: this.formatDateLabel(c.date),
-            title: c.motivo,
-            description: c.diagnostico + (c.tratamiento ? `\nTx: ${c.tratamiento}` : ''),
-          }))
-        );
-
-        const consultationIds = cons.map(c => c.id);
-        if (consultationIds.length > 0) {
-          const photos = await this.encryptedPhotoService.loadAllPhotos(consultationIds);
-          this.encryptedPhotos.set(photos);
-        }
+        await this.loadConsultations();
       }
     } catch (e) {
       console.error('Error loading patient:', e);
@@ -152,10 +142,34 @@ export class PatientDetailPage {
     }
   }
 
+  private async loadConsultations() {
+    const p = this.patient();
+    if (!p) return;
+
+    const cons = await this.consultationService.getByPatient(p.id);
+    this.consultations.set(
+      cons.map((c) => ({
+        id: c.id,
+        date: new Date(c.date),
+        dateLabel: this.formatDateLabel(c.date),
+        timeLabel: c.time ?? '',
+        title: c.motivo,
+        description: c.diagnostico + (c.tratamiento ? `\nTx: ${c.tratamiento}` : ''),
+      }))
+    );
+
+    const consultationIds = cons.map(c => c.id);
+    if (consultationIds.length > 0) {
+      const photos = await this.encryptedPhotoService.loadAllPhotos(consultationIds);
+      this.encryptedPhotos.set(photos);
+    }
+  }
+
   private formatDateLabel(iso: string): string {
-    const d = new Date(iso);
+    const [y, m, d] = iso.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
     const months = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
-    return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+    return `${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`;
   }
 
   constructor() {
@@ -177,11 +191,63 @@ export class PatientDetailPage {
   }
 
   goBack() {
-    history.back();
+    this.router.navigate(['/home']);
   }
 
   navigateToConsultation(consultationId: string) {
     this.router.navigate(['/home/patient', this.patient()?.id, 'consultation', consultationId]);
+  }
+
+  async showConsultationActions(event: MouseEvent, consultationId: string) {
+    const actions: GynoActionItem[] = [
+      { value: 'edit', label: 'Editar', icon: 'mgc_edit_2_line' },
+      { value: 'delete', label: 'Eliminar', icon: 'mgc_delete_back_line', destructive: true },
+    ];
+
+    const popover = await this.popoverCtrl.create({
+      component: GynoActionPopoverComponent,
+      componentProps: { actions },
+      event,
+      side: 'bottom',
+      alignment: 'start',
+      showBackdrop: false,
+    });
+    await popover.present();
+    const { data } = await popover.onWillDismiss();
+    if (data?.action === 'edit') {
+      this.editConsultation(consultationId);
+    } else if (data?.action === 'delete') {
+      this.deleteConsultation(consultationId);
+    }
+  }
+
+  editConsultation(consultationId: string) {
+    const patientId = this.patient()?.id;
+    if (patientId) {
+      this.router.navigate(['/home/patient', patientId, 'consultation', 'new'], {
+        queryParams: { edit: consultationId },
+      });
+    }
+  }
+
+  async deleteConsultation(consultationId: string) {
+    const alert = await this.alertCtrl.create({
+      header: 'Eliminar consulta',
+      message: '¿Estás segura de eliminar esta consulta? Esta acción no se puede deshacer.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: async () => {
+            await this.encryptedPhotoService.deleteAllForConsultation(consultationId);
+            await this.consultationService.delete(consultationId);
+            await this.loadConsultations();
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   newConsultation() {

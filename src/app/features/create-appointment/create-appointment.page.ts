@@ -40,7 +40,8 @@ export class CreateAppointmentPage implements OnInit {
   readonly patients = this.appointmentService.patients;
 
   readonly selectedPatientId = signal('');
-  readonly date = signal(new Date().toISOString().split('T')[0]);
+  private readonly todayLocal = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; })();
+  readonly date = signal(this.todayLocal);
   readonly time = signal('09:00');
   readonly reason = signal('');
   readonly reasonError = signal('');

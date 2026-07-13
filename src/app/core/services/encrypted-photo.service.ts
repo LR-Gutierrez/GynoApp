@@ -169,6 +169,30 @@ export class EncryptedPhotoService {
     }
   }
 
+  async deleteAllForConsultation(consultationId: string): Promise<void> {
+    const db = await this.database.getDb();
+    const result = await db.query('SELECT * FROM encrypted_photos WHERE consultationId = ?', [consultationId]);
+    const rows = result.values ?? [];
+
+    for (const row of rows) {
+      try {
+        await Filesystem.deleteFile({
+          path: row.encryptedPath,
+          directory: Directory.Data,
+        });
+      } catch {
+        // file may not exist
+      }
+      const blobUrl = this.blobUrls.get(row.id);
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+        this.blobUrls.delete(row.id);
+      }
+    }
+
+    await db.run('DELETE FROM encrypted_photos WHERE consultationId = ?', [consultationId]);
+  }
+
   revokeAll() {
     for (const url of this.blobUrls.values()) {
       URL.revokeObjectURL(url);

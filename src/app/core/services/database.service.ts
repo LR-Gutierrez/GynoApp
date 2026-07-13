@@ -3,7 +3,7 @@ import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacito
 import { Platform } from '@ionic/angular';
 
 const DB_NAME = 'gynoapp.db';
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
@@ -138,6 +138,14 @@ export class DatabaseService {
     if (currentVersion < 6) {
       try {
         await connection.run(`ALTER TABLE patients ADD COLUMN cedula TEXT`, [], false);
+      } catch {
+        // la columna ya existe en instalaciones previas
+      }
+    }
+
+    if (currentVersion < 7) {
+      try {
+        await connection.run(`ALTER TABLE consultations ADD COLUMN time TEXT`, [], false);
       } catch {
         // la columna ya existe en instalaciones previas
       }

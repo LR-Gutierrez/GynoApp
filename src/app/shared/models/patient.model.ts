@@ -26,6 +26,7 @@ export interface Consultation {
   id: string;
   patientId: string;
   date: string;
+  time?: string;
   motivo: string;
   diagnostico: string;
   tratamiento: string;

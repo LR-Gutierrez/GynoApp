@@ -106,9 +106,12 @@ export class ConsultationDetailPage implements OnInit {
   get dateLabel(): string {
     const c = this.consultation();
     if (!c) return '';
-    const d = new Date(c.date);
+    const [y, m, d] = c.date.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
     const months = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
-    return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+    let label = `${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`;
+    if (c.time) label += ` · ${c.time}`;
+    return label;
   }
 
   async ngOnInit() {
