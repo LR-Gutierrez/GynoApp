@@ -61,7 +61,7 @@ export class BiometricSetupPage {
     const ok = await this.auth.authenticateWithBiometrics();
     if (ok) {
       await this.auth.enableBiometrics();
-      this.router.navigate(['/home']);
+      this.router.navigate(['/onboarding']);
     } else {
       this.error.set('No se pudo completar la autenticación. Intenta de nuevo.');
     }
@@ -70,6 +70,6 @@ export class BiometricSetupPage {
   }
 
   skip() {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/onboarding']);
   }
 }

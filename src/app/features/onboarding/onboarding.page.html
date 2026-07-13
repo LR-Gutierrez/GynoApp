@@ -1,0 +1,109 @@
+<gyno-page-header
+  title="Completa tu perfil"
+  subtitle="Cuéntanos sobre ti para empezar"
+/>
+
+<ion-content>
+  <div class="max-w-md mx-auto px-4 pb-8">
+
+    <div class="flex flex-col items-center gap-3 pt-2 pb-8">
+      <div class="relative">
+        @if (photoPreview()) {
+          <img
+            [src]="photoPreview()"
+            alt="Foto de perfil"
+            class="w-24 h-24 rounded-full object-cover border-2 border-outline-variant"
+          />
+        } @else {
+          <div
+            class="w-24 h-24 rounded-full bg-primary-600 text-white flex items-center justify-center font-sans text-2xl font-bold shadow-sm"
+          >
+            {{ initials() }}
+          </div>
+        }
+        <button
+          type="button"
+          class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center shadow-md border-2 border-white cursor-pointer hover:bg-primary-700 transition-colors"
+          (click)="takePhoto()"
+          aria-label="Cambiar foto"
+        >
+          <i class="not-italic text-sm mgc_camera_line"></i>
+        </button>
+      </div>
+      <p class="font-sans text-xs text-on-surface-variant m-0">
+        Toca el icono para agregar una foto
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="block font-sans text-xs font-semibold text-on-surface-variant mb-1.5">
+          Nombre
+        </label>
+        <input
+          [(ngModel)]="formData.firstName"
+          placeholder="ej. Roberto"
+          class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
+        />
+      </div>
+
+      <div>
+        <label class="block font-sans text-xs font-semibold text-on-surface-variant mb-1.5">
+          Apellido
+        </label>
+        <input
+          [(ngModel)]="formData.lastName"
+          placeholder="ej. García"
+          class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
+        />
+      </div>
+
+      <div>
+        <label class="block font-sans text-xs font-semibold text-on-surface-variant mb-1.5">
+          Especialidad principal
+        </label>
+        <input
+          [(ngModel)]="formData.specialty"
+          placeholder="ej. Ginecología y Obstetricia"
+          class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
+        />
+      </div>
+
+      <div>
+        <label class="block font-sans text-xs font-semibold text-on-surface-variant mb-1.5">
+          Especialidades (una por línea)
+        </label>
+        <textarea
+          [(ngModel)]="specialtiesText"
+          placeholder="Ginecología&#10;Obstetricia&#10;Colposcopía"
+          rows="3"
+          class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none resize-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
+        ></textarea>
+      </div>
+
+      <div>
+        <label class="block font-sans text-xs font-semibold text-on-surface-variant mb-1.5">
+          Tipo de perfil
+        </label>
+        <select
+          [(ngModel)]="formData.badge"
+          class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface outline-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23737784%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat pr-10"
+        >
+          <option value="Médico">Médico</option>
+          <option value="Especialista">Especialista</option>
+          <option value="Residente">Residente</option>
+          <option value="Enfermero">Enfermero</option>
+        </select>
+      </div>
+    </div>
+
+    <ion-button
+      class="w-full mt-8"
+      [disabled]="!isValid()"
+      (click)="save()"
+    >
+      <i class="not-italic text-lg mgc_check_line" slot="start"></i>
+      Guardar y comenzar
+    </ion-button>
+  </div>
+</ion-content>

@@ -20,6 +20,7 @@ import { RouterModule } from '@angular/router';
           type="button"
           class="w-8 h-8 border-0 bg-transparent text-primary-600 rounded-full! inline-flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-primary-50"
           aria-label="Perfil"
+          routerLink="/home/edit-profile"
         >
           <i class="not-italic text-xl mgc_user_1_line"></i>
         </button>

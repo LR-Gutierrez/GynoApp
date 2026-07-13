@@ -221,7 +221,7 @@ export class GynoPinInputComponent {
   onDigit(d: string) {
     const current = this.getPinString();
     if (current.length >= this.pinLength()) return;
-    Haptics.impact({ style: ImpactStyle.Light });
+    Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
     const next = current + d;
     this.pushToInput(next);
     this.pin.set(next.split(''));
@@ -234,7 +234,7 @@ export class GynoPinInputComponent {
   onBackspace() {
     const current = this.getPinString();
     if (current.length === 0) return;
-    Haptics.impact({ style: ImpactStyle.Light });
+    Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
     const next = current.slice(0, -1);
     this.pushToInput(next);
     this.pin.set(next.split(''));

@@ -86,6 +86,25 @@ export class AuthPage implements OnInit, OnDestroy {
   private holdInterval = 80;
   private biometricTriggered = false;
 
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key >= '0' && event.key <= '9') {
+      this.onDigit(event.key);
+      return;
+    }
+    if (event.key === 'Backspace') {
+      this.onBackspace();
+      return;
+    }
+    if (event.key === 'Enter') {
+      if (this.step() === 'confirm') {
+        this.doRegister();
+      } else if (this.step() === 'login' && this.pin().length >= 4) {
+        this.doLogin();
+      }
+      return;
+    }
+  }
+
   ngOnInit() {
     if (this.auth.hasPin()) {
       this.step.set('login');
@@ -118,7 +137,9 @@ export class AuthPage implements OnInit, OnDestroy {
   }
 
   private async hapticImpact(style: ImpactStyle) {
-    await Haptics.impact({ style });
+    try {
+      await Haptics.impact({ style });
+    } catch {}
   }
 
   onDigit(d: string) {

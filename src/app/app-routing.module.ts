@@ -18,6 +18,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/ui-kit/ui-kit/ui-kit.module').then(m => m.UiKitPageModule),
   },
   {
+    path: 'onboarding',
+    loadChildren: () => import('./features/onboarding/onboarding.module').then(m => m.OnboardingPageModule),
+    canActivate: [authGuard],
+  },
+  {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',
