@@ -101,6 +101,11 @@
   --ion-text-color-rgb: 17, 28, 44;
 }
 
+// Page transitions — prevents text/content overlap during navigation
+.ion-page {
+  background: var(--ion-background-color);
+}
+
 // ==========================================
 // BOTONES GYNO (shared button classes)
 // ==========================================

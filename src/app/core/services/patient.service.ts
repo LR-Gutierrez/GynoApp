@@ -40,9 +40,9 @@ export class PatientService {
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
     await db.run(
-      `INSERT INTO patients (id, name, cedula, birthDate, age, phone, address, antecedentes, alergias, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, patient.name, patient.cedula ?? null, patient.birthDate, calculateAge(patient.birthDate), patient.phone, patient.address ?? null, patient.antecedentes ?? null, patient.alergias ?? null, now, now]
+      `INSERT INTO patients (id, name, cedula, birthDate, age, phone, address, antecedentes, alergias, embarazada, FUR, FPP, gestas, partos, cesareas, abortos, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, patient.name, patient.cedula ?? null, patient.birthDate, calculateAge(patient.birthDate), patient.phone, patient.address ?? null, patient.antecedentes ?? null, patient.alergias ?? null, patient.embarazada ? 1 : 0, patient.FUR ?? null, patient.FPP ?? null, patient.gestas ?? 0, patient.partos ?? 0, patient.cesareas ?? 0, patient.abortos ?? 0, now, now]
     );
     return { id, ...patient, createdAt: now, updatedAt: now };
   }
@@ -51,9 +51,9 @@ export class PatientService {
     const db = await this.database.getDb();
     const now = new Date().toISOString();
     await db.run(
-      `UPDATE patients SET name = ?, cedula = ?, birthDate = ?, age = ?, phone = ?, address = ?, antecedentes = ?, alergias = ?, updatedAt = ?
+      `UPDATE patients SET name = ?, cedula = ?, birthDate = ?, age = ?, phone = ?, address = ?, antecedentes = ?, alergias = ?, embarazada = ?, FUR = ?, FPP = ?, gestas = ?, partos = ?, cesareas = ?, abortos = ?, updatedAt = ?
        WHERE id = ?`,
-      [patient.name, patient.cedula ?? null, patient.birthDate, calculateAge(patient.birthDate), patient.phone, patient.address ?? null, patient.antecedentes ?? null, patient.alergias ?? null, now, patient.id]
+      [patient.name, patient.cedula ?? null, patient.birthDate, calculateAge(patient.birthDate), patient.phone, patient.address ?? null, patient.antecedentes ?? null, patient.alergias ?? null, patient.embarazada ? 1 : 0, patient.FUR ?? null, patient.FPP ?? null, patient.gestas ?? 0, patient.partos ?? 0, patient.cesareas ?? 0, patient.abortos ?? 0, now, patient.id]
     );
   }
 
@@ -72,6 +72,13 @@ export class PatientService {
       address: row.address ?? undefined,
       antecedentes: row.antecedentes ?? undefined,
       alergias: row.alergias ?? undefined,
+      embarazada: row.embarazada === 1,
+      FUR: row.FUR ?? undefined,
+      FPP: row.FPP ?? undefined,
+      gestas: row.gestas ?? undefined,
+      partos: row.partos ?? undefined,
+      cesareas: row.cesareas ?? undefined,
+      abortos: row.abortos ?? undefined,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     };

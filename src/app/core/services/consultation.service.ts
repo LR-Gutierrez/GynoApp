@@ -33,11 +33,13 @@ export class ConsultationService {
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
     await db.run(
-      `INSERT INTO consultations (id, patientId, date, time, motivo, diagnostico, tratamiento, receta, notas, examenes, photoIds, status, createdAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO consultations (id, patientId, date, time, motivo, diagnostico, tratamiento, receta, notas, examenes, photoIds, status, peso, PA, AU, FCF, presentacion, edema, createdAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [id, consultation.patientId, consultation.date, consultation.time ?? null, consultation.motivo, consultation.diagnostico,
        consultation.tratamiento, consultation.receta ?? null, consultation.notas ?? null,
-       consultation.examenes ?? null, JSON.stringify(consultation.photoIds), consultation.status, now]
+       consultation.examenes ?? null, JSON.stringify(consultation.photoIds), consultation.status,
+       consultation.peso ?? null, consultation.PA ?? null, consultation.AU ?? null, consultation.FCF ?? null,
+       consultation.presentacion ?? null, consultation.edema ?? null, now]
     );
     return { id, ...consultation, createdAt: now };
   }
@@ -46,10 +48,14 @@ export class ConsultationService {
     const db = await this.database.getDb();
     await db.run(
       `UPDATE consultations SET date = ?, time = ?, motivo = ?, diagnostico = ?, tratamiento = ?, receta = ?,
-       notas = ?, examenes = ?, photoIds = ?, status = ? WHERE id = ?`,
+       notas = ?, examenes = ?, photoIds = ?, status = ?, peso = ?, PA = ?, AU = ?, FCF = ?, presentacion = ?, edema = ?
+       WHERE id = ?`,
       [consultation.date, consultation.time ?? null, consultation.motivo, consultation.diagnostico, consultation.tratamiento,
        consultation.receta ?? null, consultation.notas ?? null, consultation.examenes ?? null,
-       JSON.stringify(consultation.photoIds), consultation.status, consultation.id]
+       JSON.stringify(consultation.photoIds), consultation.status,
+       consultation.peso ?? null, consultation.PA ?? null, consultation.AU ?? null, consultation.FCF ?? null,
+       consultation.presentacion ?? null, consultation.edema ?? null,
+       consultation.id]
     );
   }
 
@@ -78,6 +84,12 @@ export class ConsultationService {
       photoIds: JSON.parse(row.photoIds || '[]'),
       status: row.status ?? 'atendida',
       createdAt: row.createdAt,
+      peso: row.peso ?? undefined,
+      PA: row.PA ?? undefined,
+      AU: row.AU ?? undefined,
+      FCF: row.FCF ?? undefined,
+      presentacion: row.presentacion ?? undefined,
+      edema: row.edema ?? undefined,
     };
   }
 }

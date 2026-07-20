@@ -8,9 +8,7 @@ import { GynoStatusCardComponent } from 'src/app/shared/components/gyno-status-c
 import { GynoFormFieldComponent } from 'src/app/shared/components/gyno-form-field/gyno-form-field.component';
 import { GynoSearchBarComponent } from 'src/app/shared/components/gyno-search-bar/gyno-search-bar.component';
 import { GynoPhotoThumbnailComponent } from 'src/app/shared/components/gyno-photo-thumbnail/gyno-photo-thumbnail.component';
-import { GynoEmptyStateComponent } from 'src/app/shared/components/gyno-empty-state/gyno-empty-state.component';
 import { GynoLoadingOverlayComponent } from 'src/app/shared/components/gyno-loading-overlay/gyno-loading-overlay.component';
-import { GynoConfirmDialogComponent } from 'src/app/shared/components/gyno-confirm-dialog/gyno-confirm-dialog.component';
 import { GynoSecurityBadgeComponent } from 'src/app/shared/components/gyno-security-badge/gyno-security-badge.component';
 import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-header/gyno-page-header.component';
 import { GynoPatientTableComponent } from 'src/app/shared/components/gyno-patient-table/gyno-patient-table.component';
@@ -32,7 +30,7 @@ import { phoneMask, digitsOnlyMask, lettersOnlyMask } from 'src/app/shared/utils
     IonicModule, CommonModule, FormsModule,
     GynoPatientCardComponent, GynoConsultationCardComponent, GynoStatusCardComponent,
     GynoFormFieldComponent, GynoSearchBarComponent, GynoPhotoThumbnailComponent,
-    GynoEmptyStateComponent, GynoLoadingOverlayComponent, GynoConfirmDialogComponent,
+    GynoLoadingOverlayComponent,
     GynoSecurityBadgeComponent, GynoPageHeaderComponent, GynoPatientTableComponent,
     GynoFabComponent, GynoSectionHeaderComponent, GynoFilterPopoverComponent, GynoActionPopoverComponent,
   ],

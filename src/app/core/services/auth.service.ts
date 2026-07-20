@@ -11,6 +11,7 @@ const BIOMETRIC_KEY = 'gyno_biometric_enabled';
 const PIN_ATTEMPTS_KEY = 'gyno_pin_attempts';
 const PIN_LOCKOUT_KEY = 'gyno_pin_lockout';
 const LAST_ACTIVITY_KEY = 'gyno_last_activity';
+const MASTER_KEY_EXPORTED_KEY = 'gyno_master_key_exported';
 
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATIONS = [30_000, 60_000, 120_000, 300_000];
@@ -40,6 +41,9 @@ export class AuthService {
       const minutes = await this.settings.getAutoLock();
       if (minutes > 0 && Date.now() - lastActivity < minutes * 60 * 1000) {
         this.isAuthenticated.set(true);
+        if (!await this.restoreMasterKeyFromStorage()) {
+          this.isAuthenticated.set(false);
+        }
         return;
       }
     }
@@ -102,7 +106,8 @@ export class AuthService {
     if (valid) {
       await this.resetPinAttempts();
       const saltBytes = this.crypto.hexToBuffer(saltResult.value);
-      this.masterKey = await this.crypto.deriveKey(pin, saltBytes);
+      this.masterKey = await this.crypto.deriveKey(pin, saltBytes, true);
+      await this.storeMasterKey();
       this.isAuthenticated.set(true);
       await this.updateLastActivity();
       return { valid: true, lockoutMs: 0 };
@@ -115,6 +120,44 @@ export class AuthService {
 
   getMasterKey(): CryptoKey | null {
     return this.masterKey;
+  }
+
+  private async storeMasterKey() {
+    if (!this.masterKey) return;
+    try {
+      const exported = await crypto.subtle.exportKey('raw', this.masterKey);
+      const bytes = new Uint8Array(exported);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      await Preferences.set({ key: MASTER_KEY_EXPORTED_KEY, value: btoa(binary) });
+    } catch {
+      // masterKey not extractable
+    }
+  }
+
+  private async restoreMasterKeyFromStorage(): Promise<boolean> {
+    try {
+      const r = await Preferences.get({ key: MASTER_KEY_EXPORTED_KEY });
+      if (!r.value) return false;
+      const binary = atob(r.value);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      this.masterKey = await crypto.subtle.importKey(
+        'raw',
+        bytes,
+        { name: 'AES-GCM' },
+        false,
+        ['encrypt', 'decrypt']
+      );
+      return !!this.masterKey;
+    } catch {
+      this.masterKey = null;
+      return false;
+    }
   }
 
   async updateLastActivity() {
@@ -130,6 +173,7 @@ export class AuthService {
     this.masterKey = null;
     this.isAuthenticated.set(false);
     await Preferences.remove({ key: LAST_ACTIVITY_KEY });
+    await Preferences.remove({ key: MASTER_KEY_EXPORTED_KEY });
     this.router.navigate(['/auth']);
   }
 
@@ -152,6 +196,9 @@ export class AuthService {
         allowDeviceCredential: true,
       });
       this.isAuthenticated.set(true);
+      if (!await this.restoreMasterKeyFromStorage()) {
+        return false;
+      }
       return true;
     } catch (e: any) {
       if (e?.code === 'userCancel') return false;

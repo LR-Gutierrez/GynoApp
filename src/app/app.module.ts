@@ -8,6 +8,7 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AuthService } from './core/services/auth.service';
+import { customNavAnimation } from './core/utils/navigation-animation';
 
 function initializeAuth(auth: AuthService): () => Promise<void> {
   return () => auth.init();
@@ -15,7 +16,7 @@ function initializeAuth(auth: AuthService): () => Promise<void> {
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, BrowserAnimationsModule, IonicModule.forRoot(), AppRoutingModule],
+  imports: [BrowserModule, BrowserAnimationsModule, IonicModule.forRoot({ navAnimation: customNavAnimation }), AppRoutingModule],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: APP_INITIALIZER, useFactory: initializeAuth, deps: [AuthService], multi: true },

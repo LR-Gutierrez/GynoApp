@@ -17,7 +17,8 @@ import { CanComponentDeactivate } from 'src/app/core/guards/can-deactivate.guard
 interface PendingMedia {
   id: string;
   src: string;
-  type: 'image' | 'video';
+  type: 'image' | 'video' | 'pdf';
+  name?: string;
 }
 
 @Component({
@@ -39,6 +40,8 @@ interface PendingMedia {
       :host i[class*=' mgc_']::before {
         color: inherit !important;
       }
+      .chevron { transition: transform 0.25s ease; }
+      .chevron.rotated { transform: rotate(180deg); }
     `,
   ],
 })
@@ -75,6 +78,14 @@ export class CreateConsultationPage implements OnInit, CanComponentDeactivate {
   readonly notas = signal('');
   readonly examenes = signal('');
   readonly status = signal<ConsultationStatus>('atendida');
+
+  readonly showPrenatal = signal(false);
+  readonly peso = signal<number | null>(null);
+  readonly PA = signal('');
+  readonly AU = signal<number | null>(null);
+  readonly FCF = signal<number | null>(null);
+  readonly presentacion = signal('');
+  readonly edema = signal('');
 
   readonly displayTime = computed(() => this.settings.formatTime(this.time(), this.timeFormat()));
 
@@ -149,6 +160,13 @@ export class CreateConsultationPage implements OnInit, CanComponentDeactivate {
         this.notas.set(c.notas ?? '');
         this.examenes.set(c.examenes ?? '');
         this.status.set(this.markAttended() ? 'atendida' : c.status);
+        this.peso.set(c.peso ?? null);
+        this.PA.set(c.PA ?? '');
+        this.AU.set(c.AU ?? null);
+        this.FCF.set(c.FCF ?? null);
+        this.presentacion.set(c.presentacion ?? '');
+        this.edema.set(c.edema ?? '');
+        this.showPrenatal.set(!!(c.peso || c.PA || c.AU || c.FCF || c.presentacion || c.edema));
       }
     } catch {
       console.warn('Could not load consultation for editing');
@@ -157,16 +175,18 @@ export class CreateConsultationPage implements OnInit, CanComponentDeactivate {
 
   async addMedia() {
     try {
-      const result = await new Promise<{ src: string; type: 'image' | 'video' }>((resolve, reject) => {
+      const result = await new Promise<{ src: string; type: 'image' | 'video' | 'pdf'; name?: string }>((resolve, reject) => {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = 'image/*,video/*';
+        input.accept = 'image/*,video/*,application/pdf';
         input.onchange = () => {
           const file = input.files?.[0];
           if (!file) { reject(); return; }
-          const detected: 'image' | 'video' = file.type.startsWith('video/') ? 'video' : 'image';
+          const type = file.type === 'application/pdf' ? 'pdf' as const
+            : file.type.startsWith('video/') ? 'video' as const
+            : 'image' as const;
           const reader = new FileReader();
-          reader.onload = () => resolve({ src: reader.result as string, type: detected });
+          reader.onload = () => resolve({ src: reader.result as string, type, name: file.name });
           reader.onerror = () => reject();
           reader.readAsDataURL(file);
         };
@@ -174,7 +194,7 @@ export class CreateConsultationPage implements OnInit, CanComponentDeactivate {
         input.click();
       });
       const id = 'media_' + Date.now();
-      this.media.update(m => [...m, { id, src: result.src, type: result.type }]);
+      this.media.update(m => [...m, { id, src: result.src, type: result.type, name: result.name }]);
     } catch {
       // user cancelled
     }
@@ -226,6 +246,11 @@ export class CreateConsultationPage implements OnInit, CanComponentDeactivate {
     }
   }
 
+  togglePrenatal() {
+    this.showPrenatal.update(v => !v);
+    this.markDirty();
+  }
+
   goBack() {
     this.router.navigate(['/home/patient', this.patientId()]);
   }
@@ -255,9 +280,18 @@ export class CreateConsultationPage implements OnInit, CanComponentDeactivate {
         consultation.notas = this.notas().trim() || undefined;
         consultation.examenes = this.examenes().trim() || undefined;
         consultation.status = this.status();
+        consultation.peso = this.peso() ?? undefined;
+        consultation.PA = this.PA() || undefined;
+        consultation.AU = this.AU() ?? undefined;
+        consultation.FCF = this.FCF() ?? undefined;
+        consultation.presentacion = this.presentacion() || undefined;
+        consultation.edema = this.edema() || undefined;
 
         if (pendingMedia.length > 0) {
-          const items = pendingMedia.map(m => ({ dataUrl: m.src, mimeType: m.type === 'video' ? 'video/mp4' : 'image/jpeg' }));
+          const items = pendingMedia.map(m => ({
+            dataUrl: m.src,
+            mimeType: m.type === 'video' ? 'video/mp4' : m.type === 'pdf' ? 'application/pdf' : 'image/jpeg',
+          }));
           const photoIds = await this.encryptedPhotoService.savePhotos(consultation.id, items);
           consultation.photoIds = [...consultation.photoIds, ...photoIds];
         }
@@ -277,10 +311,19 @@ export class CreateConsultationPage implements OnInit, CanComponentDeactivate {
           examenes: this.examenes().trim() || undefined,
           photoIds: [],
           status: this.status(),
+          peso: this.peso() ?? undefined,
+          PA: this.PA() || undefined,
+          AU: this.AU() ?? undefined,
+          FCF: this.FCF() ?? undefined,
+          presentacion: this.presentacion() || undefined,
+          edema: this.edema() || undefined,
         });
 
         if (pendingMedia.length > 0) {
-          const items = pendingMedia.map(m => ({ dataUrl: m.src, mimeType: m.type === 'video' ? 'video/mp4' : 'image/jpeg' }));
+          const items = pendingMedia.map(m => ({
+            dataUrl: m.src,
+            mimeType: m.type === 'video' ? 'video/mp4' : m.type === 'pdf' ? 'application/pdf' : 'image/jpeg',
+          }));
           const photoIds = await this.encryptedPhotoService.savePhotos(consultation.id, items);
           consultation.photoIds = photoIds;
           await this.consultationService.update(consultation);

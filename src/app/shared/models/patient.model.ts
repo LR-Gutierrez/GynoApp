@@ -7,6 +7,13 @@ export interface Patient {
   address?: string;
   antecedentes?: string;
   alergias?: string;
+  embarazada?: boolean;
+  FUR?: string;
+  FPP?: string;
+  gestas?: number;
+  partos?: number;
+  cesareas?: number;
+  abortos?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -20,6 +27,19 @@ export function calculateAge(birthDate: string): number {
     age--;
   }
   return age;
+}
+
+export function calculateFPP(FUR: string): string {
+  const fur = new Date(FUR);
+  fur.setDate(fur.getDate() + 280);
+  return fur.toISOString().split('T')[0];
+}
+
+export function gestacionalWeeks(FUR: string): number {
+  const fur = new Date(FUR);
+  const now = new Date();
+  const diff = now.getTime() - fur.getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24 * 7));
 }
 
 export type ConsultationStatus = 'programada' | 'atendida' | 'cancelada';
@@ -38,6 +58,12 @@ export interface Consultation {
   photoIds: string[];
   status: ConsultationStatus;
   createdAt: string;
+  peso?: number;
+  PA?: string;
+  AU?: number;
+  FCF?: number;
+  presentacion?: string;
+  edema?: string;
 }
 
 export interface EncryptedPhoto {

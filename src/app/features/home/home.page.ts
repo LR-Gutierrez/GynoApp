@@ -26,6 +26,85 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
       :host i[class*=' mgc_']::before {
         color: inherit !important;
       }
+
+      .advanced-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px dashed var(--color-outline-variant);
+        border-radius: 10px;
+        background: transparent;
+        color: var(--color-on-surface-variant);
+        cursor: pointer;
+        transition: border-color 0.2s, color 0.2s;
+      }
+      .advanced-toggle:hover {
+        border-color: var(--color-primary-600);
+        color: var(--color-primary-600);
+      }
+      .advanced-toggle .chevron { transition: transform 0.25s ease; }
+      .advanced-toggle .chevron.rotated { transform: rotate(180deg); }
+      .advanced-toggle .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+        font-weight: 600;
+        border-radius: 50%;
+        background: var(--color-primary-600);
+        color: #fff !important;
+      }
+
+      .advanced-panel {
+        background: var(--color-surface-container-low);
+        border: 1px solid var(--color-outline-variant);
+        border-radius: 12px;
+      }
+      .advanced-panel .filter-field {
+        --background: transparent;
+        --padding-start: 0;
+        --padding-end: 0;
+        --inner-padding-end: 0;
+        --border-color: var(--color-outline-variant);
+        --border-radius: 8px;
+        border: 1px solid var(--color-outline-variant);
+        border-radius: 8px;
+        padding: 0 10px;
+      }
+
+      .status-chip {
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        border: 1px solid var(--color-outline-variant);
+        background: transparent;
+        color: var(--color-on-surface-variant);
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .status-chip.active {
+        background: var(--color-primary-600);
+        color: #fff;
+        border-color: var(--color-primary-600);
+      }
+
+      .filter-chips .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        font-size: 12px;
+        border-radius: 16px;
+        background: var(--color-primary-600);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
     `,
   ],
   standalone: true,
@@ -69,6 +148,22 @@ export class HomePage {
   private patientsLookup: Patient[] = [];
   private searchQuery = '';
 
+  // Advanced search state
+  readonly advancedOpen = signal(false);
+  ageMin: number | null = null;
+  ageMax: number | null = null;
+  dateFrom: string = '';
+  dateTo: string = '';
+  statusFilter: '' | 'activa' | 'inactiva' = '';
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.ageMin !== null || this.ageMax !== null) count++;
+    if (this.dateFrom || this.dateTo) count++;
+    if (this.statusFilter) count++;
+    return count;
+  }
+
   async ionViewWillEnter() {
     this.loading.set(true);
     try {
@@ -107,6 +202,8 @@ export class HomePage {
   private applySearch() {
     const q = this.searchQuery.toLowerCase().trim();
     let filtered: TablePatient[];
+
+    // 1. Text search (name, cedula, phone, motivo)
     if (q) {
       const matchingIds = new Set<string>();
       for (const p of this.allPatients) {
@@ -125,6 +222,46 @@ export class HomePage {
     } else {
       filtered = [...this.allPatients];
     }
+
+    // 2. Age range filter
+    if (this.ageMin !== null || this.ageMax !== null) {
+      filtered = filtered.filter(p => {
+        const age = calculateAge(p.birthDate);
+        if (this.ageMin !== null && age < this.ageMin) return false;
+        if (this.ageMax !== null && age > this.ageMax) return false;
+        return true;
+      });
+    }
+
+    // 3. Date range filter (last consultation)
+    if (this.dateFrom || this.dateTo) {
+      const fromMs = this.dateFrom ? new Date(this.dateFrom).getTime() : 0;
+      const toMs = this.dateTo ? new Date(this.dateTo).getTime() + 86400000 : Infinity;
+      filtered = filtered.filter(p => {
+        const conDates = this.allCons
+          .filter(c => c.patientId === p.id)
+          .map(c => new Date(c.date).getTime())
+          .sort((a, b) => b - a);
+        if (conDates.length === 0) return false;
+        const latest = conDates[0];
+        return latest >= fromMs && latest < toMs;
+      });
+    }
+
+    // 4. Status filter
+    if (this.statusFilter) {
+      const sixMonthsAgo = Date.now() - 180 * 86400000;
+      filtered = filtered.filter(p => {
+        const conDates = this.allCons
+          .filter(c => c.patientId === p.id)
+          .map(c => new Date(c.date).getTime())
+          .sort((a, b) => b - a);
+        const latest = conDates[0] || 0;
+        if (this.statusFilter === 'activa') return latest >= sixMonthsAgo;
+        return latest < sixMonthsAgo;
+      });
+    }
+
     this.totalCount = filtered.length;
 
     const start = (this.currentPage - 1) * this.pageSize;
@@ -166,6 +303,34 @@ export class HomePage {
 
   onSearch(value: string) {
     this.searchQuery = value;
+    this.currentPage = 1;
+    this.applySearch();
+  }
+
+  toggleAdvanced() {
+    this.advancedOpen.update(v => !v);
+  }
+
+  applyAdvancedFilters() {
+    this.currentPage = 1;
+    this.applySearch();
+    this.advancedOpen.set(false);
+  }
+
+  clearAdvancedFilters() {
+    this.ageMin = null;
+    this.ageMax = null;
+    this.dateFrom = '';
+    this.dateTo = '';
+    this.statusFilter = '';
+    this.currentPage = 1;
+    this.applySearch();
+  }
+
+  removeFilter(type: 'age' | 'date' | 'status') {
+    if (type === 'age') { this.ageMin = null; this.ageMax = null; }
+    if (type === 'date') { this.dateFrom = ''; this.dateTo = ''; }
+    if (type === 'status') { this.statusFilter = ''; }
     this.currentPage = 1;
     this.applySearch();
   }

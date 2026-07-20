@@ -90,7 +90,36 @@
                 {{ p.antecedentes }}
               </span>
             }
+            @if (p.embarazada) {
+              <span class="inline-flex items-center gap-1.5 font-sans text-xs font-semibold bg-[#e8f5e9] text-[#2e7d32] px-3 py-1.5 rounded-full">
+                <i class="not-italic mgc_baby_line"></i>
+                Embarazada · {{ gestacionalWeeks() }} sem
+              </span>
+            }
           </div>
+
+          @if (p.embarazada) {
+            <div class="mt-4 pt-4 border-t border-outline-variant">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <p class="font-sans text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider m-0 mb-0.5" title="Fecha de Última Regla">FUR</p>
+                  <p class="font-sans text-sm font-medium text-on-surface m-0">{{ p.FUR ? (p.FUR | date:'dd/MM/yyyy') : '—' }}</p>
+                </div>
+                <div>
+                  <p class="font-sans text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider m-0 mb-0.5" title="Fecha Probable de Parto">FPP</p>
+                  <p class="font-sans text-sm font-medium text-on-surface m-0">{{ p.FPP ? (p.FPP | date:'dd/MM/yyyy') : '—' }}</p>
+                </div>
+                <div>
+                  <p class="font-sans text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider m-0 mb-0.5">Semanas</p>
+                  <p class="font-sans text-sm font-medium text-on-surface m-0">{{ gestacionalWeeks() ?? '—' }} sem</p>
+                </div>
+                <div>
+                  <p class="font-sans text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider m-0 mb-0.5">Obstetricia</p>
+                  <p class="font-sans text-sm font-medium text-on-surface m-0">G{{ p.gestas ?? 0 }}P{{ p.partos ?? 0 }}C{{ p.cesareas ?? 0 }}A{{ p.abortos ?? 0 }}</p>
+                </div>
+              </div>
+            </div>
+          }
         </div>
 
         <!-- Action Buttons -->
@@ -225,13 +254,23 @@
                 [style.animation-delay]="0.08 * $index + 's'"
                 (click)="openPhoto(photo.src)"
               >
-                @if (photo.mimeType.startsWith('video/')) {
+                @if (photo.mimeType === 'application/pdf') {
+                  <div class="w-full h-full bg-surface-container-low flex flex-col items-center justify-center gap-1 p-2">
+                    <i class="not-italic text-3xl text-primary-600 mgc_pdf_line"></i>
+                    <span class="font-sans text-[10px] text-on-surface-variant text-center leading-tight truncate w-full">PDF</span>
+                  </div>
+                } @else if (photo.mimeType.startsWith('video/')) {
                   <video
                     [src]="photo.src"
                     class="w-full h-full object-cover"
                     muted
                     preload="metadata"
                   ></video>
+                  <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+                      <i class="not-italic text-lg text-white mgc_play_fill"></i>
+                    </div>
+                  </div>
                 } @else {
                   <img
                     [src]="photo.src"
@@ -301,161 +340,6 @@
   <gyno-action-popover *ngIf="false" />
 </ion-content>
 
-@let viewerIdx = selectedIndex();
-@if (viewerIdx >= 0) {
-  <div
-    class="viewer-enter fixed inset-0 z-50 bg-black select-none"
-    (click)="onViewerClick($event)"
-    (touchstart)="onDragStart($event)"
-    (touchmove)="onDragMove($event)"
-    (touchend)="onDragEnd($event)"
-    (mousedown)="onDragStart($event)"
-    (mousemove)="onDragMove($event)"
-    (mouseup)="onDragEnd($event)"
-    style="touch-action: none"
-  >
-    <div
-      class="chrome-area absolute top-0 inset-x-0 z-20"
-      [class.chrome-visible]="chromeVisible()"
-      [class.chrome-hidden]="!chromeVisible()"
-    >
-      <div class="flex items-center justify-between px-5 pb-3"
-           style="padding-top: max(env(safe-area-inset-top), 12px)">
-        <span class="font-sans text-sm font-medium tracking-wide text-white/80">
-          {{ singlePhotoView() ? '1 / 1' : viewerIdx + 1 + ' / ' + photoCount }}
-        </span>
-        <button
-          type="button"
-          class="w-9 h-9 rounded-full bg-white/15 backdrop-blur-md text-white inline-flex items-center justify-center border-0 cursor-pointer active:bg-white/30 transition-colors duration-150"
-          (click)="closePhoto()"
-          aria-label="Cerrar"
-        >
-          <i class="not-italic text-xl mgc_close_line"></i>
-        </button>
-      </div>
-    </div>
-
-    @if (!singlePhotoView()) {
-      <div
-        class="chrome-area absolute inset-x-0 top-0 bottom-0 flex items-center justify-between pointer-events-none z-10 px-3"
-        [class.chrome-visible]="chromeVisible()"
-        [class.chrome-hidden]="!chromeVisible()"
-      >
-        @if (viewerIdx > 0) {
-          <button
-            type="button"
-            class="pointer-events-auto w-10 h-10 rounded-full bg-white/15 backdrop-blur-md text-white inline-flex items-center justify-center border-0 cursor-pointer active:bg-white/30 transition-colors duration-150"
-            (click)="prevPhoto($event)"
-            aria-label="Anterior"
-          >
-            <i class="not-italic text-xl mgc_arrow_left_line"></i>
-          </button>
-        } @else {
-          <div></div>
-        }
-        @if (viewerIdx < photoCount - 1) {
-          <button
-            type="button"
-            class="pointer-events-auto w-10 h-10 rounded-full bg-white/15 backdrop-blur-md text-white inline-flex items-center justify-center border-0 cursor-pointer active:bg-white/30 transition-colors duration-150"
-            (click)="nextPhoto($event)"
-            aria-label="Siguiente"
-          >
-            <i class="not-italic text-xl mgc_arrow_right_line"></i>
-          </button>
-        } @else {
-          <div></div>
-        }
-      </div>
-    }
-
-    <div class="w-full h-full flex items-center justify-center overflow-auto relative">
-      @if (imageLoaded()) {
-        @let currentPhoto = encryptedPhotos()[viewerIdx];
-        @if (currentPhoto.mimeType.startsWith('video/')) {
-          <video
-            [src]="currentPhoto.src"
-            class="max-w-full max-h-full object-contain select-none"
-            controls
-            autoplay
-            (loadedmetadata)="onImageLoad()"
-            (error)="onImageLoad()"
-          ></video>
-        } @else {
-          <img
-            [src]="encryptedPhotos()[viewerIdx].src"
-            alt="Foto ampliada"
-            class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
-            draggable="false"
-            (click)="onPhotoClick($event)"
-            [style.transform]="'translateX(' + viewerDragX() + 'px) scale(' + viewerZoom() + ')'"
-            [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
-            style="transform-origin: center center; will-change: transform"
-          />
-
-          @let targetIdx = swipeTargetIdx();
-          @if (targetIdx >= 0) {
-            @let targetPhoto = encryptedPhotos()[targetIdx];
-            @let offset = targetIdx > viewerIdx ? viewWidth : -viewWidth;
-            @if (targetPhoto.mimeType.startsWith('video/')) {
-              <video
-                [src]="targetPhoto.src"
-                class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
-                muted
-                preload="metadata"
-                [style.transform]="'translateX(' + (viewerDragX() + offset) + 'px) scale(1)'"
-                [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
-                style="transform-origin: center center; will-change: transform"
-              ></video>
-            } @else {
-              <img
-                [src]="encryptedPhotos()[targetIdx].src"
-                alt=""
-                class="max-w-full max-h-full object-contain select-none absolute inset-0 w-full h-full"
-                draggable="false"
-                [style.transform]="'translateX(' + (viewerDragX() + offset) + 'px) scale(1)'"
-                [style.transition]="viewerDragActive() ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)'"
-                style="transform-origin: center center; will-change: transform"
-              />
-            }
-          }
-        }
-      } @else {
-        <div class="flex flex-col items-center gap-3 text-white/30">
-          <i class="not-italic text-4xl mgc_image_line"></i>
-          <span class="font-sans text-xs">Cargando…</span>
-        </div>
-      }
-      <img
-        [src]="encryptedPhotos()[viewerIdx].src"
-        alt=""
-        class="hidden"
-        (load)="onImageLoad()"
-        (error)="onImageLoad()"
-      />
-    </div>
-
-    @if (!singlePhotoView()) {
-      <div
-        class="chrome-area absolute bottom-0 inset-x-0 z-20"
-        [class.chrome-visible]="chromeVisible()"
-        [class.chrome-hidden]="!chromeVisible()"
-      >
-        <div class="flex items-center justify-center gap-1.5 pt-4"
-             style="padding-bottom: max(env(safe-area-inset-bottom), 16px)">
-          @for (photo of encryptedPhotos(); track photo.id; let i = $index) {
-            <button
-              type="button"
-              class="dot w-1.5 h-1.5 rounded-full border-0 cursor-pointer transition-all duration-200"
-              [class.dot-active]="i === viewerIdx"
-              [class.dot-inactive]="i !== viewerIdx"
-              (click)="selectedIndex.set(i); showChromeTemporarily()"
-              [attr.aria-label]="'Foto ' + (i + 1)"
-            ></button>
-          }
-        </div>
-      </div>
-    }
-  </div>
-}
+<gyno-photo-viewer #photoViewer [photos]="encryptedPhotos()" />
 
 <gyno-bottom-nav />

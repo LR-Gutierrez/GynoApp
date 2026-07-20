@@ -8,10 +8,111 @@
       </div>
     } @else {
     <gyno-search-bar
-      class="mb-6 block"
+      class="mb-2 block"
       placeholder="Buscar pacientes..."
       (search)="onSearch($event)"
     />
+
+    <button
+      class="advanced-toggle mb-4"
+      (click)="toggleAdvanced()"
+    >
+      <i class="not-italic text-lg mgc_filter_3_line"></i>
+      <span class="text-sm font-medium">Filtros avanzados</span>
+      @if (activeFilterCount > 0) {
+        <span class="badge">{{ activeFilterCount }}</span>
+      }
+      <i
+        class="not-italic text-lg ml-auto chevron mgc_arrow_down_s_line"
+        [class.rotated]="advancedOpen()"
+      ></i>
+    </button>
+
+    @if (advancedOpen()) {
+      <div class="advanced-panel mb-4 p-4 rounded-xl bg-surface-container-low">
+        <div class="grid grid-cols-2 gap-3">
+          <ion-item class="filter-field">
+            <ion-label position="stacked" class="text-xs font-medium">Edad mín.</ion-label>
+            <ion-input
+              type="number"
+              min="0"
+              max="120"
+              placeholder="0"
+              [(ngModel)]="ageMin"
+            />
+          </ion-item>
+          <ion-item class="filter-field">
+            <ion-label position="stacked" class="text-xs font-medium">Edad máx.</ion-label>
+            <ion-input
+              type="number"
+              min="0"
+              max="120"
+              placeholder="120"
+              [(ngModel)]="ageMax"
+            />
+          </ion-item>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-3">
+          <ion-item class="filter-field">
+            <ion-label position="stacked" class="text-xs font-medium">Últ. consulta desde</ion-label>
+            <ion-input
+              type="date"
+              [(ngModel)]="dateFrom"
+            />
+          </ion-item>
+          <ion-item class="filter-field">
+            <ion-label position="stacked" class="text-xs font-medium">Últ. consulta hasta</ion-label>
+            <ion-input
+              type="date"
+              [(ngModel)]="dateTo"
+            />
+          </ion-item>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button
+            class="status-chip"
+            [class.active]="statusFilter === 'activa'"
+            (click)="statusFilter = statusFilter === 'activa' ? '' : 'activa'"
+          >Activa</button>
+          <button
+            class="status-chip"
+            [class.active]="statusFilter === 'inactiva'"
+            (click)="statusFilter = statusFilter === 'inactiva' ? '' : 'inactiva'"
+          >Inactiva</button>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <ion-button size="small" fill="solid" color="primary" (click)="applyAdvancedFilters()">
+            Aplicar filtros
+          </ion-button>
+          <ion-button size="small" fill="outline" color="medium" (click)="clearAdvancedFilters()">
+            Limpiar
+          </ion-button>
+        </div>
+      </div>
+    }
+
+    @if (activeFilterCount > 0) {
+      <div class="filter-chips mb-3 flex flex-wrap gap-2">
+        @if (ageMin !== null || ageMax !== null) {
+          <button class="chip" (click)="removeFilter('age')">
+            Edad: {{ ageMin ?? 0 }}-{{ ageMax ?? 120 }}
+            <i class="not-italic text-sm mgc_close_line"></i>
+          </button>
+        }
+        @if (dateFrom || dateTo) {
+          <button class="chip" (click)="removeFilter('date')">
+            Consulta: {{ dateFrom || '…' }} → {{ dateTo || '…' }}
+            <i class="not-italic text-sm mgc_close_line"></i>
+          </button>
+        }
+        @if (statusFilter) {
+          <button class="chip" (click)="removeFilter('status')">
+            {{ statusFilter === 'activa' ? 'Activa' : 'Inactiva' }}
+            <i class="not-italic text-sm mgc_close_line"></i>
+          </button>
+        }
+      </div>
+    }
 
     @if (recentPatients().length > 0) {
     <gyno-section-header

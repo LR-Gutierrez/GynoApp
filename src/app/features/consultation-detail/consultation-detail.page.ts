@@ -1,20 +1,24 @@
-import { Component, signal, inject, HostListener, OnInit } from '@angular/core';
+import { Component, signal, inject, ViewChild, OnInit } from '@angular/core';
 import { IonicModule, AlertController, PopoverController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
 import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-header/gyno-page-header.component';
 import { GynoPhotoThumbnailComponent } from 'src/app/shared/components/gyno-photo-thumbnail/gyno-photo-thumbnail.component';
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
 import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
+import { GynoPhotoViewerComponent } from 'src/app/shared/components/gyno-photo-viewer/gyno-photo-viewer.component';
 import { GynoActionPopoverComponent, GynoActionItem } from 'src/app/shared/components/gyno-action-popover/gyno-action-popover.component';
 import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SettingsService } from 'src/app/core/services/settings.service';
+import { RecetaPdfService } from 'src/app/core/services/receta-pdf.service';
 import { Patient, Consultation } from 'src/app/shared/models/patient.model';
 
 @Component({
@@ -29,6 +33,7 @@ import { Patient, Consultation } from 'src/app/shared/models/patient.model';
     GynoPhotoThumbnailComponent,
     GynoSectionHeaderComponent,
     GynoPinInputComponent,
+    GynoPhotoViewerComponent,
   ],
   styles: [
     `
@@ -57,32 +62,6 @@ import { Patient, Consultation } from 'src/app/shared/models/patient.model';
         from { background-position: 200% 0; }
         to { background-position: -200% 0; }
       }
-      .viewer-enter {
-        animation: viewerFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      @keyframes viewerFadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      .chrome-visible {
-        opacity: 1;
-        transition: opacity 0.25s ease;
-      }
-      .chrome-hidden {
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        pointer-events: none;
-      }
-      .dot-active {
-        opacity: 1;
-        transform: scale(1);
-        transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-      .dot-inactive {
-        opacity: 0.4;
-        transform: scale(0.85);
-        transition: all 0.2s ease;
-      }
     `,
   ],
 })
@@ -96,6 +75,9 @@ export class ConsultationDetailPage implements OnInit {
   private settings = inject(SettingsService);
   private alertCtrl = inject(AlertController);
   private popoverCtrl = inject(PopoverController);
+  private recetaPdf = inject(RecetaPdfService);
+
+  @ViewChild('photoViewer') photoViewer!: GynoPhotoViewerComponent;
 
   readonly loading = signal(true);
   readonly consultation = signal<Consultation | null>(null);
@@ -165,6 +147,10 @@ export class ConsultationDetailPage implements OnInit {
       { value: 'edit', label: 'Editar', icon: 'mgc_edit_2_line' },
     ];
 
+    if (c.receta) {
+      actions.push({ value: 'export-pdf', label: 'Exportar receta PDF', icon: 'mgc_pdf_line' });
+    }
+
     if (c.status === 'programada') {
       actions.push({ value: 'mark-attended', label: 'Marcar como atendida', icon: 'mgc_check_line' });
       actions.push({ value: 'mark-cancelled', label: 'Cancelar consulta', icon: 'mgc_close_line', destructive: true });
@@ -184,6 +170,8 @@ export class ConsultationDetailPage implements OnInit {
     const { data } = await popover.onWillDismiss();
     if (data?.action === 'edit') {
       this.edit();
+    } else if (data?.action === 'export-pdf') {
+      this.exportRecetaPdf();
     } else if (data?.action === 'delete') {
       this.delete();
     } else if (data?.action === 'mark-attended') {
@@ -218,6 +206,34 @@ export class ConsultationDetailPage implements OnInit {
     }
   }
 
+  private async exportRecetaPdf() {
+    const c = this.consultation();
+    const p = this.patient();
+    if (!c || !p) return;
+    const blob = await this.recetaPdf.generate(c, p.name);
+
+    if (Capacitor.isNativePlatform()) {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      const fileName = `receta-${p.name.replace(/\s+/g, '_')}.pdf`;
+      await Filesystem.writeFile({
+        path: fileName,
+        data: base64,
+        directory: Directory.Cache,
+      });
+      const uri = await Filesystem.getUri({ path: fileName, directory: Directory.Cache });
+      await Share.share({ files: [uri.uri], title: `Receta - ${p.name}` });
+    } else {
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+  }
+
   async delete() {
     const c = this.consultation();
     if (!c) return;
@@ -245,313 +261,8 @@ export class ConsultationDetailPage implements OnInit {
     await alert.present();
   }
 
-  // Photo viewer
-
-  readonly selectedIndex = signal(-1);
-  readonly chromeVisible = signal(true);
-  private chromeTimer: ReturnType<typeof setTimeout> | null = null;
-  imageLoaded = signal(false);
-  readonly singlePhotoView = signal(false);
-
-  readonly viewerDragX = signal(0);
-  readonly viewerDragActive = signal(false);
-  readonly viewerZoom = signal(1);
-  readonly swipeTargetIdx = signal(-1);
-  private dragStartX = 0;
-  viewWidth = 0;
-  private isAnimatingSwipe = false;
-
-  private pinchStartDist = 0;
-  private pinchStartZoom = 1;
-  private isPinching = false;
-
-  private panStartX = 0;
-  private panStartY = 0;
-  private panStartScrollLeft = 0;
-  private panStartScrollTop = 0;
-  private isPanning = false;
-
-  private lastTapTime = 0;
-  private tapTimer: ReturnType<typeof setTimeout> | null = null;
-
-  get viewerPhotos() {
-    return this.photos();
-  }
-
-  get photoCount(): number {
-    return this.photos().length;
-  }
-
-  constructor() {
-    document.addEventListener('ionBackButton', (ev: any) => {
-      if (this.selectedIndex() >= 0) {
-        ev.detail.register(10, () => this.closePhoto());
-      }
-    });
-  }
-
-  openPhoto(src: string, single = false) {
-    const idx = this.photos().findIndex(p => p.src === src);
-    this.selectedIndex.set(idx);
-    this.viewerZoom.set(1);
-    this.viewerDragX.set(0);
-    this.viewerDragActive.set(false);
-    this.swipeTargetIdx.set(-1);
-    this.isPanning = false;
-    this.isAnimatingSwipe = false;
-    this.imageLoaded.set(false);
-    this.singlePhotoView.set(single);
-    document.body.style.overflow = 'hidden';
-    this.showChromeTemporarily();
-  }
-
-  closePhoto() {
-    this.selectedIndex.set(-1);
-    this.viewerZoom.set(1);
-    this.viewerDragX.set(0);
-    this.swipeTargetIdx.set(-1);
-    this.isAnimatingSwipe = false;
-    this.singlePhotoView.set(false);
-    document.body.style.overflow = '';
-    if (this.chromeTimer) clearTimeout(this.chromeTimer);
-  }
-
-  @HostListener('window:keydown', ['$event'])
-  onViewerKeydown(e: KeyboardEvent) {
-    if (this.selectedIndex() < 0) return;
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      this.prevPhoto();
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      this.nextPhoto();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      this.closePhoto();
-    }
-  }
-
-  onViewerClick(e: MouseEvent) {
-    const t = e.target as HTMLElement;
-    if (t.closest('.chrome-area, button, .dot')) return;
-    if (this.chromeVisible()) {
-      this.hideChrome();
-    } else {
-      this.showChromeTemporarily();
-    }
-  }
-
-  showChromeTemporarily() {
-    this.chromeVisible.set(true);
-    if (this.chromeTimer) clearTimeout(this.chromeTimer);
-    this.chromeTimer = setTimeout(() => this.hideChrome(), 3000);
-  }
-
-  hideChrome() {
-    this.chromeVisible.set(false);
-    if (this.chromeTimer) {
-      clearTimeout(this.chromeTimer);
-      this.chromeTimer = null;
-    }
-  }
-
-  onImageLoad() {
-    this.imageLoaded.set(true);
-  }
-
-  prevPhoto($event?: MouseEvent) {
-    if (this.singlePhotoView()) return;
-    $event?.stopPropagation();
-    const idx = this.selectedIndex();
-    if (idx > 0) {
-      this.selectedIndex.set(idx - 1);
-      this.viewerZoom.set(1);
-      this.viewerDragX.set(0);
-      this.swipeTargetIdx.set(-1);
-      this.isPanning = false;
-      this.imageLoaded.set(false);
-      this.showChromeTemporarily();
-    }
-  }
-
-  nextPhoto($event?: MouseEvent) {
-    if (this.singlePhotoView()) return;
-    $event?.stopPropagation();
-    const idx = this.selectedIndex();
-    if (idx < this.photos().length - 1) {
-      this.selectedIndex.set(idx + 1);
-      this.viewerZoom.set(1);
-      this.viewerDragX.set(0);
-      this.swipeTargetIdx.set(-1);
-      this.isPanning = false;
-      this.imageLoaded.set(false);
-      this.showChromeTemporarily();
-    }
-  }
-
-  private getPointerX(e: TouchEvent | MouseEvent): number {
-    return 'touches' in e ? e.touches[0].clientX : e.clientX;
-  }
-
-  private getPointerXEnd(e: TouchEvent | MouseEvent): number {
-    return 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
-  }
-
-  private getPinchDist(touches: TouchList): number {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.hypot(dx, dy);
-  }
-
-  private getScrollContainer(e: TouchEvent | MouseEvent): HTMLElement | null {
-    const el = 'currentTarget' in e ? (e.currentTarget as HTMLElement) : null;
-    return el?.querySelector('.overflow-auto') ?? null;
-  }
-
-  onDragStart(e: TouchEvent | MouseEvent) {
-    if (this.isAnimatingSwipe) return;
-    if ('touches' in e && e.touches.length >= 2) {
-      this.isPinching = true;
-      this.pinchStartDist = this.getPinchDist(e.touches);
-      this.pinchStartZoom = this.viewerZoom();
-      return;
-    }
-    this.isPinching = false;
-    if (this.viewerZoom() > 1) {
-      this.isPanning = true;
-      const clientX = this.getPointerX(e);
-      const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
-      this.panStartX = clientX;
-      this.panStartY = clientY;
-      const container = this.getScrollContainer(e);
-      if (container) {
-        this.panStartScrollLeft = container.scrollLeft;
-        this.panStartScrollTop = container.scrollTop;
-      }
-      return;
-    }
-    this.isPanning = false;
-    if (this.singlePhotoView()) return;
-    this.viewWidth = window.innerWidth;
-    this.dragStartX = this.getPointerX(e);
-    this.viewerDragX.set(0);
-    this.viewerDragActive.set(true);
-    this.swipeTargetIdx.set(-1);
-  }
-
-  onDragMove(e: TouchEvent | MouseEvent) {
-    if (this.isPinching && 'touches' in e && e.touches.length >= 2) {
-      e.preventDefault();
-      const dist = this.getPinchDist(e.touches);
-      const ratio = dist / this.pinchStartDist;
-      this.viewerZoom.set(Math.max(1, Math.min(5, this.pinchStartZoom * ratio)));
-      return;
-    }
-    if (this.isPanning) {
-      e.preventDefault();
-      const clientX = this.getPointerX(e);
-      const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
-      const dx = clientX - this.panStartX;
-      const dy = clientY - this.panStartY;
-      const container = this.getScrollContainer(e);
-      if (container) {
-        container.scrollLeft = this.panStartScrollLeft - dx;
-        container.scrollTop = this.panStartScrollTop - dy;
-      }
-      return;
-    }
-    if (!this.viewerDragActive()) return;
-    e.preventDefault();
-    const dx = this.getPointerX(e) - this.dragStartX;
-    this.viewerDragX.set(dx);
-
-    const idx = this.selectedIndex();
-    if (!this.singlePhotoView() && this.swipeTargetIdx() === -1 && Math.abs(dx) > 10) {
-      if (dx < 0 && idx < this.photos().length - 1) {
-        this.swipeTargetIdx.set(idx + 1);
-      } else if (dx > 0 && idx > 0) {
-        this.swipeTargetIdx.set(idx - 1);
-      }
-    }
-  }
-
-  onDragEnd(e: TouchEvent | MouseEvent) {
-    if (this.isPinching) {
-      this.isPinching = false;
-      return;
-    }
-    if (this.isPanning) {
-      this.isPanning = false;
-      return;
-    }
-    if (!this.viewerDragActive()) return;
-    this.viewerDragActive.set(false);
-    const dx = this.getPointerXEnd(e) - this.dragStartX;
-    const idx = this.selectedIndex();
-
-    if (this.singlePhotoView()) {
-      this.swipeTargetIdx.set(-1);
-      this.viewerDragX.set(0);
-      return;
-    }
-
-    const threshold = this.viewWidth * 0.25;
-
-    if (dx < -threshold && idx < this.photos().length - 1) {
-      this.swipeTargetIdx.set(idx + 1);
-      this.viewerDragX.set(-this.viewWidth);
-      this.isAnimatingSwipe = true;
-      setTimeout(() => {
-        this.selectedIndex.set(idx + 1);
-        this.viewerZoom.set(1);
-        this.viewerDragX.set(0);
-        this.swipeTargetIdx.set(-1);
-        this.isAnimatingSwipe = false;
-        this.imageLoaded.set(false);
-      }, 350);
-    } else if (dx > threshold && idx > 0) {
-      this.swipeTargetIdx.set(idx - 1);
-      this.viewerDragX.set(this.viewWidth);
-      this.isAnimatingSwipe = true;
-      setTimeout(() => {
-        this.selectedIndex.set(idx - 1);
-        this.viewerZoom.set(1);
-        this.viewerDragX.set(0);
-        this.swipeTargetIdx.set(-1);
-        this.isAnimatingSwipe = false;
-        this.imageLoaded.set(false);
-      }, 350);
-    } else {
-      this.swipeTargetIdx.set(-1);
-      this.viewerDragX.set(0);
-    }
-  }
-
-  onPhotoClick(e: MouseEvent) {
-    const img = e.currentTarget as HTMLImageElement | null;
-    if (!img) return;
-    const now = Date.now();
-    if (now - this.lastTapTime < 300) {
-      if (this.tapTimer) {
-        clearTimeout(this.tapTimer);
-        this.tapTimer = null;
-      }
-      this.lastTapTime = 0;
-      e.stopPropagation();
-      const zoom = this.viewerZoom();
-      if (zoom > 1) {
-        this.viewerZoom.set(1);
-      } else {
-        this.viewerZoom.set(1.5);
-        img.closest('.overflow-auto')?.scrollTo({
-          left: (img.scrollWidth - (img.closest('.overflow-auto')?.clientWidth ?? 0)) / 2,
-          top: (img.scrollHeight - (img.closest('.overflow-auto')?.clientHeight ?? 0)) / 2,
-          behavior: 'smooth',
-        });
-      }
-      return;
-    }
-    this.lastTapTime = now;
+  openPhoto(src: string) {
+    this.photoViewer.openPhoto(src);
   }
 
   readonly showPinInput = signal(false);
@@ -561,7 +272,7 @@ export class ConsultationDetailPage implements OnInit {
   private pendingPinSrc = '';
 
   async onPinUnlocked(pin: string) {
-    const valid = await this.auth.verifyPin(pin);
+    const { valid } = await this.auth.verifyPin(pin);
     if (!valid) {
       this.pinError.set('PIN incorrecto');
       this.pinResetKey.update(n => n + 1);
@@ -570,7 +281,7 @@ export class ConsultationDetailPage implements OnInit {
     this.pinError.set('');
     this.showPinInput.set(false);
     if (this.pendingPinSrc) {
-      this.openPhoto(this.pendingPinSrc, true);
+      this.openPhoto(this.pendingPinSrc);
       this.pendingPinSrc = '';
     } else {
       this.galleryUnlocked.set(true);
@@ -657,7 +368,7 @@ export class ConsultationDetailPage implements OnInit {
         await BiometricAuth.authenticate({
           reason: 'Desbloquea esta foto',
         });
-        this.openPhoto(src, true);
+        this.openPhoto(src);
         return;
       } catch {
         // biometric failed/cancelled → fallback to PIN
@@ -693,7 +404,7 @@ export class ConsultationDetailPage implements OnInit {
       });
       this.showPinInput.set(false);
       if (this.pendingPinSrc) {
-        this.openPhoto(this.pendingPinSrc, true);
+        this.openPhoto(this.pendingPinSrc);
         this.pendingPinSrc = '';
       } else {
         this.galleryUnlocked.set(true);

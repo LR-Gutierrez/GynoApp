@@ -121,17 +121,18 @@ export class SettingsPage implements OnInit {
   }
 
   async selectAutoLock() {
+    const current = this.autoLock();
     const alert = await this.alertCtrl.create({
       header: 'Bloqueo automático',
       message: 'Selecciona el tiempo de inactividad para bloquear la sesión',
       inputs: [
-        { label: '1 minuto', type: 'radio', value: '1' },
-        { label: '2 minutos', type: 'radio', value: '2' },
-        { label: '5 minutos', type: 'radio', value: '5' },
-        { label: '10 minutos', type: 'radio', value: '10' },
-        { label: '15 minutos', type: 'radio', value: '15' },
-        { label: '30 minutos', type: 'radio', value: '30' },
-        { label: 'Nunca', type: 'radio', value: '0' },
+        { label: '1 minuto', type: 'radio', value: '1', checked: current === 1 },
+        { label: '2 minutos', type: 'radio', value: '2', checked: current === 2 },
+        { label: '5 minutos', type: 'radio', value: '5', checked: current === 5 },
+        { label: '10 minutos', type: 'radio', value: '10', checked: current === 10 },
+        { label: '15 minutos', type: 'radio', value: '15', checked: current === 15 },
+        { label: '30 minutos', type: 'radio', value: '30', checked: current === 30 },
+        { label: 'Nunca', type: 'radio', value: '0', checked: current === 0 },
       ],
       buttons: [
         { text: 'Cancelar', role: 'cancel', handler: () => false },
@@ -205,7 +206,7 @@ export class SettingsPage implements OnInit {
 
   private async verifyOldPin(pin: string) {
     this.pinLoading.set(true);
-    const valid = await this.auth.verifyPin(pin);
+    const { valid } = await this.auth.verifyPin(pin);
     this.pinLoading.set(false);
     if (valid) {
       this.oldPin.set(pin);
@@ -517,7 +518,7 @@ Horario de atención: Lun–Vie 9:00–18:00`,
   // --- Export PIN ---
 
   async onExportPinComplete(pin: string) {
-    const valid = await this.auth.verifyPin(pin);
+    const { valid } = await this.auth.verifyPin(pin);
     if (!valid) {
       this.exportPinError.set('PIN incorrecto');
       this.exportPinReset.update(v => v + 1);

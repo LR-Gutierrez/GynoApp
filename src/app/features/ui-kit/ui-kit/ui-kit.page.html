@@ -254,13 +254,8 @@
   <section class="ui-section mb-10 bg-surface-container-lowest border border-outline-variant rounded-2xl p-5">
     <gyno-section-header icon="chatbubble-ellipses-outline" title="Feedback"></gyno-section-header>
     <div class="feedback-grid grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30">
-        <gyno-empty-state
-          icon="folder-open-outline"
-          message="No hay pacientes"
-          actionLabel="Agregar"
-          (action)="onAction('add')"
-        ></gyno-empty-state>
+      <div class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30 flex items-center justify-center">
+        <span class="text-sm text-on-surface-variant">Empty State (removed)</span>
       </div>
       <div class="feedback-item bg-surface-container-lowest p-4 rounded-xl border border-outline-variant min-h-30 flex flex-col gap-3">
         <div class="feedback-actions flex flex-wrap gap-2">
@@ -281,13 +276,6 @@
     </div>
 
     <gyno-loading-overlay [visible]="showLoading" message="Cargando datos..."></gyno-loading-overlay>
-    <gyno-confirm-dialog
-      [visible]="showConfirm"
-      title="Confirmar Acción"
-      message="¿Estás seguro de que deseas realizar esta acción?"
-      (confirm)="handleConfirm()"
-      (cancel)="toggleConfirm()"
-    ></gyno-confirm-dialog>
   </section>
 
   <!-- ========================================== -->

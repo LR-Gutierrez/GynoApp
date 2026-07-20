@@ -3,7 +3,7 @@ import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacito
 import { Platform } from '@ionic/angular';
 
 const DB_NAME = 'gynoapp.db';
-const DB_VERSION = 10;
+const DB_VERSION = 12;
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
@@ -190,6 +190,32 @@ export class DatabaseService {
           await connection.run(`ALTER TABLE consultations ADD COLUMN status TEXT NOT NULL DEFAULT 'atendida'`, [], false);
         } catch {}
       }
+    }
+
+    if (currentVersion < 11) {
+      // version 11 was designed to add pregnancy columns but had issues on web SQLite
+    }
+
+    if (currentVersion < 12) {
+      const addPatientCol = async (col: string, def: string) => {
+        try { await connection.run(`ALTER TABLE patients ADD COLUMN ${col} ${def}`, [], false); } catch {}
+      };
+      const addConsultCol = async (col: string, def: string) => {
+        try { await connection.run(`ALTER TABLE consultations ADD COLUMN ${col} ${def}`, [], false); } catch {}
+      };
+      await addPatientCol('embarazada', 'INTEGER DEFAULT 0');
+      await addPatientCol('FUR', 'TEXT');
+      await addPatientCol('FPP', 'TEXT');
+      await addPatientCol('gestas', 'INTEGER DEFAULT 0');
+      await addPatientCol('partos', 'INTEGER DEFAULT 0');
+      await addPatientCol('cesareas', 'INTEGER DEFAULT 0');
+      await addPatientCol('abortos', 'INTEGER DEFAULT 0');
+      await addConsultCol('peso', 'REAL');
+      await addConsultCol('PA', 'TEXT');
+      await addConsultCol('AU', 'REAL');
+      await addConsultCol('FCF', 'INTEGER');
+      await addConsultCol('presentacion', 'TEXT');
+      await addConsultCol('edema', 'TEXT');
     }
 
     for (const sql of statements) {

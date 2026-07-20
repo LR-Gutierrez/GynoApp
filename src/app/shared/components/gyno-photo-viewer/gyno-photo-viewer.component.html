@@ -1,0 +1,80 @@
+<!-- Photo viewer overlay -->
+@if (visible()) {
+  <div class="viewer-enter fixed inset-0 z-[9999] bg-black flex flex-col" (click)="onViewerClick($event)" (pointerdown)="onViewerPointerDown($event)">
+    <!-- Top chrome -->
+    <div class="chrome-area absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-4 pb-3 transition-opacity duration-300 ease-out" [class.chrome-visible]="chromeVisible()" [class.chrome-hidden]="!chromeVisible()">
+      <button type="button" class="w-9 h-9 rounded-full bg-black/40 border-0 text-white flex items-center justify-center cursor-pointer hover:bg-black/60 transition-colors" (click)="closePhoto()" aria-label="Cerrar">
+        <i class="not-italic text-lg mgc_close_line"></i>
+      </button>
+      <span class="font-sans text-sm font-medium text-white/90">
+        {{ selectedIndex() + 1 }} / {{ totalPhotos() }}
+      </span>
+    </div>
+
+    <!-- Side nav -->
+    @if (!isFirst()) {
+      <button type="button" class="nav-btn absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border-0 text-white flex items-center justify-center cursor-pointer hover:bg-black/50 transition-all duration-200" [class.chrome-hidden]="!chromeVisible()" (click)="prevPhoto()" aria-label="Anterior">
+        <i class="not-italic text-xl mgc_arrow_left_line"></i>
+      </button>
+    }
+    @if (!isLast()) {
+      <button type="button" class="nav-btn absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/30 border-0 text-white flex items-center justify-center cursor-pointer hover:bg-black/50 transition-all duration-200" [class.chrome-hidden]="!chromeVisible()" (click)="nextPhoto()" aria-label="Siguiente">
+        <i class="not-italic text-xl mgc_arrow_right_line"></i>
+      </button>
+    }
+
+    <!-- Image area -->
+    @let photo = currentPhoto();
+    @if (photo) {
+      <div class="flex-1 flex items-center justify-center overflow-hidden select-none relative" style="touch-action: none;">
+        <div class="zoom-container relative w-full h-full overflow-auto flex items-center justify-center" style="touch-action: pan-x pan-y;">
+          @if (photo.mimeType === 'application/pdf') {
+            <iframe [src]="pdfUrl()" class="w-full h-full border-0" (load)="onImageLoad()"></iframe>
+          } @else if (photo.mimeType.startsWith('video/')) {
+            <video [src]="photo.src" controls class="max-w-full max-h-full object-contain" (loadedmetadata)="onImageLoad()"></video>
+          } @else {
+            @if (swipeTargetIdx() >= 0) {
+              @let target = swipeTargetPhoto();
+              @if (target) {
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none" style="will-change: transform;">
+                  <img [src]="target.src" class="max-w-full max-h-full object-contain select-none" style="pointer-events: none;" draggable="false" />
+                </div>
+              }
+            }
+            <img
+              [src]="photo.src"
+              class="max-w-full max-h-full object-contain select-none transition-transform duration-150 ease-out cursor-pointer"
+              [class.opacity-0]="!imageLoaded()"
+              [style.transform]="'translateX(' + viewerDragX() + 'px) scale(' + viewerZoom() + ')'"
+              style="will-change: transform;"
+              draggable="false"
+              (click)="onPhotoClick($event)"
+              (load)="onImageLoad()"
+            />
+            @if (!imageLoaded()) {
+              <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                <ion-spinner name="crescent" class="w-8 h-8 text-white/60" />
+              </div>
+            }
+            <!-- Preload adjacent -->
+            @if (!isFirst()) {
+              <img [src]="photos()[selectedIndex() - 1].src" class="hidden" aria-hidden="true" />
+            }
+            @if (!isLast()) {
+              <img [src]="photos()[selectedIndex() + 1].src" class="hidden" aria-hidden="true" />
+            }
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Bottom dots -->
+    @if (totalPhotos() > 1) {
+      <div class="flex items-center justify-center gap-1.5 py-3 transition-opacity duration-300 ease-out" [class.chrome-visible]="chromeVisible()" [class.chrome-hidden]="!chromeVisible()">
+        @for (p of photos(); track p.id) {
+          <button type="button" class="dot-btn w-1.5 h-1.5 rounded-full border-0 cursor-pointer transition-all duration-200 p-0" [class.dot-active]="$index === selectedIndex()" [class.dot-inactive]="$index !== selectedIndex()" (click)="selectedIndex.set($index); viewerZoom.set(1); viewerDragX.set(0); imageLoaded.set(false)" aria-label="Foto {{ $index + 1 }}"></button>
+        }
+      </div>
+    }
+  </div>
+}
