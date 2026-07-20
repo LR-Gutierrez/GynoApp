@@ -81,32 +81,54 @@ export class HomePage {
 
   private async loadPatients() {
     this.patientsLookup = await this.patientService.getAll();
-    const mapped: TablePatient[] = [];
+    const allConsultations = await this.consultationService.getAll();
+
+    const consByPatient: Record<string, typeof allConsultations> = {};
     this.allCons = [];
-    for (const p of this.patientsLookup) {
-      const consultations = await this.consultationService.getByPatient(p.id);
-      const latest = consultations[0];
-      mapped.push({
+    for (const c of allConsultations) {
+      if (!consByPatient[c.patientId]) consByPatient[c.patientId] = [];
+      consByPatient[c.patientId].push(c);
+      this.allCons.push({ patientId: c.patientId, date: c.date, consultationId: c.id, motivo: c.motivo, time: c.time });
+    }
+
+    const mapped: TablePatient[] = this.patientsLookup.map(p => {
+      const patientCons = consByPatient[p.id] ?? [];
+      const latest = patientCons[0];
+      return {
         ...p,
         age: calculateAge(p.birthDate),
         ultimaConsulta: latest ? this.formatDate(latest.date) : undefined,
-      });
-      for (const c of consultations) {
-        this.allCons.push({ patientId: p.id, date: c.date, consultationId: c.id, motivo: c.motivo, time: c.time });
-      }
-    }
+      };
+    });
     this.allPatients = mapped;
     this.applySearch();
   }
 
   private applySearch() {
-    const filtered = this.searchQuery
-      ? this.allPatients.filter((p) =>
-          p.name.toLowerCase().includes(this.searchQuery.toLowerCase()),
-        )
-      : [...this.allPatients];
+    const q = this.searchQuery.toLowerCase().trim();
+    let filtered: TablePatient[];
+    if (q) {
+      const matchingIds = new Set<string>();
+      for (const p of this.allPatients) {
+        if (p.name.toLowerCase().includes(q) ||
+            (p.cedula && p.cedula.toLowerCase().includes(q)) ||
+            p.phone.toLowerCase().includes(q)) {
+          matchingIds.add(p.id);
+        }
+      }
+      for (const c of this.allCons) {
+        if (c.motivo.toLowerCase().includes(q)) {
+          matchingIds.add(c.patientId);
+        }
+      }
+      filtered = this.allPatients.filter(p => matchingIds.has(p.id));
+    } else {
+      filtered = [...this.allPatients];
+    }
     this.totalCount = filtered.length;
-    this.patients.set(filtered);
+
+    const start = (this.currentPage - 1) * this.pageSize;
+    this.patients.set(filtered.slice(start, start + this.pageSize));
 
     const filteredIds = new Set(filtered.map(p => p.id));
     this.applyRecentFilter(filteredIds);
@@ -249,6 +271,7 @@ export class HomePage {
 
   onPageChange(page: number) {
     this.currentPage = page;
+    this.applySearch();
   }
 
   onAddConsultation() {

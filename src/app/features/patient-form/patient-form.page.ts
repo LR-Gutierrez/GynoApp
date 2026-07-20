@@ -1,10 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-header/gyno-page-header.component';
 import { PatientService } from 'src/app/core/services/patient.service';
+import { CanComponentDeactivate } from 'src/app/core/guards/can-deactivate.guard';
 
 @Component({
   selector: 'app-patient-form',
@@ -33,6 +34,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
               </label>
               <input
                 [(ngModel)]="name"
+                (input)="markDirty()"
                 placeholder="ej. María García"
                 class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
               />
@@ -44,7 +46,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
               </label>
               <input
                 [value]="cedula"
-                (input)="onCedulaInput($event)"
+                (input)="onCedulaInput($event); markDirty()"
                 (blur)="onCedulaBlur()"
                 placeholder="ej. V-12345678"
                 class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
@@ -61,6 +63,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
               <input
                 type="date"
                 [(ngModel)]="birthDate"
+                (input)="markDirty()"
                 class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface outline-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
               />
               @if (birthDate) {
@@ -74,6 +77,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
               </label>
               <input
                 [(ngModel)]="phone"
+                (input)="markDirty()"
                 placeholder="ej. +58 412-1234567"
                 class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
               />
@@ -85,6 +89,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
               </label>
               <input
                 [(ngModel)]="address"
+                (input)="markDirty()"
                 placeholder="ej. Av. Principal, Caracas"
                 class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
               />
@@ -96,6 +101,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
               </label>
               <textarea
                 [(ngModel)]="antecedentes"
+                (input)="markDirty()"
                 placeholder="Antecedentes médicos relevantes..."
                 rows="3"
                 class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none resize-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
@@ -108,6 +114,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
               </label>
               <textarea
                 [(ngModel)]="alergias"
+                (input)="markDirty()"
                 placeholder="Alergias conocidas..."
                 rows="2"
                 class="w-full px-3.5 py-3 rounded-xl border border-outline-variant bg-surface-container-low font-sans text-sm text-on-surface placeholder:text-[#9ca3af] outline-none resize-none transition-colors focus:border-primary-600 focus:ring-1 focus:ring-primary-600/20"
@@ -141,10 +148,11 @@ import { PatientService } from 'src/app/core/services/patient.service';
     `,
   ],
 })
-export class PatientFormPage implements OnInit {
+export class PatientFormPage implements OnInit, CanComponentDeactivate {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private patientService = inject(PatientService);
+  private toastCtrl = inject(ToastController);
 
   name = '';
   cedula = '';
@@ -157,6 +165,8 @@ export class PatientFormPage implements OnInit {
   cedulaError = '';
   isEditing = false;
   private editingId: string | null = null;
+  private initialValues: Record<string, string> = {};
+  private dirty = false;
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -174,6 +184,17 @@ export class PatientFormPage implements OnInit {
         this.alergias = patient.alergias ?? '';
       }
     }
+    this.initialValues = { name: this.name, cedula: this.cedula, birthDate: this.birthDate, phone: this.phone, address: this.address, antecedentes: this.antecedentes, alergias: this.alergias };
+  }
+
+  markDirty() {
+    this.dirty = true;
+  }
+
+  canDeactivate(): boolean {
+    if (this.saving) return true;
+    if (!this.dirty) return true;
+    return Object.keys(this.initialValues).every(k => (this as any)[k] === this.initialValues[k]);
   }
 
   get age(): number | null {
@@ -186,6 +207,17 @@ export class PatientFormPage implements OnInit {
       age--;
     }
     return age;
+  }
+
+  private async showSavedToast() {
+    const toast = await this.toastCtrl.create({
+      message: this.isEditing ? 'Paciente actualizado' : 'Paciente registrado',
+      duration: 2000,
+      position: 'bottom',
+      color: 'success',
+      icon: 'checkmark-circle',
+    });
+    await toast.present();
   }
 
   isValid(): boolean {
@@ -235,6 +267,8 @@ export class PatientFormPage implements OnInit {
           createdAt: '',
           updatedAt: '',
         });
+        this.dirty = false;
+        await this.showSavedToast();
         await this.router.navigate(['/home/patient', this.editingId]);
       } else {
         const existing = await this.patientService.findByCedula(this.cedula);
@@ -252,6 +286,8 @@ export class PatientFormPage implements OnInit {
           antecedentes: this.antecedentes.trim() || undefined,
           alergias: this.alergias.trim() || undefined,
         });
+        this.dirty = false;
+        await this.showSavedToast();
         await this.router.navigate(['/home/patient', patient.id]);
       }
     } catch (e) {

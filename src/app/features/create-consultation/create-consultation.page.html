@@ -46,7 +46,8 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <gyno-date-picker
           label="Fecha de la consulta"
-          [(value)]="date"
+          [value]="date()"
+          (valueChange)="date.set($event); markDirty()"
         />
 
         <div class="form-field">
@@ -114,7 +115,7 @@
         placeholder="Ej: Control de rutina"
         icon="mgc_heart_pulse_line"
         [value]="motivo()"
-        (valueChange)="motivo.set($event); motivoError.set('')"
+        (valueChange)="motivo.set($event); motivoError.set(''); markDirty()"
         [error]="motivoError()"
       />
 
@@ -126,7 +127,7 @@
         <div class="relative">
           <select
             [ngModel]="status()"
-            (ngModelChange)="status.set($event)"
+            (ngModelChange)="status.set($event); markDirty()"
             class="form-input-native w-full appearance-none cursor-pointer font-sans text-sm text-on-surface bg-transparent"
           >
             <option value="programada">Programada</option>
@@ -144,7 +145,7 @@
         placeholder="Describe el diagnóstico de la paciente..."
         icon="mgc_stethoscope_line"
         [value]="diagnostico()"
-        (valueChange)="diagnostico.set($event)"
+        (valueChange)="diagnostico.set($event); markDirty()"
       />
 
       <!-- Tratamiento -->
@@ -154,7 +155,7 @@
         placeholder="Describe el tratamiento indicado..."
         icon="mgc_medicine_bottle_line"
         [value]="tratamiento()"
-        (valueChange)="tratamiento.set($event)"
+        (valueChange)="tratamiento.set($event); markDirty()"
       />
 
       <!-- Receta -->
@@ -164,7 +165,7 @@
         placeholder="Indicaciones médicas y medicamentos recetados..."
         icon="mgc_donate_line"
         [value]="receta()"
-        (valueChange)="receta.set($event)"
+        (valueChange)="receta.set($event); markDirty()"
       />
 
       <!-- Exámenes -->
@@ -174,7 +175,7 @@
         placeholder="Laboratorios, ecografías, estudios complementarios..."
         icon="mgc_flask_line"
         [value]="examenes()"
-        (valueChange)="examenes.set($event)"
+        (valueChange)="examenes.set($event); markDirty()"
       />
 
       <!-- Notas -->
@@ -184,7 +185,7 @@
         placeholder="Cualquier información relevante..."
         icon="mgc_file_text_line"
         [value]="notas()"
-        (valueChange)="notas.set($event)"
+        (valueChange)="notas.set($event); markDirty()"
       />
     </div>
 
@@ -200,7 +201,7 @@
         <!-- Add media button -->
         <div
           class="aspect-square rounded-xl overflow-hidden border-2 border-dashed border-outline-variant cursor-pointer bg-surface-container-low flex flex-col items-center justify-center gap-1 hover:bg-surface-container transition-colors"
-          (click)="addMedia()"
+          (click)="addMedia(); markDirty()"
         >
           <i class="not-italic text-2xl text-outline mgc_upload_2_line"></i>
           <span class="font-sans text-[11px] font-medium text-on-surface-variant">Agregar</span>

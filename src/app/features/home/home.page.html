@@ -1,6 +1,12 @@
 <gyno-topbar title="GynoApp" />
 <ion-content>
   <div class="px-4 pt-4 pb-4">
+    @if (loading()) {
+      <div class="flex flex-col items-center justify-center py-20 gap-3">
+        <ion-spinner name="crescent" class="w-8 h-8 text-primary-600" />
+        <p class="font-sans text-sm text-on-surface-variant m-0">Cargando pacientes...</p>
+      </div>
+    } @else {
     <gyno-search-bar
       class="mb-6 block"
       placeholder="Buscar pacientes..."
@@ -41,6 +47,7 @@
       <i class="not-italic text-lg mgc_add_line" slot="start"></i>
       Nuevo paciente
     </ion-button>
+    }
   </div>
 </ion-content>
 

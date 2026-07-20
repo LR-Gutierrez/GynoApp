@@ -66,6 +66,29 @@
             />
           </div>
         </div>
+
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent cursor-pointer text-left transition-colors"
+          (click)="selectAutoLock()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_time_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Bloqueo automático
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              {{ autoLockLabel() }}
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-auto min-w-[44px]">
+            <ion-badge class="badge-primary">{{ autoLockBadge() }}</ion-badge>
+          </div>
+        </button>
       </div>
     </div>
 

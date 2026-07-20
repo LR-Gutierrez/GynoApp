@@ -2,23 +2,39 @@ import { Injectable } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 
 export type TimeFormat = '12h' | '24h';
+export type AutoLockMinutes = 1 | 2 | 5 | 10 | 15 | 30 | 0;
 
 const TIME_FORMAT_KEY = 'gyno_time_format';
+const AUTO_LOCK_KEY = 'gyno_auto_lock';
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
-  private cached: TimeFormat | null = null;
+  private cachedTimeFormat: TimeFormat | null = null;
+  private cachedAutoLock: AutoLockMinutes | null = null;
 
   async getTimeFormat(): Promise<TimeFormat> {
-    if (this.cached) return this.cached;
+    if (this.cachedTimeFormat) return this.cachedTimeFormat;
     const { value } = await Preferences.get({ key: TIME_FORMAT_KEY });
-    this.cached = (value as TimeFormat) || '24h';
-    return this.cached;
+    this.cachedTimeFormat = (value as TimeFormat) || '24h';
+    return this.cachedTimeFormat;
   }
 
   async setTimeFormat(format: TimeFormat): Promise<void> {
     await Preferences.set({ key: TIME_FORMAT_KEY, value: format });
-    this.cached = format;
+    this.cachedTimeFormat = format;
+  }
+
+  async getAutoLock(): Promise<AutoLockMinutes> {
+    if (this.cachedAutoLock !== null) return this.cachedAutoLock;
+    const { value } = await Preferences.get({ key: AUTO_LOCK_KEY });
+    const parsed = value ? parseInt(value, 10) as AutoLockMinutes : 5;
+    this.cachedAutoLock = parsed;
+    return this.cachedAutoLock;
+  }
+
+  async setAutoLock(minutes: AutoLockMinutes): Promise<void> {
+    await Preferences.set({ key: AUTO_LOCK_KEY, value: String(minutes) });
+    this.cachedAutoLock = minutes;
   }
 
   formatTime(time: string | undefined, targetFormat?: TimeFormat): string {

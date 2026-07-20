@@ -29,7 +29,6 @@ import { Patient, Consultation } from 'src/app/shared/models/patient.model';
     GynoPhotoThumbnailComponent,
     GynoSectionHeaderComponent,
     GynoPinInputComponent,
-    GynoActionPopoverComponent,
   ],
   styles: [
     `

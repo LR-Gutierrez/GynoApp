@@ -1,5 +1,5 @@
 import { Component, signal, computed, inject, OnInit, HostListener, ElementRef } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.ser
 import { PatientService } from 'src/app/core/services/patient.service';
 import { SettingsService } from 'src/app/core/services/settings.service';
 import { calculateAge, ConsultationStatus } from 'src/app/shared/models/patient.model';
+import { CanComponentDeactivate } from 'src/app/core/guards/can-deactivate.guard';
 
 interface PendingMedia {
   id: string;
@@ -41,7 +42,7 @@ interface PendingMedia {
     `,
   ],
 })
-export class CreateConsultationPage implements OnInit {
+export class CreateConsultationPage implements OnInit, CanComponentDeactivate {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private consultationService = inject(ConsultationService);
@@ -49,6 +50,7 @@ export class CreateConsultationPage implements OnInit {
   private patientService = inject(PatientService);
   protected settings = inject(SettingsService);
   private el = inject(ElementRef);
+  private toastCtrl = inject(ToastController);
 
   readonly patientId = signal('');
   readonly patientName = signal('Paciente');
@@ -80,6 +82,23 @@ export class CreateConsultationPage implements OnInit {
   readonly media = signal<PendingMedia[]>([]);
   readonly motivoError = signal('');
   readonly saving = signal(false);
+  readonly dirty = signal(false);
+  markDirty() { this.dirty.set(true); }
+
+  canDeactivate(): boolean {
+    return !this.dirty() || this.saving();
+  }
+
+  private async showSavedToast() {
+    const toast = await this.toastCtrl.create({
+      message: this.isEditing() ? 'Consulta actualizada' : 'Consulta guardada',
+      duration: 2000,
+      position: 'bottom',
+      color: 'success',
+      icon: 'checkmark-circle',
+    });
+    await toast.present();
+  }
 
   async ngOnInit() {
     const tf = await this.settings.getTimeFormat();
@@ -162,6 +181,7 @@ export class CreateConsultationPage implements OnInit {
   }
 
   removeMedia(id: string) {
+    this.markDirty();
     this.media.update(m => m.filter(item => item.id !== id));
   }
 
@@ -170,6 +190,7 @@ export class CreateConsultationPage implements OnInit {
   }
 
   onHourChange(event: CustomEvent) {
+    this.markDirty();
     const m = this.time().split(':')[1] ?? '00';
     const val = event.detail.value as string;
     if (this.timeFormat() === '12h') {
@@ -181,11 +202,13 @@ export class CreateConsultationPage implements OnInit {
   }
 
   onMinuteChange(event: CustomEvent) {
+    this.markDirty();
     const h = this.time().split(':')[0] ?? '00';
     this.time.set(`${h}:${event.detail.value}`);
   }
 
   onPeriodChange(event: CustomEvent) {
+    this.markDirty();
     const period = event.detail.value as 'AM' | 'PM';
     this.period.set(period);
     const [h, m] = this.time().split(':');
@@ -204,7 +227,7 @@ export class CreateConsultationPage implements OnInit {
   }
 
   goBack() {
-    history.back();
+    this.router.navigate(['/home/patient', this.patientId()]);
   }
 
   async save() {
@@ -240,6 +263,7 @@ export class CreateConsultationPage implements OnInit {
         }
 
         await this.consultationService.update(consultation);
+        this.dirty.set(false);
       } else {
         const consultation = await this.consultationService.create({
           patientId: this.patientId(),
@@ -261,8 +285,10 @@ export class CreateConsultationPage implements OnInit {
           consultation.photoIds = photoIds;
           await this.consultationService.update(consultation);
         }
+        this.dirty.set(false);
       }
 
+      await this.showSavedToast();
       await this.router.navigate(['/home/patient', this.patientId()]);
     } catch (e) {
       console.warn('Could not save consultation', e);

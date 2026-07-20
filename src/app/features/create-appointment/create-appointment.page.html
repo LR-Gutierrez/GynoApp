@@ -44,7 +44,7 @@
               placeholder="Buscar paciente por nombre o teléfono..."
               class="flex-1 border-0 bg-transparent outline-none font-sans text-sm text-on-surface placeholder:text-outline"
               [value]="searchQuery()"
-              (input)="searchQuery.set(($any($event.target)).value)"
+              (input)="searchQuery.set(($any($event.target)).value); markDirty()"
             />
           </div>
 
@@ -88,7 +88,8 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         <gyno-date-picker
           label="Fecha"
-          [(value)]="date"
+          [value]="date()"
+          (valueChange)="date.set($event); markDirty()"
         />
 
         <div class="form-field">
@@ -155,7 +156,7 @@
         placeholder="Ej: Control de rutina"
         icon="mgc_heart_pulse_line"
         [value]="reason()"
-        (valueChange)="reason.set($event); reasonError.set('')"
+        (valueChange)="reason.set($event); reasonError.set(''); markDirty()"
         [error]="reasonError()"
       />
     </div>

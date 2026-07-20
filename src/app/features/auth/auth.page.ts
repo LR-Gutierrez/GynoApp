@@ -4,6 +4,8 @@ import { IonicModule, Platform } from '@ionic/angular';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { AuthService } from 'src/app/core/services/auth.service';
 
+const MAX_ATTEMPTS = 5;
+
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.page.html',
@@ -80,6 +82,9 @@ export class AuthPage implements OnInit, OnDestroy {
   readonly error = signal('');
   readonly step = signal<'register' | 'confirm' | 'login'>('login');
   readonly loading = signal(false);
+  readonly lockoutSeconds = signal(0);
+  readonly attempts = signal(0);
+  private lockoutTimer: ReturnType<typeof setInterval> | null = null;
 
   @ViewChild('backspaceBtn') backspaceBtn!: ElementRef<HTMLButtonElement>;
   private holdTimer: ReturnType<typeof setInterval> | null = null;
@@ -106,16 +111,53 @@ export class AuthPage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.resetState();
+  }
+
+  ionViewWillEnter() {
+    this.resetState();
+  }
+
+  private resetState() {
+    this.pin.set([]);
+    this.pinConfirm.set([]);
+    this.error.set('');
+    this.loading.set(false);
+    this.lockoutSeconds.set(0);
+    this.attempts.set(0);
+    this.biometricTriggered = false;
     if (this.auth.hasPin()) {
       this.step.set('login');
       this.tryBiometricOnLoad();
+      this.checkLockout();
     } else {
       this.step.set('register');
     }
   }
 
+  private async checkLockout() {
+    this.attempts.set(await this.auth.getPinAttempts());
+    const ms = await this.auth.getRemainingLockoutMs();
+    if (ms > 0) this.startLockoutTimer(ms);
+  }
+
+  private startLockoutTimer(ms: number) {
+    this.lockoutSeconds.set(Math.ceil(ms / 1000));
+    this.lockoutTimer = setInterval(async () => {
+      const remaining = await this.auth.getRemainingLockoutMs();
+      if (remaining <= 0) {
+        this.lockoutSeconds.set(0);
+        this.error.set('');
+        if (this.lockoutTimer) clearInterval(this.lockoutTimer);
+      } else {
+        this.lockoutSeconds.set(Math.ceil(remaining / 1000));
+      }
+    }, 1000);
+  }
+
   ngOnDestroy() {
     this.onBackspaceHoldEnd();
+    if (this.lockoutTimer) clearInterval(this.lockoutTimer);
   }
 
   private async tryBiometricOnLoad() {
@@ -143,7 +185,7 @@ export class AuthPage implements OnInit, OnDestroy {
   }
 
   onDigit(d: string) {
-    if (this.loading()) return;
+    if (this.loading() || this.lockoutSeconds() > 0) return;
     this.hapticImpact(ImpactStyle.Light);
 
     if (this.step() === 'register' || this.step() === 'confirm') {
@@ -166,14 +208,14 @@ export class AuthPage implements OnInit, OnDestroy {
   }
 
   onBackspace() {
-    if (this.loading()) return;
+    if (this.loading() || this.lockoutSeconds() > 0) return;
     this.hapticImpact(ImpactStyle.Light);
     this.pin.set(this.pin().slice(0, -1));
     this.error.set('');
   }
 
   onBackspaceHoldStart() {
-    if (this.loading()) return;
+    if (this.loading() || this.lockoutSeconds() > 0) return;
     this.holdTimer = setInterval(() => {
       if (this.pin().length === 0) {
         this.onBackspaceHoldEnd();
@@ -241,15 +283,25 @@ export class AuthPage implements OnInit, OnDestroy {
       this.error.set('PIN incompleto');
       return;
     }
+    if (this.lockoutSeconds() > 0) return;
 
     this.loading.set(true);
     try {
-      const valid = await this.auth.verifyPin(this.pin().join(''));
+      const { valid, lockoutMs } = await this.auth.verifyPin(this.pin().join(''));
       if (valid) {
         this.hapticImpact(ImpactStyle.Medium);
         this.router.navigate(['/home']);
-      } else {
+      } else if (lockoutMs > 0) {
         this.error.set('PIN incorrecto');
+        this.hapticImpact(ImpactStyle.Heavy);
+        this.pin.set([]);
+        this.attempts.set(0);
+        this.startLockoutTimer(lockoutMs);
+      } else {
+        const att = await this.auth.getPinAttempts();
+        this.attempts.set(att);
+        const remaining = MAX_ATTEMPTS - att;
+        this.error.set(`PIN incorrecto — ${remaining} ${remaining === 1 ? 'intento' : 'intentos'} restante${remaining === 1 ? '' : 's'}`);
         this.hapticImpact(ImpactStyle.Heavy);
         this.pin.set([]);
       }
@@ -262,6 +314,7 @@ export class AuthPage implements OnInit, OnDestroy {
   }
 
   async useBiometrics() {
+    if (this.lockoutSeconds() > 0) return;
     this.hapticImpact(ImpactStyle.Light);
     const ok = await this.auth.authenticateWithBiometrics();
     if (ok) {

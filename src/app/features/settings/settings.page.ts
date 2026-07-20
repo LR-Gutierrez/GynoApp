@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
 import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { SettingsService, TimeFormat } from 'src/app/core/services/settings.service';
+import { SettingsService, TimeFormat, AutoLockMinutes } from 'src/app/core/services/settings.service';
 import { ExportService } from 'src/app/core/services/export.service';
 
 @Component({
@@ -46,6 +46,16 @@ export class SettingsPage implements OnInit {
   readonly biometricEnabled = signal(false);
   readonly language = signal('Español');
   readonly notificationsEnabled = signal(false);
+  readonly autoLock = signal<AutoLockMinutes>(5);
+  readonly autoLockLabel = computed(() => {
+    const v = this.autoLock();
+    if (v === 0) return 'Nunca';
+    return `${v} ${v === 1 ? 'minuto' : 'minutos'}`;
+  });
+  readonly autoLockBadge = computed(() => {
+    const v = this.autoLock();
+    return v === 0 ? 'No' : `${v}m`;
+  });
 
   async onNotificationsToggle(checked: boolean) {
     if (checked) {
@@ -92,6 +102,7 @@ export class SettingsPage implements OnInit {
   async ngOnInit() {
     this.biometricEnabled.set(this.auth.isBiometricEnabled());
     this.timeFormat.set(await this.settings.getTimeFormat());
+    this.autoLock.set(await this.settings.getAutoLock());
   }
 
   async toggleBiometric(checked: boolean) {
@@ -107,6 +118,37 @@ export class SettingsPage implements OnInit {
       await this.auth.disableBiometrics();
       this.biometricEnabled.set(false);
     }
+  }
+
+  async selectAutoLock() {
+    const alert = await this.alertCtrl.create({
+      header: 'Bloqueo automático',
+      message: 'Selecciona el tiempo de inactividad para bloquear la sesión',
+      inputs: [
+        { label: '1 minuto', type: 'radio', value: '1' },
+        { label: '2 minutos', type: 'radio', value: '2' },
+        { label: '5 minutos', type: 'radio', value: '5' },
+        { label: '10 minutos', type: 'radio', value: '10' },
+        { label: '15 minutos', type: 'radio', value: '15' },
+        { label: '30 minutos', type: 'radio', value: '30' },
+        { label: 'Nunca', type: 'radio', value: '0' },
+      ],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel', handler: () => false },
+        {
+          text: 'Seleccionar',
+          handler: (value: string) => {
+            if (value === undefined) { return false; }
+            const v = parseInt(value, 10) as AutoLockMinutes;
+            this.autoLock.set(v);
+            this.settings.setAutoLock(v);
+            return true;
+          },
+        },
+      ],
+      mode: 'ios',
+    });
+    await alert.present();
   }
 
   // --- Change PIN ---
