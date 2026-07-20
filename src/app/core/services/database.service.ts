@@ -3,7 +3,7 @@ import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacito
 import { Platform } from '@ionic/angular';
 
 const DB_NAME = 'gynoapp.db';
-const DB_VERSION = 9;
+const DB_VERSION = 10;
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
@@ -73,6 +73,7 @@ export class DatabaseService {
           id TEXT PRIMARY KEY,
           patientId TEXT NOT NULL,
           date TEXT NOT NULL,
+          time TEXT,
           motivo TEXT NOT NULL,
           diagnostico TEXT NOT NULL,
           tratamiento TEXT NOT NULL,
@@ -80,6 +81,7 @@ export class DatabaseService {
           notas TEXT,
           examenes TEXT,
           photoIds TEXT NOT NULL DEFAULT '[]',
+          status TEXT NOT NULL DEFAULT 'atendida',
           createdAt TEXT NOT NULL,
           FOREIGN KEY (patientId) REFERENCES patients(id) ON DELETE CASCADE
         )`,
@@ -171,6 +173,22 @@ export class DatabaseService {
         await connection.run(`ALTER TABLE consultations ADD COLUMN status TEXT NOT NULL DEFAULT 'atendida'`, [], false);
       } catch {
         // columna ya existe
+      }
+    }
+
+    if (currentVersion < 10) {
+      // Fix: ensure time and status columns exist (failed ALTER TABLE on some setups)
+      const pragma = await connection.query(`PRAGMA table_info(consultations)`, []);
+      const columns = (pragma.values ?? []).map((r: any) => r.name);
+      if (!columns.includes('time')) {
+        try {
+          await connection.run(`ALTER TABLE consultations ADD COLUMN time TEXT`, [], false);
+        } catch {}
+      }
+      if (!columns.includes('status')) {
+        try {
+          await connection.run(`ALTER TABLE consultations ADD COLUMN status TEXT NOT NULL DEFAULT 'atendida'`, [], false);
+        } catch {}
       }
     }
 

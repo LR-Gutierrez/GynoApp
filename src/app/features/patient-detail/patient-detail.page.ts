@@ -15,6 +15,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { SettingsService } from 'src/app/core/services/settings.service';
 import { Patient, Consultation, calculateAge } from 'src/app/shared/models/patient.model';
 
 interface TimelineConsultation {
@@ -120,6 +121,7 @@ export class PatientDetailPage {
   private consultationService = inject(ConsultationService);
   private encryptedPhotoService = inject(EncryptedPhotoService);
   private auth = inject(AuthService);
+  private settings = inject(SettingsService);
   private popoverCtrl = inject(PopoverController);
   private alertCtrl = inject(AlertController);
 
@@ -147,13 +149,17 @@ export class PatientDetailPage {
     const p = this.patient();
     if (!p) return;
 
-    const cons = await this.consultationService.getByPatient(p.id);
+    const [cons, timeFormat] = await Promise.all([
+      this.consultationService.getByPatient(p.id),
+      this.settings.getTimeFormat(),
+    ]);
+
     this.consultations.set(
       cons.map((c) => ({
         id: c.id,
         date: new Date(c.date),
         dateLabel: this.formatDateLabel(c.date),
-        timeLabel: c.time ?? '',
+        timeLabel: this.settings.formatTime(c.time, timeFormat),
         title: c.motivo,
         description: c.diagnostico + (c.tratamiento ? `\nTx: ${c.tratamiento}` : ''),
         status: c.status,

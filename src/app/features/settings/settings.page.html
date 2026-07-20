@@ -148,20 +148,25 @@
       <div class="flex flex-col gap-1">
         <button
           type="button"
-          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent cursor-pointer text-left transition-colors disabled:opacity-50"
           (click)="exportHistory()"
+          [disabled]="exportLoading()"
         >
           <div
             class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
           >
-            <i class="not-italic text-lg mgc_download_2_line"></i>
+            @if (exportLoading()) {
+              <ion-spinner name="dots" color="primary" class="w-5 h-5" />
+            } @else {
+              <i class="not-italic text-lg mgc_download_2_line"></i>
+            }
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-sans text-sm font-medium text-on-surface m-0">
               Exportar historial
             </p>
             <p class="font-sans text-xs text-on-surface-variant m-0">
-              Descarga el historial completo de citas
+              Descarga el historial completo de consultas
             </p>
           </div>
           <div class="flex items-center justify-center shrink-0 w-6">
@@ -171,13 +176,41 @@
 
         <button
           type="button"
-          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent  cursor-pointer text-left transition-colors"
-          (click)="cleanCache()"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent cursor-pointer text-left transition-colors disabled:opacity-50"
+          (click)="importBackup()"
         >
           <div
             class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
           >
-            <i class="not-italic text-lg mgc_delete_2_line"></i>
+            <i class="not-italic text-lg mgc_upload_2_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Importar respaldo
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              Restaura datos desde un archivo .gyncbak
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-6">
+            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent cursor-pointer text-left transition-colors disabled:opacity-50"
+          (click)="cleanCache()"
+          [disabled]="cleaningCache()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            @if (cleaningCache()) {
+              <ion-spinner name="dots" color="primary" class="w-5 h-5" />
+            } @else {
+              <i class="not-italic text-lg mgc_delete_2_line"></i>
+            }
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-sans text-sm font-medium text-on-surface m-0">
@@ -188,7 +221,30 @@
             </p>
           </div>
           <div class="flex items-center justify-center shrink-0 w-6">
-            <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+              <i class="not-italic text-lg text-outline mgc_arrow_right_line"></i>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent cursor-pointer text-left transition-colors"
+          (click)="toggleTimeFormat()"
+        >
+          <div
+            class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
+          >
+            <i class="not-italic text-lg mgc_clock_line"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans text-sm font-medium text-on-surface m-0">
+              Formato de hora
+            </p>
+            <p class="font-sans text-xs text-on-surface-variant m-0">
+              {{ timeFormat() === '24h' ? '24 horas (ej: 14:30)' : '12 horas (ej: 2:30 PM)' }}
+            </p>
+          </div>
+          <div class="flex items-center justify-center shrink-0 w-auto min-w-[44px]">
+            <ion-badge class="badge-primary">{{ timeFormat() === '24h' ? '24h' : '12h' }}</ion-badge>
           </div>
         </button>
       </div>
@@ -299,6 +355,40 @@
   (back)="onPinBack()"
   (confirm)="onPinConfirm()"
   (cancel)="onPinCancel()"
+/>
+
+<gyno-pin-input
+  [visible]="showImportPin()"
+  title="PIN del respaldo"
+  subtitle="Ingresa el PIN del dispositivo donde se exportó este respaldo"
+  [error]="importPinError()"
+  [resetKey]="importPinReset()"
+  [showBiometric]="biometricEnabled()"
+  [showConfirm]="true"
+  confirmLabel="Importar"
+  [confirmDisabled]="importPinValue().length < 4"
+  (pinComplete)="onImportPinComplete($event)"
+  (pinChange)="onImportPinChange($event)"
+  (confirm)="onImportPinConfirm()"
+  (biometricClick)="onImportBiometricClick()"
+  (cancel)="onImportPinCancel()"
+/>
+
+<gyno-pin-input
+  [visible]="showExportPin()"
+  title="Confirmar exportación"
+  subtitle="Ingresa tu PIN para exportar el respaldo"
+  [error]="exportPinError()"
+  [resetKey]="exportPinReset()"
+  [showBiometric]="biometricEnabled()"
+  [showConfirm]="true"
+  confirmLabel="Exportar"
+  [confirmDisabled]="exportPinValue().length < 4"
+  (pinComplete)="onExportPinComplete($event)"
+  (pinChange)="onExportPinChange($event)"
+  (confirm)="onExportPinConfirm()"
+  (biometricClick)="onExportBiometricClick()"
+  (cancel)="onExportPinCancel()"
 />
 
 <gyno-bottom-nav />

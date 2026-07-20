@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { SettingsService } from 'src/app/core/services/settings.service';
 import { Patient, calculateAge } from 'src/app/shared/models/patient.model';
 import { GynoSearchBarComponent } from 'src/app/shared/components/gyno-search-bar/gyno-search-bar.component';
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
@@ -49,6 +50,9 @@ export class HomePage {
   private alertController = inject(AlertController);
   private patientService = inject(PatientService);
   private consultationService = inject(ConsultationService);
+  private settings = inject(SettingsService);
+
+  private timeFormat: '12h' | '24h' = '24h';
 
   readonly loading = signal(true);
   readonly patients = signal<TablePatient[]>([]);
@@ -61,13 +65,14 @@ export class HomePage {
   sortField = '';
   private sortAsc = true;
   private allPatients: TablePatient[] = [];
-  private allCons: { patientId: string; date: string; consultationId: string; motivo: string }[] = [];
+  private allCons: { patientId: string; date: string; consultationId: string; motivo: string; time?: string }[] = [];
   private patientsLookup: Patient[] = [];
   private searchQuery = '';
 
   async ionViewWillEnter() {
     this.loading.set(true);
     try {
+      this.timeFormat = await this.settings.getTimeFormat();
       await this.loadPatients();
     } finally {
       this.loading.set(false);
@@ -87,7 +92,7 @@ export class HomePage {
         ultimaConsulta: latest ? this.formatDate(latest.date) : undefined,
       });
       for (const c of consultations) {
-        this.allCons.push({ patientId: p.id, date: c.date, consultationId: c.id, motivo: c.motivo });
+        this.allCons.push({ patientId: p.id, date: c.date, consultationId: c.id, motivo: c.motivo, time: c.time });
       }
     }
     this.allPatients = mapped;
@@ -125,7 +130,7 @@ export class HomePage {
           consultationId: c.consultationId,
           motivo: c.motivo,
           lastVisitDate: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`,
-          lastVisitTime: `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`,
+          lastVisitTime: this.settings.formatTime(c.time, this.timeFormat),
         };
       })
     );

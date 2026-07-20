@@ -193,6 +193,46 @@ export class EncryptedPhotoService {
     await db.run('DELETE FROM encrypted_photos WHERE consultationId = ?', [consultationId]);
   }
 
+  async loadDecryptedPhotosByConsultation(
+    consultationIds: string[]
+  ): Promise<Map<string, { data: Uint8Array; mimeType: string }[]>> {
+    const key = this.auth.getMasterKey();
+    if (!key) return new Map();
+
+    const db = await this.database.getDb();
+    const result = new Map<string, { data: Uint8Array; mimeType: string }[]>();
+
+    for (const consultationId of consultationIds) {
+      const rowsResult = await db.query(
+        'SELECT * FROM encrypted_photos WHERE consultationId = ? ORDER BY createdAt ASC',
+        [consultationId]
+      );
+      const rows = rowsResult.values ?? [];
+      const photos: { data: Uint8Array; mimeType: string }[] = [];
+
+      for (const row of rows) {
+        try {
+          const decrypted = await this.readAndDecrypt(row, key);
+          photos.push({ data: decrypted.slice(), mimeType: row.mimeType });
+        } catch (e) {
+          console.error(`Error decrypting photo ${row.id}:`, e);
+        }
+      }
+
+      if (photos.length > 0) {
+        result.set(consultationId, photos);
+      }
+    }
+
+    return result;
+  }
+
+  async countPhotos(): Promise<number> {
+    const db = await this.database.getDb();
+    const result = await db.query('SELECT COUNT(*) as count FROM encrypted_photos');
+    return (result.values?.[0]?.count as number) ?? 0;
+  }
+
   revokeAll() {
     for (const url of this.blobUrls.values()) {
       URL.revokeObjectURL(url);

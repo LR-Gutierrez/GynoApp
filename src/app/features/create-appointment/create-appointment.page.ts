@@ -9,6 +9,7 @@ import { GynoLoadingButtonComponent } from 'src/app/shared/components/gyno-loadi
 import { GynoDatePickerComponent } from 'src/app/shared/components/gyno-date-picker/gyno-date-picker.component';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { AppointmentService } from 'src/app/shared/services/appointment.service';
+import { SettingsService } from 'src/app/core/services/settings.service';
 
 @Component({
   selector: 'app-create-appointment',
@@ -37,6 +38,7 @@ export class CreateAppointmentPage {
   private router = inject(Router);
   private consultationService = inject(ConsultationService);
   private appointmentService = inject(AppointmentService);
+  protected settings = inject(SettingsService);
   private el = inject(ElementRef);
 
   readonly patients = this.appointmentService.patients;
@@ -45,10 +47,12 @@ export class CreateAppointmentPage {
   private readonly todayLocal = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; })();
   readonly date = signal(this.todayLocal);
   readonly time = signal('09:00');
+  readonly timeFormat = signal<'12h' | '24h'>('24h');
+  readonly period = signal<'AM' | 'PM'>('AM');
   readonly reason = signal('');
   readonly reasonError = signal('');
   readonly saving = signal(false);
-  readonly hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  readonly hours = computed(() => this.settings.hourValues(this.timeFormat()));
   readonly minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
   readonly searchQuery = signal('');
@@ -68,7 +72,13 @@ export class CreateAppointmentPage {
     );
   });
 
+  readonly displayTime = computed(() => this.settings.formatTime(this.time(), this.timeFormat()));
+
   async ionViewWillEnter() {
+    this.timeFormat.set(await this.settings.getTimeFormat());
+    const tf = this.timeFormat();
+    if (tf === '12h') this.period.set(this.settings.hour24to12(this.time().split(':')[0]).period);
+
     const dateParam = this.route.snapshot.queryParamMap.get('date');
     if (dateParam) {
       this.date.set(dateParam);
@@ -87,15 +97,31 @@ export class CreateAppointmentPage {
   }
 
   onHourChange(event: CustomEvent) {
-    const h = event.detail.value as string;
+    const val = event.detail.value as string;
     const [, m] = this.time().split(':');
-    this.time.set(`${h}:${m}`);
+    if (this.timeFormat() === '12h') {
+      const h24 = this.settings.hour12to24(val, this.period());
+      this.time.set(`${h24}:${m}`);
+    } else {
+      this.time.set(`${val}:${m}`);
+    }
   }
 
   onMinuteChange(event: CustomEvent) {
     const [h] = this.time().split(':');
     const m = event.detail.value as string;
     this.time.set(`${h}:${m}`);
+  }
+
+  onPeriodChange(event: CustomEvent) {
+    const period = event.detail.value as 'AM' | 'PM';
+    this.period.set(period);
+    const [h, m] = this.time().split(':');
+    const h24 = this.settings.hour12to24(
+      this.settings.hour24to12(h).hour,
+      period
+    );
+    this.time.set(`${h24}:${m}`);
   }
 
   @HostListener('document:click', ['$event'])

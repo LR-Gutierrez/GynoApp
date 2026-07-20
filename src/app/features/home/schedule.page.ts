@@ -12,6 +12,7 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { PatientService } from 'src/app/core/services/patient.service';
+import { SettingsService } from 'src/app/core/services/settings.service';
 import { Consultation, ConsultationStatus } from 'src/app/shared/models/patient.model';
 
 @Component({
@@ -39,13 +40,20 @@ export class SchedulePage {
   private consultationService = inject(ConsultationService);
   private patientService = inject(PatientService);
   private alertCtrl = inject(AlertController);
+  private settings = inject(SettingsService);
 
   readonly consultationsByDate = signal<Record<string, Consultation[]>>({});
   readonly dayConsultations = signal<Consultation[]>([]);
   private patientNames: Record<string, string> = {};
+  private timeFormat = signal<'12h' | '24h'>('24h');
 
   async ionViewWillEnter() {
+    this.timeFormat.set(await this.settings.getTimeFormat());
     await this.loadConsultations();
+  }
+
+  formatTime(time: string | undefined): string {
+    return this.settings.formatTime(time, this.timeFormat());
   }
 
   private async loadConsultations() {
@@ -95,6 +103,7 @@ export class SchedulePage {
   };
 
   readonly calendarEvents = computed(() => {
+    const fmt = this.timeFormat();
     const events: {
       id: string;
       title: string;
@@ -115,11 +124,12 @@ export class SchedulePage {
           cancelada: { bg: '#737784', cls: 'fc-event-cancelled' },
         };
         const color = colorMap[c.status] ?? colorMap['programada'];
-        const time = c.time ?? '00:00';
+        const displayTime = this.settings.formatTime(c.time, fmt);
+        const isoTime = c.time ?? '00:00';
         events.push({
           id: c.id,
-          title: `${time} ${c.motivo}`,
-          start: `${isoDate}T${time}:00`,
+          title: `${displayTime} ${c.motivo}`,
+          start: `${isoDate}T${isoTime}:00`,
           className: color.cls,
           backgroundColor: color.bg,
           borderColor: color.bg,
@@ -128,7 +138,7 @@ export class SchedulePage {
             consultationId: c.id,
             patientId: c.patientId,
             status: c.status,
-            time,
+            time: displayTime,
             patientName: '',
             motivo: c.motivo,
           },

@@ -14,6 +14,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { SettingsService } from 'src/app/core/services/settings.service';
 import { Patient, Consultation } from 'src/app/shared/models/patient.model';
 
 @Component({
@@ -93,6 +94,7 @@ export class ConsultationDetailPage implements OnInit {
   private consultationService = inject(ConsultationService);
   private encryptedPhotoService = inject(EncryptedPhotoService);
   private auth = inject(AuthService);
+  private settings = inject(SettingsService);
   private alertCtrl = inject(AlertController);
   private popoverCtrl = inject(PopoverController);
 
@@ -103,6 +105,7 @@ export class ConsultationDetailPage implements OnInit {
 
   readonly galleryUnlocked = signal(false);
   readonly galleryLoading = signal(false);
+  private timeFormat = signal<'12h' | '24h'>('24h');
 
   get headerTitle(): string {
     return this.patient()?.name ?? 'Consulta';
@@ -115,7 +118,7 @@ export class ConsultationDetailPage implements OnInit {
     const date = new Date(y, m - 1, d);
     const months = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
     let label = `${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`;
-    if (c.time) label += ` · ${c.time}`;
+    if (c.time) label += ` · ${this.settings.formatTime(c.time, this.timeFormat())}`;
     return label;
   }
 
@@ -125,10 +128,12 @@ export class ConsultationDetailPage implements OnInit {
       const consultationId = this.route.snapshot.paramMap.get('consultationId') ?? '';
       const patientId = this.route.snapshot.paramMap.get('id') ?? '';
 
-      const [c, p] = await Promise.all([
+      const [c, p, tf] = await Promise.all([
         this.consultationService.getById(consultationId),
         this.patientService.getById(patientId),
+        this.settings.getTimeFormat(),
       ]);
+      this.timeFormat.set(tf);
 
       this.consultation.set(c);
       this.patient.set(p);

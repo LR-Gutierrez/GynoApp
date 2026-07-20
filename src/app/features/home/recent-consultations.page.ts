@@ -6,6 +6,7 @@ import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-hea
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
 import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { SettingsService } from 'src/app/core/services/settings.service';
 import { calculateAge } from 'src/app/shared/models/patient.model';
 
 interface ConsultationItem {
@@ -56,6 +57,9 @@ export class RecentConsultationsPage {
   private router = inject(Router);
   private patientService = inject(PatientService);
   private consultationService = inject(ConsultationService);
+  private settings = inject(SettingsService);
+
+  private timeFormat: '12h' | '24h' = '24h';
 
   readonly loading = signal(true);
   readonly consultations = signal<ConsultationItem[]>([]);
@@ -63,6 +67,7 @@ export class RecentConsultationsPage {
   async ionViewWillEnter() {
     this.loading.set(true);
     try {
+      this.timeFormat = await this.settings.getTimeFormat();
       await this.loadConsultations();
     } finally {
       this.loading.set(false);
@@ -113,7 +118,7 @@ export class RecentConsultationsPage {
           initials,
           motivo: c.motivo,
           date: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`,
-          time: c.time || '',
+          time: this.settings.formatTime(c.time, this.timeFormat),
         };
       })
     );

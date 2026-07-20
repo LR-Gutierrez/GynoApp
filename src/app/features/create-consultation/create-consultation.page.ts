@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, HostListener, ElementRef } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, HostListener, ElementRef } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,7 @@ import { GynoDatePickerComponent } from 'src/app/shared/components/gyno-date-pic
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
 import { PatientService } from 'src/app/core/services/patient.service';
+import { SettingsService } from 'src/app/core/services/settings.service';
 import { calculateAge, ConsultationStatus } from 'src/app/shared/models/patient.model';
 
 interface PendingMedia {
@@ -46,6 +47,7 @@ export class CreateConsultationPage implements OnInit {
   private consultationService = inject(ConsultationService);
   private encryptedPhotoService = inject(EncryptedPhotoService);
   private patientService = inject(PatientService);
+  protected settings = inject(SettingsService);
   private el = inject(ElementRef);
 
   readonly patientId = signal('');
@@ -59,8 +61,10 @@ export class CreateConsultationPage implements OnInit {
   private readonly todayLocal = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; })();
   readonly date = signal(this.todayLocal);
   readonly time = signal('09:00');
+  readonly timeFormat = signal<'12h' | '24h'>('24h');
+  readonly period = signal<'AM' | 'PM'>('AM');
   readonly showTimePicker = signal(false);
-  readonly hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  readonly hours = computed(() => this.settings.hourValues(this.timeFormat()));
   readonly minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
   readonly motivo = signal('');
   readonly diagnostico = signal('');
@@ -70,12 +74,18 @@ export class CreateConsultationPage implements OnInit {
   readonly examenes = signal('');
   readonly status = signal<ConsultationStatus>('atendida');
 
+  readonly displayTime = computed(() => this.settings.formatTime(this.time(), this.timeFormat()));
+
   readonly markAttended = signal(false);
   readonly media = signal<PendingMedia[]>([]);
   readonly motivoError = signal('');
   readonly saving = signal(false);
 
-  ngOnInit() {
+  async ngOnInit() {
+    const tf = await this.settings.getTimeFormat();
+    this.timeFormat.set(tf);
+    if (tf === '12h') this.period.set(this.settings.hour24to12(this.time().split(':')[0]).period);
+
     const id = this.route.snapshot.paramMap.get('id');
     const editId = this.route.snapshot.queryParamMap.get('edit');
     this.markAttended.set(this.route.snapshot.queryParamMap.get('markAttended') === 'true');
@@ -110,7 +120,9 @@ export class CreateConsultationPage implements OnInit {
         this.isEditing.set(true);
         this.editingConsultationId = consultationId;
         this.date.set(c.date);
-        this.time.set(c.time ?? '09:00');
+        const loadedTime = c.time ?? '09:00';
+        this.time.set(loadedTime);
+        if (this.timeFormat() === '12h') this.period.set(this.settings.hour24to12(loadedTime.split(':')[0]).period);
         this.motivo.set(c.motivo);
         this.diagnostico.set(c.diagnostico);
         this.tratamiento.set(c.tratamiento);
@@ -159,12 +171,29 @@ export class CreateConsultationPage implements OnInit {
 
   onHourChange(event: CustomEvent) {
     const m = this.time().split(':')[1] ?? '00';
-    this.time.set(`${event.detail.value}:${m}`);
+    const val = event.detail.value as string;
+    if (this.timeFormat() === '12h') {
+      const h24 = this.settings.hour12to24(val, this.period());
+      this.time.set(`${h24}:${m}`);
+    } else {
+      this.time.set(`${val}:${m}`);
+    }
   }
 
   onMinuteChange(event: CustomEvent) {
     const h = this.time().split(':')[0] ?? '00';
     this.time.set(`${h}:${event.detail.value}`);
+  }
+
+  onPeriodChange(event: CustomEvent) {
+    const period = event.detail.value as 'AM' | 'PM';
+    this.period.set(period);
+    const [h, m] = this.time().split(':');
+    const h24 = this.settings.hour12to24(
+      this.settings.hour24to12(h).hour,
+      period
+    );
+    this.time.set(`${h24}:${m}`);
   }
 
   @HostListener('document:click', ['$event'])

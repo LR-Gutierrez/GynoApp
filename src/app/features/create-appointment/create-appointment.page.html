@@ -101,7 +101,7 @@
               (click)="openTimePicker()"
             >
               <i class="not-italic text-lg text-outline mr-2 mgc_time_line shrink-0"></i>
-              <span class="flex-1 font-sans text-sm text-on-surface">{{ time() }}</span>
+              <span class="flex-1 font-sans text-sm text-on-surface">{{ displayTime() }}</span>
               <i class="not-italic text-lg text-outline shrink-0 mgc_arrow_down_line"></i>
             </div>
 
@@ -112,10 +112,10 @@
               >
                 <ion-picker class="!w-full">
                   <ion-picker-column
-                    [value]="time().split(':')[0]"
+                    [value]="timeFormat() === '12h' ? settings.hour24to12(time().split(':')[0]).hour : time().split(':')[0]"
                     (ionChange)="onHourChange($event)"
                   >
-                    @for (h of hours; track h) {
+                    @for (h of hours(); track h) {
                       <ion-picker-column-option [value]="h">{{ h }}</ion-picker-column-option>
                     }
                   </ion-picker-column>
@@ -127,6 +127,15 @@
                       <ion-picker-column-option [value]="m">{{ m }}</ion-picker-column-option>
                     }
                   </ion-picker-column>
+                  @if (timeFormat() === '12h') {
+                    <ion-picker-column
+                      [value]="period()"
+                      (ionChange)="onPeriodChange($event)"
+                    >
+                      <ion-picker-column-option value="AM">AM</ion-picker-column-option>
+                      <ion-picker-column-option value="PM">PM</ion-picker-column-option>
+                    </ion-picker-column>
+                  }
                 </ion-picker>
                 <ion-button
                   expand="block"
