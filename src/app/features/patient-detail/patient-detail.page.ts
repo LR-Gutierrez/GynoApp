@@ -250,6 +250,13 @@ export class PatientDetailPage {
     await alert.present();
   }
 
+  editPatient() {
+    const patientId = this.patient()?.id;
+    if (patientId) {
+      this.router.navigate(['/home/patient', patientId, 'edit']);
+    }
+  }
+
   newConsultation() {
     this.router.navigate(['/home/patient', this.patient()?.id, 'consultation', 'new']);
   }

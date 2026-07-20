@@ -10,7 +10,6 @@ export interface GynoActionItem {
 }
 
 const DEFAULT_ACTIONS: GynoActionItem[] = [
-  { value: 'profile', label: 'Ver perfil', icon: 'mgc_user_1_line' },
   { value: 'edit', label: 'Editar', icon: 'mgc_edit_2_line' },
   { value: 'history', label: 'Historial', icon: 'mgc_history_anticlockwise_line' },
   { value: 'delete', label: 'Eliminar', icon: 'mgc_delete_back_line', destructive: true },

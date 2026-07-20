@@ -1,20 +1,27 @@
 <div
-  class="min-w-50 w-50 bg-surface-container-lowest rounded-xl border border-outline-variant p-4 cursor-pointer transition-all duration-200 hover:border-primary-600 hover:shadow-[0_4px_12px_rgba(15,82,186,0.08)] snap-start shrink-0"
-  (click)="clicked.emit()"
+  class="min-w-50 w-50 bg-surface-container-lowest rounded-xl border border-outline-variant p-4 transition-all duration-200 hover:border-primary-600 hover:shadow-[0_4px_12px_rgba(15,82,186,0.08)] snap-start shrink-0"
 >
-  <div class="flex items-center gap-3 mb-3">
-    <div
-      class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-sans text-sm font-bold text-primary-900 shrink-0"
-    >
-      {{ initials }}
-    </div>
-    <div class="min-w-0 flex-1">
-      <p class="m-0 font-sans text-sm font-semibold text-on-surface truncate">{{ patient().name }}</p>
-      <p class="m-0 font-sans text-xs text-on-surface-variant">{{ patient().age }} años</p>
+  <div
+    class="cursor-pointer"
+    (click)="patientClicked.emit()"
+  >
+    <div class="flex items-center gap-3 mb-3">
+      <div
+        class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-sans text-sm font-bold text-primary-900 shrink-0"
+      >
+        {{ initials }}
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="m-0 font-sans text-sm font-semibold text-on-surface truncate">{{ patient().name }}</p>
+        <p class="m-0 font-sans text-xs text-on-surface-variant">{{ patient().age }} años</p>
+      </div>
     </div>
   </div>
 
-  <div class="flex items-center justify-between pt-3 border-t border-outline-variant/50">
+  <div
+    class="flex items-center justify-between pt-3 border-t border-outline-variant/50 cursor-pointer"
+    (click)="consultationClicked.emit()"
+  >
     <div class="min-w-0 flex-1">
       <p class="m-0 font-sans text-[11px] font-semibold text-outline tracking-wide uppercase">{{ patient().motivo }}</p>
       <p class="m-0 font-sans text-xs text-on-surface-variant mt-0.5">{{ patient().lastVisitDate }} &middot; {{ patient().lastVisitTime }}</p>

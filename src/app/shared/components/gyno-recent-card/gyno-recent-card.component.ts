@@ -20,7 +20,8 @@ export interface RecentPatient {
 export class GynoRecentCardComponent {
   readonly patient = input.required<RecentPatient>();
 
-  readonly clicked = output<void>();
+  readonly patientClicked = output<void>();
+  readonly consultationClicked = output<void>();
 
   get initials(): string {
     const parts = this.patient().name.split(' ');

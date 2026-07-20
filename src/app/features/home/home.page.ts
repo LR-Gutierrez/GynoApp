@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { AlertController, IonicModule, PopoverController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
-import { calculateAge } from 'src/app/shared/models/patient.model';
+import { Patient, calculateAge } from 'src/app/shared/models/patient.model';
 import { GynoSearchBarComponent } from 'src/app/shared/components/gyno-search-bar/gyno-search-bar.component';
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
 import { GynoHorizontalScrollComponent } from 'src/app/shared/components/gyno-horizontal-scroll/gyno-horizontal-scroll.component';
@@ -19,6 +19,14 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
+  styles: [
+    `
+      :host i[class^='mgc_']::before,
+      :host i[class*=' mgc_']::before {
+        color: inherit !important;
+      }
+    `,
+  ],
   standalone: true,
   imports: [
     IonicModule,
@@ -38,6 +46,7 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
 export class HomePage {
   private router = inject(Router);
   private popoverController = inject(PopoverController);
+  private alertController = inject(AlertController);
   private patientService = inject(PatientService);
   private consultationService = inject(ConsultationService);
 
@@ -52,6 +61,8 @@ export class HomePage {
   sortField = '';
   private sortAsc = true;
   private allPatients: TablePatient[] = [];
+  private allCons: { patientId: string; date: string; consultationId: string; motivo: string }[] = [];
+  private patientsLookup: Patient[] = [];
   private searchQuery = '';
 
   async ionViewWillEnter() {
@@ -64,10 +75,10 @@ export class HomePage {
   }
 
   private async loadPatients() {
-    const patients = await this.patientService.getAll();
+    this.patientsLookup = await this.patientService.getAll();
     const mapped: TablePatient[] = [];
-    const allCons: { patientId: string; date: string; consultationId: string; motivo: string }[] = [];
-    for (const p of patients) {
+    this.allCons = [];
+    for (const p of this.patientsLookup) {
       const consultations = await this.consultationService.getByPatient(p.id);
       const latest = consultations[0];
       mapped.push({
@@ -76,32 +87,11 @@ export class HomePage {
         ultimaConsulta: latest ? this.formatDate(latest.date) : undefined,
       });
       for (const c of consultations) {
-        allCons.push({ patientId: p.id, date: c.date, consultationId: c.id, motivo: c.motivo });
+        this.allCons.push({ patientId: p.id, date: c.date, consultationId: c.id, motivo: c.motivo });
       }
     }
     this.allPatients = mapped;
     this.applySearch();
-
-    allCons.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    const top5 = allCons.slice(0, 5);
-    const recent: RecentPatient[] = [];
-    for (const c of top5) {
-      const p = patients.find(x => x.id === c.patientId);
-      if (p) {
-        const d = new Date(c.date);
-        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        recent.push({
-          id: p.id,
-          name: p.name,
-          age: calculateAge(p.birthDate),
-          consultationId: c.consultationId,
-          motivo: c.motivo,
-          lastVisitDate: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`,
-          lastVisitTime: `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`,
-        });
-      }
-    }
-    this.recentPatients.set(recent);
   }
 
   private applySearch() {
@@ -112,6 +102,33 @@ export class HomePage {
       : [...this.allPatients];
     this.totalCount = filtered.length;
     this.patients.set(filtered);
+
+    const filteredIds = new Set(filtered.map(p => p.id));
+    this.applyRecentFilter(filteredIds);
+  }
+
+  private applyRecentFilter(filteredIds: Set<string>) {
+    const recentCons = this.allCons
+      .filter(c => filteredIds.has(c.patientId))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5);
+
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    this.recentPatients.set(
+      recentCons.map(c => {
+        const p = this.patientsLookup.find(x => x.id === c.patientId)!;
+        const d = new Date(c.date);
+        return {
+          id: p.id,
+          name: p.name,
+          age: calculateAge(p.birthDate),
+          consultationId: c.consultationId,
+          motivo: c.motivo,
+          lastVisitDate: `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`,
+          lastVisitTime: `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`,
+        };
+      })
+    );
   }
 
   private formatDate(iso: string): string {
@@ -126,12 +143,16 @@ export class HomePage {
     this.applySearch();
   }
 
-  onRecentCardClicked(patient: RecentPatient) {
+  onRecentPatientClicked(patient: RecentPatient) {
     this.router.navigate(['/home/patient', patient.id]);
   }
 
+  onRecentConsultationClicked(patient: RecentPatient) {
+    this.router.navigate(['/home/patient', patient.id, 'consultation', patient.consultationId]);
+  }
+
   onViewAll() {
-    console.log('View all recent patients');
+    this.router.navigate(['/home/recent-consultations']);
   }
 
   async onFilter(event: MouseEvent) {
@@ -192,11 +213,33 @@ export class HomePage {
     });
     await popover.present();
     const { data } = await popover.onWillDismiss();
-    if (data?.action === 'profile') {
-      this.router.navigate(['/home/patient', event.patient.id]);
-    } else if (data?.action) {
-      console.log(`Action "${data.action}" for ${event.patient.name}`);
+    const patient = event.patient;
+    if (data?.action === 'history') {
+      this.router.navigate(['/home/patient', patient.id]);
+    } else if (data?.action === 'edit') {
+      this.router.navigate(['/home/patient', patient.id, 'edit']);
+    } else if (data?.action === 'delete') {
+      this.deletePatient(patient);
     }
+  }
+
+  private async deletePatient(patient: TablePatient) {
+    const alert = await this.alertController.create({
+      header: 'Eliminar paciente',
+      message: `¿Estás segura de eliminar a ${patient.name}? Esta acción no se puede deshacer.`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: async () => {
+            await this.patientService.delete(patient.id);
+            await this.loadPatients();
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   onPageChange(page: number) {

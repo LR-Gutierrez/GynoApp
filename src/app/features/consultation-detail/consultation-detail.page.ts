@@ -1,7 +1,7 @@
 import { Component, signal, inject, HostListener, OnInit } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
 import { Capacitor } from '@capacitor/core';
@@ -85,6 +85,7 @@ import { Patient, Consultation } from 'src/app/shared/models/patient.model';
   ],
 })
 export class ConsultationDetailPage implements OnInit {
+  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private patientService = inject(PatientService);
   private consultationService = inject(ConsultationService);
@@ -145,7 +146,12 @@ export class ConsultationDetailPage implements OnInit {
   }
 
   goBack() {
-    history.back();
+    const patientId = this.route.snapshot.paramMap.get('id');
+    if (patientId) {
+      this.router.navigate(['/home/patient', patientId]);
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 
   // Photo viewer

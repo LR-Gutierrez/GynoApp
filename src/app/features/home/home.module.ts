@@ -13,6 +13,7 @@ import { SchedulePage } from './schedule.page';
 import { SettingsPage } from '../settings/settings.page';
 import { EditProfilePage } from '../edit-profile/edit-profile.page';
 import { PatientFormPage } from '../patient-form/patient-form.page';
+import { RecentConsultationsPage } from './recent-consultations.page';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import { PatientFormPage } from '../patient-form/patient-form.page';
     SettingsPage,
     EditProfilePage,
     PatientFormPage,
+    RecentConsultationsPage,
   ],
   declarations: [],
 })

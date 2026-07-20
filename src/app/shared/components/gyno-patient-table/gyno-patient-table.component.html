@@ -22,99 +22,102 @@
   </div>
 
   <div
-    class="overflow-x-auto border border-outline-variant rounded-2xl shadow-[0_4px_16px_rgba(15,82,186,0.06)]"
+    class="border border-outline-variant rounded-2xl shadow-[0_4px_16px_rgba(15,82,186,0.06)]"
   >
-    <table class="w-full border-collapse min-w-190 table-auto">
-      <thead>
-        <tr class="bg-[#dfe8ff]">
-          <th
-            class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
-          >
-            <div class="px-6 py-4">NOMBRE DE LA PACIENTE</div>
-          </th>
-          <th
-            class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
-          >
-            <div class="px-6 py-4">EDAD</div>
-          </th>
-          <th
-            class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
-          >
-            <div class="px-6 py-4">ÚLTIMA CONSULTA</div>
-          </th>
-          <th
-            class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
-          >
-            <div class="px-6 py-4">ESTADO</div>
-          </th>
-          <th
-            class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
-          >
-            <div class="px-6 py-4">ACCIONES</div>
-          </th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-outline-variant">
-        @for (patient of patients(); track patient.id) {
-          <tr
-            class="transition-colors duration-200 hover:bg-surface-container-low"
-          >
-            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
-              <div class="flex items-center gap-3.5 min-w-55 px-6 py-4">
-                <gyno-avatar [name]="patient.name"></gyno-avatar>
-                <div class="flex flex-col gap-0.5">
-                  <p
-                    class="m-0 font-sans text-base font-semibold text-on-surface"
-                  >
-                    {{ patient.name }}
-                  </p>
-                </div>
-              </div>
-            </td>
-            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
-              <div class="px-6 py-4">{{ patient.age ?? '—' }} años</div>
-            </td>
-            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
-              <div class="px-6 py-4">{{ patient.ultimaConsulta || "—" }}</div>
-            </td>
-            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
-              <div class="px-6 py-4">
-                @if (patient.status) {
-                  <gyno-status-pill
-                    [label]="patient.status"
-                    [variant]="patient.statusVariant || 'success'"
-                  ></gyno-status-pill>
-                }
-              </div>
-            </td>
-            <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
-              <div class="px-6 py-4">
-                <button
-                  type="button"
-                  class="w-9 h-9 border-0 bg-transparent text-on-surface-variant rounded-[10px] inline-flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface"
-                  [attr.aria-label]="'Acciones de ' + patient.name"
-                  (click)="rowAction.emit({ patient, event: $event })"
-                >
-                  <i class="not-italic text-lg mgc_more_1_line"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td
-              colspan="5"
-              class="text-center py-8 font-sans text-sm text-on-surface-variant"
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse min-w-190 table-auto">
+        <thead>
+          <tr class="bg-[#dfe8ff]">
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
             >
-              No hay pacientes registrados
-            </td>
+              <div class="px-6 py-4">NOMBRE DE LA PACIENTE</div>
+            </th>
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
+            >
+              <div class="px-6 py-4">EDAD</div>
+            </th>
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
+            >
+              <div class="px-6 py-4">ÚLTIMA CONSULTA</div>
+            </th>
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
+            >
+              <div class="px-6 py-4">ESTADO</div>
+            </th>
+            <th
+              class="p-0 text-left font-sans text-xs font-bold tracking-widest uppercase text-[#5d6472] whitespace-nowrap"
+            >
+              <div class="px-6 py-4">ACCIONES</div>
+            </th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody class="divide-y divide-outline-variant">
+          @for (patient of patients(); track patient.id) {
+            <tr
+              class="transition-colors duration-200 hover:bg-surface-container-low"
+            >
+              <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+                <div class="flex items-center gap-3.5 min-w-55 px-6 py-4">
+                  <gyno-avatar [name]="patient.name"></gyno-avatar>
+                  <div class="flex flex-col gap-0.5">
+                    <p
+                      class="m-0 font-sans text-base font-semibold text-on-surface"
+                    >
+                      {{ patient.name }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+              <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+                <div class="px-6 py-4">{{ patient.age ?? '—' }} años</div>
+              </td>
+              <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+                <div class="px-6 py-4">{{ patient.ultimaConsulta || "—" }}</div>
+              </td>
+              <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+                <div class="px-6 py-4">
+                  @if (patient.status) {
+                    <gyno-status-pill
+                      [label]="patient.status"
+                      [variant]="patient.statusVariant || 'success'"
+                    ></gyno-status-pill>
+                  }
+                </div>
+              </td>
+              <td class="p-0 font-sans text-[15px] text-on-surface align-middle">
+                <div class="px-6 py-4">
+                  <button
+                    type="button"
+                    class="w-9 h-9 border-0 bg-transparent text-on-surface-variant rounded-[10px] inline-flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface"
+                    [attr.aria-label]="'Acciones de ' + patient.name"
+                    (click)="rowAction.emit({ patient, event: $event })"
+                  >
+                    <i class="not-italic text-lg mgc_more_1_line"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td
+                colspan="5"
+                class="text-center font-sans text-sm text-on-surface-variant"
+                style="padding-top: 1.25rem; padding-bottom: 1.25rem"
+              >
+                No hay pacientes registrados
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     <div
-      class="p-4 border-t border-outline-variant bg-surface-container-lowest"
+      class="px-4 py-2.5 border-t border-outline-variant bg-surface-container-lowest"
     >
       <gyno-pagination
         [currentPage]="currentPage()"

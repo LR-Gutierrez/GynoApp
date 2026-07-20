@@ -15,14 +15,15 @@
       (action)="onViewAll()"
     />
 
-    <gyno-horizontal-scroll class="mb-8 block">
-      @for (patient of recentPatients(); track patient.consultationId) {
-      <gyno-recent-card
-        [patient]="patient"
-        (clicked)="onRecentCardClicked(patient)"
-      />
-      }
-    </gyno-horizontal-scroll>
+      <gyno-horizontal-scroll class="mb-8 block">
+        @for (patient of recentPatients(); track patient.consultationId) {
+        <gyno-recent-card
+          [patient]="patient"
+          (patientClicked)="onRecentPatientClicked(patient)"
+          (consultationClicked)="onRecentConsultationClicked(patient)"
+        />
+        }
+      </gyno-horizontal-scroll>
     }
 
     <gyno-patient-table
@@ -37,7 +38,7 @@
     />
 
     <ion-button class="mt-4 w-full" (click)="onAddConsultation()">
-      <i class="not-italic text-lg text-white! mgc_add_line" slot="start"></i>
+      <i class="not-italic text-lg mgc_add_line" slot="start"></i>
       Nuevo paciente
     </ion-button>
   </div>

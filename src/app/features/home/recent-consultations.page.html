@@ -1,0 +1,66 @@
+<gyno-page-header title="Consultas Recientes" [showBack]="true" (back)="goBack()" />
+
+<ion-content>
+  <div class="px-4 pt-4 pb-4">
+    @if (loading()) {
+      <div class="space-y-3">
+        @for (_ of [1,2,3,4,5]; track $index) {
+          <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-surface-container-high skeleton-shimmer shrink-0"></div>
+              <div class="flex-1 space-y-2">
+                <div class="h-4 w-40 bg-surface-container-high rounded skeleton-shimmer"></div>
+                <div class="h-3 w-24 bg-surface-container-high rounded skeleton-shimmer"></div>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-outline-variant/50">
+              <div class="h-3 w-32 bg-surface-container-high rounded skeleton-shimmer mb-1"></div>
+              <div class="h-3 w-48 bg-surface-container-high rounded skeleton-shimmer"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      @if (consultations().length === 0) {
+        <div class="bg-surface-container-low rounded-xl py-12 flex flex-col items-center gap-3 text-center">
+          <i class="not-italic text-4xl text-on-surface-variant/40 mgc_history_anticlockwise_line"></i>
+          <p class="font-sans text-sm text-on-surface-variant m-0">No hay consultas registradas</p>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (item of consultations(); track item.consultationId) {
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden">
+              <div
+                class="p-4 cursor-pointer active:bg-surface-container-low transition-colors duration-150"
+                (click)="goToPatient(item)"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-sans text-sm font-bold text-primary-900 shrink-0">
+                    {{ item.initials }}
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="m-0 font-sans text-sm font-semibold text-on-surface truncate">{{ item.patientName }}</p>
+                    <p class="m-0 font-sans text-xs text-on-surface-variant">{{ item.age }} años</p>
+                  </div>
+                  <i class="not-italic text-lg text-outline shrink-0 mgc_user_3_line"></i>
+                </div>
+              </div>
+              <div
+                class="flex items-center justify-between px-4 py-3 border-t border-outline-variant/50 cursor-pointer active:bg-surface-container-low transition-colors duration-150"
+                (click)="goToConsultation(item)"
+              >
+                <div class="min-w-0 flex-1">
+                  <p class="m-0 font-sans text-[11px] font-semibold text-outline tracking-wide uppercase">{{ item.motivo }}</p>
+                  <p class="m-0 font-sans text-xs text-on-surface-variant mt-0.5">{{ item.date }} &middot; {{ item.time }}</p>
+                </div>
+                <i class="not-italic text-lg text-outline shrink-0 ml-2 mgc_arrow_right_line"></i>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</ion-content>
+
+<gyno-bottom-nav />

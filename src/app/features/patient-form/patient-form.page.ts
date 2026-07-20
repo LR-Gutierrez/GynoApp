@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,7 @@ import { PatientService } from 'src/app/core/services/patient.service';
     GynoPageHeaderComponent,
   ],
   template: `
-    <gyno-page-header title="Nuevo paciente" [showBack]="true" (back)="goBack()" />
+    <gyno-page-header [title]="isEditing ? 'Editar paciente' : 'Nuevo paciente'" [showBack]="true" (back)="goBack()" />
 
     <ion-content>
       <div class="px-4 pt-4 pb-8 flex flex-col gap-4">
@@ -141,8 +141,9 @@ import { PatientService } from 'src/app/core/services/patient.service';
     `,
   ],
 })
-export class PatientFormPage {
+export class PatientFormPage implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private patientService = inject(PatientService);
 
   name = '';
@@ -154,6 +155,26 @@ export class PatientFormPage {
   alergias = '';
   saving = false;
   cedulaError = '';
+  isEditing = false;
+  private editingId: string | null = null;
+
+  async ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditing = true;
+      this.editingId = id;
+      const patient = await this.patientService.getById(id);
+      if (patient) {
+        this.name = patient.name;
+        this.cedula = patient.cedula ?? '';
+        this.birthDate = patient.birthDate;
+        this.phone = patient.phone;
+        this.address = patient.address ?? '';
+        this.antecedentes = patient.antecedentes ?? '';
+        this.alergias = patient.alergias ?? '';
+      }
+    }
+  }
 
   get age(): number | null {
     if (!this.birthDate) return null;
@@ -201,22 +222,38 @@ export class PatientFormPage {
     if (!this.isValid()) return;
     this.saving = true;
     try {
-      const existing = await this.patientService.findByCedula(this.cedula);
-      if (existing) {
-        this.cedulaError = 'Ya existe un paciente con esta cédula';
-        this.saving = false;
-        return;
+      if (this.isEditing && this.editingId) {
+        await this.patientService.update({
+          id: this.editingId,
+          name: this.name.trim(),
+          cedula: this.cedula,
+          birthDate: this.birthDate,
+          phone: this.phone.trim(),
+          address: this.address.trim() || undefined,
+          antecedentes: this.antecedentes.trim() || undefined,
+          alergias: this.alergias.trim() || undefined,
+          createdAt: '',
+          updatedAt: '',
+        });
+        await this.router.navigate(['/home/patient', this.editingId]);
+      } else {
+        const existing = await this.patientService.findByCedula(this.cedula);
+        if (existing) {
+          this.cedulaError = 'Ya existe un paciente con esta cédula';
+          this.saving = false;
+          return;
+        }
+        const patient = await this.patientService.create({
+          name: this.name.trim(),
+          cedula: this.cedula,
+          birthDate: this.birthDate,
+          phone: this.phone.trim(),
+          address: this.address.trim() || undefined,
+          antecedentes: this.antecedentes.trim() || undefined,
+          alergias: this.alergias.trim() || undefined,
+        });
+        await this.router.navigate(['/home/patient', patient.id]);
       }
-      const patient = await this.patientService.create({
-        name: this.name.trim(),
-        cedula: this.cedula,
-        birthDate: this.birthDate,
-        phone: this.phone.trim(),
-        address: this.address.trim() || undefined,
-        antecedentes: this.antecedentes.trim() || undefined,
-        alergias: this.alergias.trim() || undefined,
-      });
-      await this.router.navigate(['/home/patient', patient.id]);
     } catch (e) {
       console.error('Error al guardar paciente:', e);
     } finally {

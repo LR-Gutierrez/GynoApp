@@ -10,10 +10,13 @@ import { CreateAppointmentPage } from '../create-appointment/create-appointment.
 import { SettingsPage } from '../settings/settings.page';
 import { EditProfilePage } from '../edit-profile/edit-profile.page';
 import { PatientFormPage } from '../patient-form/patient-form.page';
+import { RecentConsultationsPage } from './recent-consultations.page';
 
 const routes: Routes = [
   { path: '', component: HomePage },
+  { path: 'recent-consultations', component: RecentConsultationsPage },
   { path: 'patient/new', component: PatientFormPage },
+  { path: 'patient/:id/edit', component: PatientFormPage },
   { path: 'patient/:id', component: PatientDetailPage },
   { path: 'patient/:id/consultation/new', component: CreateConsultationPage },
   { path: 'patient/:id/consultation/:consultationId', component: ConsultationDetailPage },

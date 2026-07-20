@@ -49,8 +49,16 @@
           <div class="flex items-start gap-4">
             <gyno-avatar [name]="p.name" size="lg" />
             <div class="flex-1 min-w-0">
-              <h2 class="font-sans text-xl font-bold text-on-surface m-0 mb-1 tracking-tight">
+              <h2 class="font-sans text-xl font-bold text-on-surface m-0 mb-1 tracking-tight flex items-center gap-2">
                 {{ p.name }}
+                <button
+                  type="button"
+                  class="inline-flex items-center justify-center w-7 h-7 rounded-full border-0 bg-transparent text-on-surface-variant cursor-pointer hover:bg-surface-container-high transition-colors"
+                  (click)="editPatient()"
+                  aria-label="Editar paciente"
+                >
+                  <i class="not-italic text-base mgc_edit_2_line"></i>
+                </button>
               </h2>
               <p class="flex items-center gap-2 font-sans text-sm text-on-surface-variant m-0 mb-1">
                 <i class="not-italic text-base text-primary-600 mgc_phone_call_line shrink-0"></i>
