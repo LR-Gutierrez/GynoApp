@@ -22,6 +22,8 @@ export function calculateAge(birthDate: string): number {
   return age;
 }
 
+export type ConsultationStatus = 'programada' | 'atendida' | 'cancelada';
+
 export interface Consultation {
   id: string;
   patientId: string;
@@ -34,6 +36,7 @@ export interface Consultation {
   notas?: string;
   examenes?: string;
   photoIds: string[];
+  status: ConsultationStatus;
   createdAt: string;
 }
 

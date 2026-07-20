@@ -1,10 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { DatabaseService } from './database.service';
-import { Consultation } from 'src/app/shared/models/patient.model';
+import { Consultation, ConsultationStatus } from 'src/app/shared/models/patient.model';
 
 @Injectable({ providedIn: 'root' })
 export class ConsultationService {
   private database = inject(DatabaseService);
+
+  async getAll(): Promise<Consultation[]> {
+    const db = await this.database.getDb();
+    const result = await db.query('SELECT * FROM consultations ORDER BY date ASC, time ASC');
+    return (result.values ?? []).map(this.mapRow);
+  }
 
   async getByPatient(patientId: string): Promise<Consultation[]> {
     const db = await this.database.getDb();
@@ -27,11 +33,11 @@ export class ConsultationService {
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
     await db.run(
-      `INSERT INTO consultations (id, patientId, date, time, motivo, diagnostico, tratamiento, receta, notas, examenes, photoIds, createdAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO consultations (id, patientId, date, time, motivo, diagnostico, tratamiento, receta, notas, examenes, photoIds, status, createdAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [id, consultation.patientId, consultation.date, consultation.time ?? null, consultation.motivo, consultation.diagnostico,
        consultation.tratamiento, consultation.receta ?? null, consultation.notas ?? null,
-       consultation.examenes ?? null, JSON.stringify(consultation.photoIds), now]
+       consultation.examenes ?? null, JSON.stringify(consultation.photoIds), consultation.status, now]
     );
     return { id, ...consultation, createdAt: now };
   }
@@ -40,11 +46,16 @@ export class ConsultationService {
     const db = await this.database.getDb();
     await db.run(
       `UPDATE consultations SET date = ?, time = ?, motivo = ?, diagnostico = ?, tratamiento = ?, receta = ?,
-       notas = ?, examenes = ?, photoIds = ? WHERE id = ?`,
+       notas = ?, examenes = ?, photoIds = ?, status = ? WHERE id = ?`,
       [consultation.date, consultation.time ?? null, consultation.motivo, consultation.diagnostico, consultation.tratamiento,
        consultation.receta ?? null, consultation.notas ?? null, consultation.examenes ?? null,
-       JSON.stringify(consultation.photoIds), consultation.id]
+       JSON.stringify(consultation.photoIds), consultation.status, consultation.id]
     );
+  }
+
+  async updateStatus(id: string, status: ConsultationStatus): Promise<void> {
+    const db = await this.database.getDb();
+    await db.run('UPDATE consultations SET status = ? WHERE id = ?', [status, id]);
   }
 
   async delete(id: string): Promise<void> {
@@ -65,6 +76,7 @@ export class ConsultationService {
       notas: row.notas ?? undefined,
       examenes: row.examenes ?? undefined,
       photoIds: JSON.parse(row.photoIds || '[]'),
+      status: row.status ?? 'atendida',
       createdAt: row.createdAt,
     };
   }

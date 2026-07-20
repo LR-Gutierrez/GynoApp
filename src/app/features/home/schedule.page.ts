@@ -1,16 +1,18 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, AlertController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
-import type { CalendarOptions, EventClickArg, EventDropArg } from '@fullcalendar/core';
+import type { CalendarOptions, EventClickArg } from '@fullcalendar/core';
 import type { DateClickArg } from '@fullcalendar/interaction';
 import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-topbar.component';
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
-import { AppointmentService, Appointment } from 'src/app/shared/services/appointment.service';
+import { ConsultationService } from 'src/app/core/services/consultation.service';
+import { PatientService } from 'src/app/core/services/patient.service';
+import { Consultation, ConsultationStatus } from 'src/app/shared/models/patient.model';
 
 @Component({
   selector: 'app-schedule',
@@ -34,7 +36,40 @@ import { AppointmentService, Appointment } from 'src/app/shared/services/appoint
 })
 export class SchedulePage {
   private router = inject(Router);
-  private appointmentService = inject(AppointmentService);
+  private consultationService = inject(ConsultationService);
+  private patientService = inject(PatientService);
+  private alertCtrl = inject(AlertController);
+
+  readonly consultationsByDate = signal<Record<string, Consultation[]>>({});
+  readonly dayConsultations = signal<Consultation[]>([]);
+  private patientNames: Record<string, string> = {};
+
+  async ionViewWillEnter() {
+    await this.loadConsultations();
+  }
+
+  private async loadConsultations() {
+    const [all, patients] = await Promise.all([
+      this.consultationService.getAll(),
+      this.patientService.getAll(),
+    ]);
+    this.patientNames = {};
+    for (const p of patients) {
+      this.patientNames[p.id] = p.name;
+    }
+    const byDate: Record<string, Consultation[]> = {};
+    for (const c of all) {
+      const [y, m, d] = c.date.split('-');
+      const dateKey = `${y}-${parseInt(m)}-${parseInt(d)}`;
+      if (!byDate[dateKey]) byDate[dateKey] = [];
+      byDate[dateKey].push(c);
+    }
+    this.consultationsByDate.set(byDate);
+  }
+
+  patientName(patientId: string): string {
+    return this.patientNames[patientId] ?? '—';
+  }
 
   protected readonly dayGridPlugin = dayGridPlugin;
   protected readonly interactionPlugin = interactionPlugin;
@@ -53,13 +88,11 @@ export class SchedulePage {
     locale: esLocale,
     firstDay: 1,
     height: 'auto',
-    editable: true,
+    editable: false,
+    displayEventTime: false,
     dateClick: (arg: DateClickArg) => this.onDateClick(arg),
     eventClick: (arg: EventClickArg) => this.onEventClick(arg),
-    eventDrop: (arg: EventDropArg) => this.onEventDrop(arg),
   };
-
-  readonly appointmentsByDate = this.appointmentService.appointmentsByDate;
 
   readonly calendarEvents = computed(() => {
     const events: {
@@ -70,32 +103,34 @@ export class SchedulePage {
       backgroundColor: string;
       borderColor: string;
       textColor: string;
-      extendedProps: { patientId: string; status: string; time: string; patientName: string; reason: string };
+      extendedProps: { consultationId: string; patientId: string; status: string; time: string; patientName: string; motivo: string };
     }[] = [];
-    for (const [dateKey, appts] of Object.entries(this.appointmentsByDate())) {
+    for (const [dateKey, cons] of Object.entries(this.consultationsByDate())) {
       const [y, m, d] = dateKey.split('-');
       const isoDate = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-      for (const appt of appts) {
+      for (const c of cons) {
         const colorMap: Record<string, { bg: string; cls: string }> = {
-          scheduled: { bg: '#0f52ba', cls: 'fc-event-scheduled' },
-          completed: { bg: '#008a85', cls: 'fc-event-completed' },
-          cancelled: { bg: '#737784', cls: 'fc-event-cancelled' },
+          programada: { bg: '#0f52ba', cls: 'fc-event-scheduled' },
+          atendida: { bg: '#008a85', cls: 'fc-event-completed' },
+          cancelada: { bg: '#737784', cls: 'fc-event-cancelled' },
         };
-        const color = colorMap[appt.status] ?? colorMap['scheduled'];
+        const color = colorMap[c.status] ?? colorMap['programada'];
+        const time = c.time ?? '00:00';
         events.push({
-          id: appt.id,
-          title: `${appt.time} ${appt.patientName}`,
-          start: `${isoDate}T${appt.time}:00`,
+          id: c.id,
+          title: `${time} ${c.motivo}`,
+          start: `${isoDate}T${time}:00`,
           className: color.cls,
           backgroundColor: color.bg,
           borderColor: color.bg,
           textColor: '#ffffff',
           extendedProps: {
-            patientId: appt.patientId,
-            status: appt.status,
-            time: appt.time,
-            patientName: appt.patientName,
-            reason: appt.reason,
+            consultationId: c.id,
+            patientId: c.patientId,
+            status: c.status,
+            time,
+            patientName: '',
+            motivo: c.motivo,
           },
         });
       }
@@ -103,60 +138,28 @@ export class SchedulePage {
     return events;
   });
 
-  readonly dayAppointments = computed(() => {
-    const key = this.selectedDateStr();
-    if (!key) return [];
-    return this.appointmentsByDate()[key] ?? [];
-  });
-
   readonly selectedDisplay = computed(() => {
     const key = this.selectedDateStr();
     if (!key) return null;
     const [y, m, d] = key.split('-');
-    return { day: d, month: this.months[parseInt(m)], year: y };
+    return { day: d, month: this.months[parseInt(m) - 1], year: y };
   });
 
   onDateClick(arg: DateClickArg) {
     const dt = arg.date;
-    this.selectedDateStr.set(`${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`);
+    const dateKey = `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
+    this.selectedDateStr.set(dateKey);
+    this.dayConsultations.set(this.consultationsByDate()[dateKey] ?? []);
   }
 
-  onEventClick(arg: EventClickArg) {
+  openConsultation(c: Consultation) {
+    this.router.navigate(['/home/patient', c.patientId, 'consultation', c.id]);
+  }
+
+  async onEventClick(arg: EventClickArg) {
+    const consultationId = arg.event.extendedProps['consultationId'] as string;
     const patientId = arg.event.extendedProps['patientId'] as string;
-    this.router.navigate(['/home/patient', patientId]);
-  }
-
-  onEventDrop(arg: EventDropArg) {
-    const apptId = arg.event.id;
-    const newStart = arg.event.start;
-    if (!newStart) return;
-
-    const newDateKey = `${newStart.getFullYear()}-${newStart.getMonth()}-${newStart.getDate()}`;
-    const newTime = `${String(newStart.getHours()).padStart(2, '0')}:${String(newStart.getMinutes()).padStart(2, '0')}`;
-
-    this.appointmentService.appointmentsByDate.update(data => {
-      const newData: Record<string, Appointment[]> = {};
-      let movedAppt: Appointment | null = null;
-
-      for (const [key, appts] of Object.entries(data)) {
-        const filtered = appts.filter(a => a.id !== apptId);
-        if (filtered.length !== appts.length) {
-          movedAppt = appts.find(a => a.id === apptId)!;
-        }
-        if (filtered.length > 0) {
-          newData[key] = filtered;
-        }
-      }
-
-      if (movedAppt) {
-        const updatedAppt = { ...movedAppt, time: newTime };
-        newData[newDateKey] = [...(newData[newDateKey] || []), updatedAppt];
-      }
-
-      return newData;
-    });
-
-    this.selectedDateStr.set(newDateKey);
+    this.router.navigate(['/home/patient', patientId, 'consultation', consultationId]);
   }
 
   addAppointment() {
@@ -164,7 +167,7 @@ export class SchedulePage {
     let dateParam: string;
     if (key) {
       const [y, m, d] = key.split('-');
-      dateParam = `${y}-${String(parseInt(m) + 1).padStart(2, '0')}-${d.padStart(2, '0')}`;
+      dateParam = `${y}-${String(parseInt(m)).padStart(2, '0')}-${d.padStart(2, '0')}`;
     } else {
       const now = new Date();
       dateParam = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -174,15 +177,44 @@ export class SchedulePage {
     });
   }
 
-  openAppointment(appointment: Appointment) {
-    this.router.navigate(['/home/patient', appointment.patientId]);
+  editConsultation(c: Consultation) {
+    this.router.navigate(['/home/patient', c.patientId, 'consultation', 'new'], {
+      queryParams: { edit: c.id, markAttended: 'true' },
+    });
   }
 
-  statusLabel(status: Appointment['status']): string {
+  async markAsCancelled(consultationId: string) {
+    const alert = await this.alertCtrl.create({
+      header: 'Cancelar consulta',
+      message: '¿Estás segura de cancelar esta consulta?',
+      buttons: [
+        { text: 'No', role: 'cancel' },
+        {
+          text: 'Sí, cancelar',
+          role: 'destructive',
+          handler: async () => {
+            await this.consultationService.updateStatus(consultationId, 'cancelada');
+            await this.loadConsultations();
+            this.refreshDay();
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  private refreshDay() {
+    const key = this.selectedDateStr();
+    if (key) {
+      this.dayConsultations.set(this.consultationsByDate()[key] ?? []);
+    }
+  }
+
+  statusLabel(status: ConsultationStatus): string {
     switch (status) {
-      case 'scheduled': return 'Programada';
-      case 'completed': return 'Completada';
-      case 'cancelled': return 'Cancelada';
+      case 'programada': return 'Programada';
+      case 'atendida': return 'Atendida';
+      case 'cancelada': return 'Cancelada';
     }
   }
 }

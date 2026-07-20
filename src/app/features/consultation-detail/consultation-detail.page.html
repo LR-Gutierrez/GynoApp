@@ -31,11 +31,28 @@
       @let c = consultation();
       @if (c) {
         <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-5 mb-6">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="inline-flex items-center font-sans text-xs font-bold text-primary-900 bg-primary-fixed px-3 py-1 rounded-full tracking-wide">
-              <i class="not-italic text-sm mr-1.5 mgc_calendar_line"></i>
-              {{ dateLabel }}
-            </span>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2 flex-wrap min-w-0">
+              <span class="inline-flex items-center font-sans text-xs font-bold text-primary-900 bg-primary-fixed px-3 py-1 rounded-full tracking-wide">
+                <i class="not-italic text-sm mr-1.5 mgc_calendar_line"></i>
+                {{ dateLabel }}
+              </span>
+              @if (c.status === 'programada') {
+                <ion-badge class="badge-primary">Programada</ion-badge>
+              } @else if (c.status === 'atendida') {
+                <ion-badge class="badge-success">Atendida</ion-badge>
+              } @else if (c.status === 'cancelada') {
+                <ion-badge class="badge-danger">Cancelada</ion-badge>
+              }
+            </div>
+            <button
+              type="button"
+              class="w-8 h-8 border-0 bg-transparent text-on-surface-variant rounded-full inline-flex items-center justify-center cursor-pointer hover:bg-surface-container-low transition-colors shrink-0"
+              aria-label="Opciones"
+              (click)="$event.stopPropagation(); showActions($event)"
+            >
+              <i class="not-italic text-lg mgc_more_2_line"></i>
+            </button>
           </div>
           <h2 class="font-sans text-xl font-bold text-on-surface m-0 mb-3 tracking-tight">
             {{ c.motivo }}

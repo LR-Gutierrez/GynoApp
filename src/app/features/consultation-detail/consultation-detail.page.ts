@@ -1,5 +1,5 @@
 import { Component, signal, inject, HostListener, OnInit } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, AlertController, PopoverController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
@@ -9,6 +9,7 @@ import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-hea
 import { GynoPhotoThumbnailComponent } from 'src/app/shared/components/gyno-photo-thumbnail/gyno-photo-thumbnail.component';
 import { GynoSectionHeaderComponent } from 'src/app/shared/components/gyno-section-header/gyno-section-header.component';
 import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
+import { GynoActionPopoverComponent, GynoActionItem } from 'src/app/shared/components/gyno-action-popover/gyno-action-popover.component';
 import { PatientService } from 'src/app/core/services/patient.service';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
@@ -27,6 +28,7 @@ import { Patient, Consultation } from 'src/app/shared/models/patient.model';
     GynoPhotoThumbnailComponent,
     GynoSectionHeaderComponent,
     GynoPinInputComponent,
+    GynoActionPopoverComponent,
   ],
   styles: [
     `
@@ -91,6 +93,8 @@ export class ConsultationDetailPage implements OnInit {
   private consultationService = inject(ConsultationService);
   private encryptedPhotoService = inject(EncryptedPhotoService);
   private auth = inject(AuthService);
+  private alertCtrl = inject(AlertController);
+  private popoverCtrl = inject(PopoverController);
 
   readonly loading = signal(true);
   readonly consultation = signal<Consultation | null>(null);
@@ -146,12 +150,95 @@ export class ConsultationDetailPage implements OnInit {
   }
 
   goBack() {
-    const patientId = this.route.snapshot.paramMap.get('id');
-    if (patientId) {
-      this.router.navigate(['/home/patient', patientId]);
-    } else {
-      this.router.navigate(['/home']);
+    history.back();
+  }
+
+  async showActions(event: MouseEvent) {
+    const c = this.consultation();
+    if (!c) return;
+
+    const actions: GynoActionItem[] = [
+      { value: 'edit', label: 'Editar', icon: 'mgc_edit_2_line' },
+    ];
+
+    if (c.status === 'programada') {
+      actions.push({ value: 'mark-attended', label: 'Marcar como atendida', icon: 'mgc_check_line' });
+      actions.push({ value: 'mark-cancelled', label: 'Cancelar consulta', icon: 'mgc_close_line', destructive: true });
     }
+
+    actions.push({ value: 'delete', label: 'Eliminar', icon: 'mgc_delete_back_line', destructive: true });
+
+    const popover = await this.popoverCtrl.create({
+      component: GynoActionPopoverComponent,
+      componentProps: { actions },
+      event,
+      side: 'bottom',
+      alignment: 'start',
+      showBackdrop: false,
+    });
+    await popover.present();
+    const { data } = await popover.onWillDismiss();
+    if (data?.action === 'edit') {
+      this.edit();
+    } else if (data?.action === 'delete') {
+      this.delete();
+    } else if (data?.action === 'mark-attended') {
+      this.edit(true);
+    } else if (data?.action === 'mark-cancelled') {
+      const alert = await this.alertCtrl.create({
+        header: 'Cancelar consulta',
+        message: '¿Estás segura de cancelar esta consulta?',
+        buttons: [
+          { text: 'No', role: 'cancel' },
+          {
+            text: 'Sí, cancelar',
+            role: 'destructive',
+            handler: async () => {
+              await this.consultationService.updateStatus(c.id, 'cancelada');
+              this.consultation.update(v => v ? { ...v, status: 'cancelada' } : v);
+            },
+          },
+        ],
+      });
+      await alert.present();
+    }
+  }
+
+  edit(markAttended?: boolean) {
+    const c = this.consultation();
+    const patientId = this.route.snapshot.paramMap.get('id');
+    if (c && patientId) {
+      this.router.navigate(['/home/patient', patientId, 'consultation', 'new'], {
+        queryParams: { edit: c.id, ...(markAttended ? { markAttended: 'true' } : {}) },
+      });
+    }
+  }
+
+  async delete() {
+    const c = this.consultation();
+    if (!c) return;
+    const alert = await this.alertCtrl.create({
+      header: 'Eliminar consulta',
+      message: '¿Estás segura de eliminar esta consulta? Esta acción no se puede deshacer.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: async () => {
+            const patientId = this.route.snapshot.paramMap.get('id');
+            await this.encryptedPhotoService.deleteAllForConsultation(c.id);
+            await this.consultationService.delete(c.id);
+            if (patientId) {
+              this.router.navigate(['/home/patient', patientId]);
+            } else {
+              this.router.navigate(['/home']);
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   // Photo viewer

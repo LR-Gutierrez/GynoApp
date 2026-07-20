@@ -62,6 +62,7 @@ export class UiKitPage {
     receta: 'Ácido fólico 5mg',
     notas: 'Paciente en buen estado general. Control en 4 semanas.',
     photoIds: ['1', '2', '3'],
+    status: 'atendida',
     createdAt: '2026-06-15',
   };
 

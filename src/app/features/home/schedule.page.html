@@ -8,7 +8,7 @@
       class="block mb-5"
     />
 
-    <!-- Appointments section -->
+    <!-- Consultations section -->
     @let display = selectedDisplay(); @if (display !== null) {
     <div class="mb-4">
       <div class="flex items-baseline justify-between mb-3">
@@ -16,12 +16,12 @@
           {{ display.day }} {{ display.month }} {{ display.year }}
         </h2>
         <span class="font-sans text-xs font-medium text-on-surface-variant">
-          {{ dayAppointments().length }} {{ dayAppointments().length === 1 ?
-          'cita' : 'citas' }}
+          {{ dayConsultations().length }} {{ dayConsultations().length === 1 ?
+          'consulta' : 'consultas' }}
         </span>
       </div>
 
-      @let appointments = dayAppointments(); @if (appointments.length === 0) {
+      @let consultations = dayConsultations(); @if (consultations.length === 0) {
       <div
         class="bg-surface-container-low rounded-xl py-8 flex flex-col items-center gap-2 text-center"
       >
@@ -29,56 +29,59 @@
           class="not-italic text-3xl text-on-surface-variant/40 mgc_calendar_off_line"
         ></i>
         <p class="font-sans text-sm text-on-surface-variant m-0">
-          No hay citas para este día
+          No hay consultas para este día
         </p>
       </div>
       } @else {
       <div class="flex flex-col gap-2">
-        @for (appt of appointments; track appt.id) {
-        <div
-          class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4 cursor-pointer active:bg-surface-container-low transition-colors duration-150"
-          (click)="openAppointment(appt)"
-        >
-          <div class="flex items-start gap-3">
-            <!-- Time indicator -->
-            <div class="flex flex-col items-center pt-0.5 min-w-[48px]">
-              <span class="font-sans text-sm font-bold text-on-surface"
-                >{{ appt.time }}</span
-              >
-              <div
-                class="mt-1.5 w-6 h-0.5 rounded-full"
-                [class.bg-primary-500]="appt.status === 'scheduled'"
-                [class.bg-success]="appt.status === 'completed'"
-                [class.bg-outline]="appt.status === 'cancelled'"
-              ></div>
-            </div>
+        @for (c of consultations; track c.id) {
+        <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden">
+          <div
+            class="p-4 cursor-pointer active:bg-surface-container-low transition-colors duration-150"
+            (click)="openConsultation(c)"
+          >
+            <div class="flex items-start gap-3">
+              <!-- Time indicator -->
+              <div class="flex flex-col items-center pt-0.5 min-w-[48px]">
+                <span class="font-sans text-sm font-bold text-on-surface">{{ c.time || '—' }}</span>
+                <div
+                  class="mt-1.5 w-6 h-0.5 rounded-full"
+                  [class.bg-primary-500]="c.status === 'programada'"
+                  [class.bg-success]="c.status === 'atendida'"
+                  [class.bg-outline]="c.status === 'cancelada'"
+                ></div>
+              </div>
 
-            <!-- Info -->
-            <div class="flex-1 min-w-0">
-              <h4
-                class="font-sans text-sm font-semibold text-on-surface m-0 mb-0.5 truncate"
-              >
-                {{ appt.patientName }}
-              </h4>
-              <p class="font-sans text-xs text-on-surface-variant m-0 truncate">
-                {{ appt.reason }}
-              </p>
-              <span
-                class="inline-block mt-1.5 font-sans text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                [class.bg-primary-fixed]="appt.status === 'scheduled'"
-                [class.text-primary-700]="appt.status === 'scheduled'"
-                [class.bg-success-container]="appt.status === 'completed'"
-                [class.text-success]="appt.status === 'completed'"
-                [class.bg-surface-container-high]="appt.status === 'cancelled'"
-                [class.text-on-surface-variant]="appt.status === 'cancelled'"
-              >
-                {{ statusLabel(appt.status) }}
-              </span>
-            </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <h4 class="font-sans text-sm font-semibold text-on-surface m-0 mb-0.5 truncate">
+                  {{ patientName(c.patientId) }}
+                </h4>
+                <p class="font-sans text-xs text-on-surface-variant m-0 truncate">
+                  {{ c.motivo }}
+                </p>
+                <span class="inline-block mt-1.5">
+                  @if (c.status === 'programada') {
+                    <ion-badge class="badge-primary">{{ statusLabel(c.status) }}</ion-badge>
+                  } @else if (c.status === 'atendida') {
+                    <ion-badge class="badge-success">{{ statusLabel(c.status) }}</ion-badge>
+                  } @else if (c.status === 'cancelada') {
+                    <ion-badge class="badge-danger">{{ statusLabel(c.status) }}</ion-badge>
+                  }
+                </span>
+              </div>
 
-            <i
-              class="not-italic text-lg text-on-surface-variant mt-1 mgc_arrow_right_line"
-            ></i>
+              <div class="flex flex-col gap-1 shrink-0">
+                @if (c.status === 'programada') {
+                  <button type="button" class="w-7 h-7 border-0 rounded-lg bg-transparent text-success hover:bg-success-container flex items-center justify-center cursor-pointer transition-colors" (click)="$event.stopPropagation(); editConsultation(c)" aria-label="Marcar como atendida">
+                    <i class="not-italic text-sm mgc_check_line"></i>
+                  </button>
+                  <button type="button" class="w-7 h-7 border-0 rounded-lg bg-transparent text-error hover:bg-error-container flex items-center justify-center cursor-pointer transition-colors" (click)="$event.stopPropagation(); markAsCancelled(c.id)" aria-label="Cancelar consulta">
+                    <i class="not-italic text-sm mgc_close_line"></i>
+                  </button>
+                }
+              </div>
+            </div>
           </div>
         </div>
         }
@@ -93,7 +96,7 @@
         class="not-italic text-3xl text-on-surface-variant/40 mgc_calendar_line"
       ></i>
       <p class="font-sans text-sm text-on-surface-variant m-0">
-        Selecciona un día para ver las citas
+        Selecciona un día para ver las consultas
       </p>
     </div>
     }

@@ -24,6 +24,7 @@ interface TimelineConsultation {
   timeLabel: string;
   title: string;
   description: string;
+  status: string;
 }
 
 @Component({
@@ -155,6 +156,7 @@ export class PatientDetailPage {
         timeLabel: c.time ?? '',
         title: c.motivo,
         description: c.diagnostico + (c.tratamiento ? `\nTx: ${c.tratamiento}` : ''),
+        status: c.status,
       }))
     );
 
@@ -199,10 +201,17 @@ export class PatientDetailPage {
   }
 
   async showConsultationActions(event: MouseEvent, consultationId: string) {
+    const cons = this.consultations().find(c => c.id === consultationId);
     const actions: GynoActionItem[] = [
       { value: 'edit', label: 'Editar', icon: 'mgc_edit_2_line' },
-      { value: 'delete', label: 'Eliminar', icon: 'mgc_delete_back_line', destructive: true },
     ];
+
+    if (cons?.status === 'programada') {
+      actions.push({ value: 'mark-attended', label: 'Marcar como atendida', icon: 'mgc_check_line' });
+      actions.push({ value: 'mark-cancelled', label: 'Cancelar consulta', icon: 'mgc_close_line', destructive: true });
+    }
+
+    actions.push({ value: 'delete', label: 'Eliminar', icon: 'mgc_delete_back_line', destructive: true });
 
     const popover = await this.popoverCtrl.create({
       component: GynoActionPopoverComponent,
@@ -218,14 +227,33 @@ export class PatientDetailPage {
       this.editConsultation(consultationId);
     } else if (data?.action === 'delete') {
       this.deleteConsultation(consultationId);
+    } else if (data?.action === 'mark-attended') {
+      this.editConsultation(consultationId, true);
+    } else if (data?.action === 'mark-cancelled') {
+      const alert = await this.alertCtrl.create({
+        header: 'Cancelar consulta',
+        message: '¿Estás segura de cancelar esta consulta?',
+        buttons: [
+          { text: 'No', role: 'cancel' },
+          {
+            text: 'Sí, cancelar',
+            role: 'destructive',
+            handler: async () => {
+              await this.consultationService.updateStatus(consultationId, 'cancelada');
+              await this.loadConsultations();
+            },
+          },
+        ],
+      });
+      await alert.present();
     }
   }
 
-  editConsultation(consultationId: string) {
+  editConsultation(consultationId: string, markAttended?: boolean) {
     const patientId = this.patient()?.id;
     if (patientId) {
       this.router.navigate(['/home/patient', patientId, 'consultation', 'new'], {
-        queryParams: { edit: consultationId },
+        queryParams: { edit: consultationId, ...(markAttended ? { markAttended: 'true' } : {}) },
       });
     }
   }

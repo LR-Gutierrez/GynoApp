@@ -109,6 +109,25 @@
         [error]="motivoError()"
       />
 
+      <!-- Status -->
+      <div class="form-field mb-4">
+        <label class="form-label font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-1.5 block">
+          Estado
+        </label>
+        <div class="relative">
+          <select
+            [ngModel]="status()"
+            (ngModelChange)="status.set($event)"
+            class="form-input-native w-full appearance-none cursor-pointer font-sans text-sm text-on-surface bg-transparent"
+          >
+            <option value="programada">Programada</option>
+            <option value="atendida">Atendida</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+          <i class="not-italic text-lg text-outline absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none mgc_arrow_down_line"></i>
+        </div>
+      </div>
+
       <!-- Diagnóstico -->
       <gyno-form-field
         label="Diagnóstico"

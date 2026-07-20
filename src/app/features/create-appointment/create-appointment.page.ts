@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, HostListener, ElementRef } from '@angular/core';
+import { Component, signal, computed, inject, HostListener, ElementRef } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,6 +7,7 @@ import { GynoPageHeaderComponent } from 'src/app/shared/components/gyno-page-hea
 import { GynoFormFieldComponent } from 'src/app/shared/components/gyno-form-field/gyno-form-field.component';
 import { GynoLoadingButtonComponent } from 'src/app/shared/components/gyno-loading-button/gyno-loading-button.component';
 import { GynoDatePickerComponent } from 'src/app/shared/components/gyno-date-picker/gyno-date-picker.component';
+import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { AppointmentService } from 'src/app/shared/services/appointment.service';
 
 @Component({
@@ -31,9 +32,10 @@ import { AppointmentService } from 'src/app/shared/services/appointment.service'
     `,
   ],
 })
-export class CreateAppointmentPage implements OnInit {
+export class CreateAppointmentPage {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private consultationService = inject(ConsultationService);
   private appointmentService = inject(AppointmentService);
   private el = inject(ElementRef);
 
@@ -54,23 +56,24 @@ export class CreateAppointmentPage implements OnInit {
   readonly showTimePicker = signal(false);
 
   readonly selectedPatient = computed(() =>
-    this.patients.find(p => p.id === this.selectedPatientId()) ?? null
+    this.patients().find(p => p.id === this.selectedPatientId()) ?? null
   );
 
   readonly filteredPatients = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
-    if (!q) return this.patients;
-    return this.patients.filter(p =>
+    if (!q) return this.patients();
+    return this.patients().filter(p =>
       p.name.toLowerCase().includes(q) ||
       p.phone.includes(q)
     );
   });
 
-  ngOnInit() {
+  async ionViewWillEnter() {
     const dateParam = this.route.snapshot.queryParamMap.get('date');
     if (dateParam) {
       this.date.set(dateParam);
     }
+    await this.appointmentService.loadAll();
   }
 
   selectPatient(id: string) {
@@ -106,7 +109,7 @@ export class CreateAppointmentPage implements OnInit {
     history.back();
   }
 
-  save() {
+  async save() {
     if (!this.selectedPatientId()) {
       this.reasonError.set('Debes seleccionar una paciente');
       return;
@@ -118,20 +121,20 @@ export class CreateAppointmentPage implements OnInit {
     this.reasonError.set('');
     this.saving.set(true);
 
-    const patient = this.patients.find(p => p.id === this.selectedPatientId())!;
+    const patient = this.patients().find(p => p.id === this.selectedPatientId())!;
 
-    this.appointmentService.addAppointment({
+    await this.consultationService.create({
+      patientId: patient.id,
       date: this.date(),
       time: this.time(),
-      patientId: patient.id,
-      patientName: patient.name,
-      reason: this.reason().trim(),
-      status: 'scheduled',
+      motivo: this.reason().trim(),
+      diagnostico: '',
+      tratamiento: '',
+      photoIds: [],
+      status: 'programada',
     });
 
-    setTimeout(() => {
-      this.saving.set(false);
-      this.router.navigate(['/home/schedule']);
-    }, 600);
+    this.saving.set(false);
+    this.router.navigate(['/home/schedule']);
   }
 }

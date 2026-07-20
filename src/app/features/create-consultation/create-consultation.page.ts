@@ -10,7 +10,7 @@ import { GynoDatePickerComponent } from 'src/app/shared/components/gyno-date-pic
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { EncryptedPhotoService } from 'src/app/core/services/encrypted-photo.service';
 import { PatientService } from 'src/app/core/services/patient.service';
-import { calculateAge } from 'src/app/shared/models/patient.model';
+import { calculateAge, ConsultationStatus } from 'src/app/shared/models/patient.model';
 
 interface PendingMedia {
   id: string;
@@ -58,7 +58,7 @@ export class CreateConsultationPage implements OnInit {
 
   private readonly todayLocal = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; })();
   readonly date = signal(this.todayLocal);
-  readonly time = signal('');
+  readonly time = signal('09:00');
   readonly showTimePicker = signal(false);
   readonly hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
   readonly minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
@@ -68,7 +68,9 @@ export class CreateConsultationPage implements OnInit {
   readonly receta = signal('');
   readonly notas = signal('');
   readonly examenes = signal('');
+  readonly status = signal<ConsultationStatus>('atendida');
 
+  readonly markAttended = signal(false);
   readonly media = signal<PendingMedia[]>([]);
   readonly motivoError = signal('');
   readonly saving = signal(false);
@@ -76,6 +78,7 @@ export class CreateConsultationPage implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     const editId = this.route.snapshot.queryParamMap.get('edit');
+    this.markAttended.set(this.route.snapshot.queryParamMap.get('markAttended') === 'true');
     if (id) {
       this.patientId.set(id);
       this.loadPatient(id);
@@ -107,13 +110,14 @@ export class CreateConsultationPage implements OnInit {
         this.isEditing.set(true);
         this.editingConsultationId = consultationId;
         this.date.set(c.date);
-        this.time.set(c.time ?? '');
+        this.time.set(c.time ?? '09:00');
         this.motivo.set(c.motivo);
         this.diagnostico.set(c.diagnostico);
         this.tratamiento.set(c.tratamiento);
         this.receta.set(c.receta ?? '');
         this.notas.set(c.notas ?? '');
         this.examenes.set(c.examenes ?? '');
+        this.status.set(this.markAttended() ? 'atendida' : c.status);
       }
     } catch {
       console.warn('Could not load consultation for editing');
@@ -198,6 +202,7 @@ export class CreateConsultationPage implements OnInit {
         consultation.receta = this.receta().trim() || undefined;
         consultation.notas = this.notas().trim() || undefined;
         consultation.examenes = this.examenes().trim() || undefined;
+        consultation.status = this.status();
 
         if (pendingMedia.length > 0) {
           const items = pendingMedia.map(m => ({ dataUrl: m.src, mimeType: m.type === 'video' ? 'video/mp4' : 'image/jpeg' }));
@@ -218,6 +223,7 @@ export class CreateConsultationPage implements OnInit {
           notas: this.notas().trim() || undefined,
           examenes: this.examenes().trim() || undefined,
           photoIds: [],
+          status: this.status(),
         });
 
         if (pendingMedia.length > 0) {
