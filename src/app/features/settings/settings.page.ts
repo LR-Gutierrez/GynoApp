@@ -45,7 +45,23 @@ export class SettingsPage implements OnInit {
 
   readonly biometricEnabled = signal(false);
   readonly language = signal('Español');
-  readonly notificationsEnabled = signal(true);
+  readonly notificationsEnabled = signal(false);
+
+  async onNotificationsToggle(checked: boolean) {
+    if (checked) {
+      this.notificationsEnabled.set(true);
+      const alert = await this.alertCtrl.create({
+        header: 'Notificaciones',
+        message: 'Las notificaciones aún no están disponibles. Próximamente podrás recibir recordatorios de citas.',
+        buttons: [{
+          text: 'OK',
+          handler: () => this.notificationsEnabled.set(false),
+        }],
+        mode: 'ios',
+      });
+      await alert.present();
+    }
+  }
   readonly timeFormat = signal<TimeFormat>('24h');
   readonly logoutLoading = signal(false);
   readonly exportLoading = signal(false);
@@ -203,11 +219,96 @@ export class SettingsPage implements OnInit {
 
   // --- Actions ---
 
-  selectLanguage() {}
+  async selectLanguage() {
+    const alert = await this.alertCtrl.create({
+      header: 'Idioma',
+      message: 'Actualmente solo está disponible Español. Próximamente más idiomas.',
+      buttons: ['OK'],
+      mode: 'ios',
+    });
+    await alert.present();
+  }
+
+  async openPrivacy() {
+    const alert = await this.alertCtrl.create({
+      header: 'Aviso de privacidad',
+      message: `GynoApp protege la confidencialidad de tus datos clínicos.
+
+• Los datos se almacenan localmente en el dispositivo y nunca se comparten sin tu consentimiento explícito.
+• Las fotos y documentos se encriptan antes de almacenarse.
+• El respaldo .gyncbak está cifrado y solo puede restaurarse con tu PIN.
+• No se recopilan datos analíticos ni de uso sin autorización.
+
+Para más información, contacta a luisangelrgr@gmail.com`,
+      buttons: ['OK'],
+      mode: 'ios',
+      cssClass: 'alert-message-justify',
+    });
+    await alert.present();
+  }
+
+  async openTerms() {
+    const alert = await this.alertCtrl.create({
+      header: 'Términos y condiciones',
+      message: `Al usar GynoApp aceptas los siguientes términos:
+
+1.  GynoApp es una herramienta de gestión clínica, no reemplaza el criterio médico profesional.
+2.  Eres responsable de mantener la confidencialidad de tu PIN y datos de acceso.
+3.  Los datos almacenados son de tu propiedad. GynoApp no tiene acceso a ellos.
+4.  El respaldo y la restauración de datos son responsabilidad del usuario.
+5.  GynoApp no se hace responsable por pérdida de datos debido a fallos del dispositivo o borrado no autorizado.
+
+Versión 1.0 — Julio 2026`,
+      buttons: ['OK'],
+      mode: 'ios',
+      cssClass: 'alert-message-justify',
+    });
+    await alert.present();
+  }
+
+  async openSupport() {
+    const alert = await this.alertCtrl.create({
+      header: 'Soporte técnico',
+      message: `¿Necesitas ayuda? Escríbeme a luisangelrgr@gmail.com y te responderé a la brevedad.
+
+Horario de atención: Lun–Vie 9:00–18:00`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Enviar correo',
+          handler: () => {
+            const subject = encodeURIComponent('Soporte GynoApp');
+            const body = encodeURIComponent(
+              'Versión: 1.0.0\n\nDescribe tu problema o consulta:'
+            );
+            window.open(`mailto:luisangelrgr@gmail.com?subject=${subject}&body=${body}`, '_blank');
+          },
+        },
+      ],
+      mode: 'ios',
+    });
+    await alert.present();
+  }
+
   async toggleTimeFormat() {
     const next: TimeFormat = this.timeFormat() === '24h' ? '12h' : '24h';
-    this.timeFormat.set(next);
-    await this.settings.setTimeFormat(next);
+    const label = next === '24h' ? '24 horas (ej: 14:30)' : '12 horas (ej: 2:30 PM)';
+    const alert = await this.alertCtrl.create({
+      header: 'Formato de hora',
+      message: `¿Cambiar a formato de ${next === '24h' ? '24' : '12'} horas?`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Cambiar',
+          handler: () => {
+            this.timeFormat.set(next);
+            this.settings.setTimeFormat(next);
+          },
+        },
+      ],
+      mode: 'ios',
+    });
+    await alert.present();
   }
   async exportHistory() {
     const stats = await this.exportService.getExportStats();
@@ -561,9 +662,6 @@ export class SettingsPage implements OnInit {
       this.cleaningCache.set(false);
     }
   }
-  openPrivacy() {}
-  openTerms() {}
-  openSupport() {}
 
   async logout() {
     const alert = await this.alertCtrl.create({

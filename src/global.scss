@@ -117,6 +117,19 @@
   font-family: "Inter", sans-serif;
 }
 
+.btn-danger {
+  --background: #d32f2f;
+  --background-hover: #b71c1c;
+  --gap: 4px;
+  --color: #ffffff;
+  --border-radius: 8px;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --box-shadow: none;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+}
+
 .btn-secondary {
   --background: #20b2aa;
   --background-hover: #1c9c95;
@@ -1013,4 +1026,22 @@ ion-popover ion-item:hover {
 // -- Remove default blue stripe on today --
 .fc .fc-day-today .fc-daygrid-day-frame {
   background: transparent;
+}
+
+.alert-message-justify {
+  .alert-wrapper {
+    max-width: 92vw !important;
+    width: 400px !important;
+  }
+
+  .alert-head {
+    padding-bottom: 12px !important;
+  }
+
+  .alert-message {
+    text-align: justify;
+    line-height: 1.65;
+    font-size: 14px;
+    white-space: pre-line;
+  }
 }

@@ -121,7 +121,7 @@
           <div class="flex items-center justify-center shrink-0 w-6">
             <ion-toggle
               [checked]="notificationsEnabled()"
-              (ionChange)="notificationsEnabled.set($event.detail.checked)"
+              (ionChange)="onNotificationsToggle($event.detail.checked)"
               color="primary"
               style="
                 --padding-start: 0;
@@ -325,19 +325,19 @@
       </div>
     </div>
 
-    <button
-      type="button"
-      class="flex items-center justify-center gap-2 w-full p-3.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-error cursor-pointer transition-colors font-sans text-sm font-semibold disabled:opacity-50"
+    <ion-button
+      class="btn-danger"
+      expand="block"
       (click)="logout()"
       [disabled]="logoutLoading()"
     >
       @if (logoutLoading()) {
-        <ion-spinner name="dots" color="danger" class="w-5 h-5" />
+        <ion-spinner name="dots" color="light" class="w-5 h-5" />
       } @else {
         <i class="not-italic text-lg mgc_exit_line"></i>
       }
       {{ logoutLoading() ? 'Cerrando sesión...' : 'Cerrar sesión' }}
-    </button>
+    </ion-button>
   </div>
 </ion-content>
 
