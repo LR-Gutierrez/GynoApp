@@ -11,6 +11,7 @@ import { SettingsPage } from '../settings/settings.page';
 import { EditProfilePage } from '../edit-profile/edit-profile.page';
 import { PatientFormPage } from '../patient-form/patient-form.page';
 import { RecentConsultationsPage } from './recent-consultations.page';
+import { NotificationsPage } from '../notifications/notifications.page';
 import { CanDeactivateGuard } from 'src/app/core/guards/can-deactivate.guard';
 
 const routes: Routes = [
@@ -21,6 +22,7 @@ const routes: Routes = [
   { path: 'patient/:id', component: PatientDetailPage },
   { path: 'patient/:id/consultation/new', component: CreateConsultationPage, canDeactivate: [CanDeactivateGuard] },
   { path: 'patient/:id/consultation/:consultationId', component: ConsultationDetailPage },
+  { path: 'notifications', component: NotificationsPage },
   { path: 'schedule', component: SchedulePage },
   { path: 'schedule/new', component: CreateAppointmentPage, canDeactivate: [CanDeactivateGuard] },
   { path: 'settings', component: SettingsPage },

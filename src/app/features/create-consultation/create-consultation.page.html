@@ -128,13 +128,16 @@
           <select
             [ngModel]="status()"
             (ngModelChange)="status.set($event); markDirty()"
-            class="form-input-native w-full appearance-none cursor-pointer font-sans text-sm text-on-surface bg-transparent"
+            class="w-full appearance-none cursor-pointer font-sans text-sm"
+            style="padding: 12px 36px 12px 16px; border-radius: 8px; border-width: 1px; border-style: solid; border-color: var(--color-outline-variant, #e2e8f0); outline: none; background: var(--color-surface-container-low, #f0f3ff); width: 100%; min-height: 44px; box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 14px; transition: border-color 0.2s;"
+            [style.borderLeft]="'5px solid ' + (status() === 'programada' ? '#1d59c1' : status() === 'atendida' ? '#008a85' : '#ba1a1a')"
+            [style.color]="status() === 'programada' ? '#0f52ba' : status() === 'atendida' ? '#008a85' : '#ba1a1a'"
           >
             <option value="programada">Programada</option>
             <option value="atendida">Atendida</option>
             <option value="cancelada">Cancelada</option>
           </select>
-          <i class="not-italic text-lg text-outline absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none mgc_arrow_down_line"></i>
+          <i class="not-italic text-lg text-outline absolute pointer-events-none mgc_arrow_down_line" style="right: 12px; top: 50%; transform: translateY(-50%);"></i>
         </div>
       </div>
 

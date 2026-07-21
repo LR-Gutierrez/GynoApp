@@ -9,6 +9,7 @@ import { GynoLoadingButtonComponent } from 'src/app/shared/components/gyno-loadi
 import { GynoDatePickerComponent } from 'src/app/shared/components/gyno-date-picker/gyno-date-picker.component';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { PatientService } from 'src/app/core/services/patient.service';
+import { NotificationService } from 'src/app/core/services/notification.service';
 import { SettingsService } from 'src/app/core/services/settings.service';
 import { calculateAge } from 'src/app/shared/models/patient.model';
 import { CanComponentDeactivate } from 'src/app/core/guards/can-deactivate.guard';
@@ -43,6 +44,7 @@ export class CreateAppointmentPage implements CanComponentDeactivate {
   protected settings = inject(SettingsService);
   private el = inject(ElementRef);
   private toastCtrl = inject(ToastController);
+  private notificationService = inject(NotificationService);
 
   readonly patients = signal<{ id: string; name: string; age: number; phone: string }[]>([]);
 
@@ -183,7 +185,7 @@ export class CreateAppointmentPage implements CanComponentDeactivate {
 
     const patient = this.patients().find(p => p.id === this.selectedPatientId())!;
 
-    await this.consultationService.create({
+    const consultation = await this.consultationService.create({
       patientId: patient.id,
       date: this.date(),
       time: this.time(),
@@ -193,6 +195,18 @@ export class CreateAppointmentPage implements CanComponentDeactivate {
       photoIds: [],
       status: 'programada',
     });
+
+    await Promise.all([
+      this.notificationService.scheduleAppointmentReminder(
+        consultation.id, patient.name, this.reason().trim(), this.date(), this.time(),
+      ),
+      this.notificationService.addNotification(
+        'cita_creada',
+        'Cita agendada',
+        `${patient.name} — ${this.reason().trim()}`,
+        { appointmentId: consultation.id, patientId: patient.id },
+      ),
+    ]);
 
     await this.showSavedToast();
     this.dirty.set(false);

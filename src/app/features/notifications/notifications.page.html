@@ -1,0 +1,125 @@
+<gyno-page-header
+  title="Notificaciones"
+  [showBack]="true"
+  (back)="goBack()"
+>
+  <ng-container slot="end">
+    @if (notificationService.unreadCount() > 0) {
+      <button
+        type="button"
+        class="w-8 h-8 border-0 bg-transparent text-primary-600 rounded-full! inline-flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-primary-50"
+        aria-label="Marcar todas como leídas"
+        (click)="onMarkAllRead()"
+      >
+        <i class="not-italic text-lg mgc_check_2_line"></i>
+      </button>
+    }
+  </ng-container>
+</gyno-page-header>
+
+<ion-content>
+  @if (loading()) {
+    <div class="px-4 pt-4 space-y-3">
+      @for (_ of [1,2,3,4,5]; track $index) {
+        <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-surface-container-high skeleton-shimmer shrink-0"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-4 w-48 bg-surface-container-high rounded skeleton-shimmer"></div>
+              <div class="h-3 w-32 bg-surface-container-high rounded skeleton-shimmer"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (notificationService.notifications().length === 0) {
+    <div class="px-4 pt-4">
+      <div class="bg-surface-container-low rounded-xl py-12 flex flex-col items-center gap-3 text-center">
+        <div class="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center">
+          <i class="not-italic text-2xl text-primary-600 mgc_notification_off_line"></i>
+        </div>
+        <div>
+          <p class="font-sans text-sm font-medium text-on-surface m-0">No hay notificaciones</p>
+          <p class="font-sans text-xs text-on-surface-variant mt-1 max-w-[220px]">
+            Las notificaciones de citas y recordatorios aparecerán aquí
+          </p>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="px-2 pt-4 pb-6">
+      @for (group of groupedNotifications(); track group.date) {
+        <div class="mb-8 last:mb-0">
+          <p class="font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase m-0 mb-4 px-3">
+            {{ group.date }}
+          </p>
+          <div class="flex flex-col">
+            @for (n of group.items; track n.id) {
+              <div
+                class="bg-surface-container-lowest rounded-2xl mx-3 mb-4 last:mb-0 cursor-pointer active:bg-surface-container-low transition-colors duration-150 border-2"
+                [class.shadow-md]="!n.read"
+                [class.border-primary-200]="!n.read"
+                [class.border-outline-variant]="n.read"
+                (click)="onNotificationClick(n)"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="onNotificationClick(n)"
+                (keydown.space)="onNotificationClick(n); $event.preventDefault()"
+              >
+                <div class="flex items-start" style="padding: 20px 24px;">
+                  <div
+                    class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                    [class.bg-primary-fixed]="!n.read"
+                    [class.text-primary-700]="!n.read"
+                    [class.bg-surface-container-high]="n.read"
+                    [class.text-on-surface-variant]="n.read"
+                    style="margin-right: 20px;"
+                  >
+                    <i class="not-italic text-xl {{ notificationIcon(n.type) }}"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p
+                      class="font-sans text-base m-0 leading-6"
+                      [class.font-semibold]="!n.read"
+                      [class.font-medium]="n.read"
+                      [class.text-on-surface]="!n.read"
+                      [class.text-on-surface-variant]="n.read"
+                      style="margin-bottom: 6px;"
+                    >
+                      {{ n.title }}
+                    </p>
+                    <div class="flex items-center gap-3" style="margin-bottom: 8px;">
+                      <span class="font-sans text-sm text-on-surface-variant/60">{{ formatTime(n.createdAt) }}</span>
+                      @if (!n.read) {
+                        <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
+                        <span class="font-sans text-sm text-primary-600 font-semibold tracking-wide uppercase">Nueva</span>
+                      }
+                    </div>
+                    <p
+                      class="font-sans text-sm m-0 leading-6 line-clamp-3"
+                      [class.text-on-surface-variant]="n.read"
+                      [class.text-on-surface]="!n.read"
+                    >
+                      {{ n.message }}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    class="w-8 h-8 border-0 bg-transparent text-outline rounded-full inline-flex items-center justify-center cursor-pointer shrink-0 transition-colors duration-200 hover:bg-surface-container-high hover:text-on-surface-variant active:scale-90"
+                    aria-label="Eliminar notificación"
+                    (click)="onDismiss($event, n.id)"
+                    style="margin-left: 12px;"
+                  >
+                    <i class="not-italic text-lg mgc_close_line"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</ion-content>
+
+<gyno-bottom-nav />

@@ -9,8 +9,9 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
 import { GynoPinInputComponent } from 'src/app/shared/components/gyno-pin-input/gyno-pin-input.component';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { SettingsService, TimeFormat, AutoLockMinutes } from 'src/app/core/services/settings.service';
+import { SettingsService, TimeFormat, AutoLockMinutes, ReminderTiming } from 'src/app/core/services/settings.service';
 import { ExportService } from 'src/app/core/services/export.service';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-settings',
@@ -40,12 +41,19 @@ export class SettingsPage implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
   private alertCtrl = inject(AlertController);
-  private settings = inject(SettingsService);
+  protected settings = inject(SettingsService);
+  private notificationService = inject(NotificationService);
   private exportService = inject(ExportService);
 
   readonly biometricEnabled = signal(false);
   readonly language = signal('Español');
-  readonly notificationsEnabled = signal(false);
+  readonly notificationsEnabled = this.settings.notificationsEnabled.asReadonly();
+
+  readonly timingLabel = computed(() => {
+    const v = this.settings.reminderTiming();
+    const opt = this.settings.reminderTimingOptions.find(o => o.value === v);
+    return opt ? opt.label.replace(' antes', '') : '2h';
+  });
   readonly autoLock = signal<AutoLockMinutes>(5);
   readonly autoLockLabel = computed(() => {
     const v = this.autoLock();
@@ -58,19 +66,58 @@ export class SettingsPage implements OnInit {
   });
 
   async onNotificationsToggle(checked: boolean) {
-    if (checked) {
-      this.notificationsEnabled.set(true);
+    if (!checked) {
+      await this.settings.setNotificationsEnabled(false);
+      return;
+    }
+
+    const granted = await this.notificationService.checkPermissions();
+    if (granted) {
+      await this.settings.setNotificationsEnabled(true);
       const alert = await this.alertCtrl.create({
-        header: 'Notificaciones',
-        message: 'Las notificaciones aún no están disponibles. Próximamente podrás recibir recordatorios de citas.',
-        buttons: [{
-          text: 'OK',
-          handler: () => this.notificationsEnabled.set(false),
-        }],
+        header: 'Notificaciones activadas',
+        message: 'Recibirás recordatorios de citas antes de la hora programada.',
+        buttons: ['OK'],
+        mode: 'ios',
+      });
+      await alert.present();
+    } else {
+      this.settings.notificationsEnabled.set(false);
+      const alert = await this.alertCtrl.create({
+        header: 'Permiso denegado',
+        message: 'Para activar las notificaciones, ve a Ajustes del sistema > GynoApp > Notificaciones y actívalas manualmente.',
+        buttons: ['OK'],
         mode: 'ios',
       });
       await alert.present();
     }
+  }
+
+  async selectReminderTiming() {
+    const current = this.settings.reminderTiming();
+    const alert = await this.alertCtrl.create({
+      header: 'Recordatorio de citas',
+      message: '¿Con cuánto tiempo de antelación deseas recibir el recordatorio?',
+      inputs: this.settings.reminderTimingOptions.map(o => ({
+        label: o.label,
+        type: 'radio',
+        value: String(o.value),
+        checked: o.value === current,
+      })),
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Seleccionar',
+          handler: (value: string) => {
+            if (value === undefined) return false;
+            this.settings.setReminderTiming(parseInt(value, 10) as ReminderTiming);
+            return true;
+          },
+        },
+      ],
+      mode: 'ios',
+    });
+    await alert.present();
   }
   readonly timeFormat = signal<TimeFormat>('24h');
   readonly logoutLoading = signal(false);
@@ -103,6 +150,7 @@ export class SettingsPage implements OnInit {
     this.biometricEnabled.set(this.auth.isBiometricEnabled());
     this.timeFormat.set(await this.settings.getTimeFormat());
     this.autoLock.set(await this.settings.getAutoLock());
+    await this.settings.initNotificationPrefs();
   }
 
   async toggleBiometric(checked: boolean) {

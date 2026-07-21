@@ -12,6 +12,7 @@ import { GynoTopbarComponent } from 'src/app/shared/components/gyno-topbar/gyno-
 import { GynoBottomNavComponent } from 'src/app/shared/components/gyno-bottom-nav/gyno-bottom-nav.component';
 import { ConsultationService } from 'src/app/core/services/consultation.service';
 import { PatientService } from 'src/app/core/services/patient.service';
+import { NotificationService } from 'src/app/core/services/notification.service';
 import { SettingsService } from 'src/app/core/services/settings.service';
 import { Consultation, ConsultationStatus } from 'src/app/shared/models/patient.model';
 
@@ -41,6 +42,7 @@ export class SchedulePage {
   private patientService = inject(PatientService);
   private alertCtrl = inject(AlertController);
   private settings = inject(SettingsService);
+  private notificationService = inject(NotificationService);
 
   readonly consultationsByDate = signal<Record<string, Consultation[]>>({});
   readonly dayConsultations = signal<Consultation[]>([]);
@@ -193,7 +195,7 @@ export class SchedulePage {
     });
   }
 
-  async markAsCancelled(consultationId: string) {
+  async markAsCancelled(c: Consultation) {
     const alert = await this.alertCtrl.create({
       header: 'Cancelar consulta',
       message: '¿Estás segura de cancelar esta consulta?',
@@ -203,7 +205,16 @@ export class SchedulePage {
           text: 'Sí, cancelar',
           role: 'destructive',
           handler: async () => {
-            await this.consultationService.updateStatus(consultationId, 'cancelada');
+            await this.consultationService.updateStatus(c.id, 'cancelada');
+            await Promise.all([
+              this.notificationService.cancelAppointmentReminder(c.id),
+              this.notificationService.addNotification(
+                'cita_cancelada',
+                'Cita cancelada',
+                `${this.patientName(c.patientId)} — ${c.motivo}`,
+                { appointmentId: c.id, patientId: c.patientId },
+              ),
+            ]);
             await this.loadConsultations();
             this.refreshDay();
           },

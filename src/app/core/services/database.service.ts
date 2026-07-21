@@ -3,7 +3,7 @@ import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacito
 import { Platform } from '@ionic/angular';
 
 const DB_NAME = 'gynoapp.db';
-const DB_VERSION = 13;
+const DB_VERSION = 14;
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
@@ -221,6 +221,20 @@ export class DatabaseService {
     if (currentVersion < 13) {
       await this.ensurePatientColumns(connection);
       await this.ensureConsultColumns(connection);
+    }
+
+    if (currentVersion < 14) {
+      statements.push(
+        `CREATE TABLE IF NOT EXISTS notifications (
+          id TEXT PRIMARY KEY,
+          type TEXT NOT NULL,
+          title TEXT NOT NULL,
+          message TEXT NOT NULL,
+          data TEXT NOT NULL DEFAULT '{}',
+          read INTEGER NOT NULL DEFAULT 0,
+          createdAt TEXT NOT NULL
+        )`,
+      );
     }
 
     for (const sql of statements) {
