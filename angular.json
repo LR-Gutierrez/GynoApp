@@ -16,6 +16,9 @@
             "customWebpackConfig": {
               "path": "./webpack.config.js"
             },
+            "allowedCommonJsDependencies": [
+              "canvg", "html2canvas", "core-js", "raf", "rgbcolor", "jszip"
+            ],
             "outputPath": "www",
             "index": "src/index.html",
             "main": "src/main.ts",

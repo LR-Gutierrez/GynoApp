@@ -8,6 +8,7 @@ import { CryptoService } from './crypto.service';
 import { DatabaseService } from './database.service';
 import * as JSZip from 'jszip';
 
+
 export interface ExportStats {
   patients: number;
   consultations: number;

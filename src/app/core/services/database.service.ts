@@ -3,7 +3,7 @@ import { SQLiteConnection, SQLiteDBConnection, CapacitorSQLite } from '@capacito
 import { Platform } from '@ionic/angular';
 
 const DB_NAME = 'gynoapp.db';
-const DB_VERSION = 12;
+const DB_VERSION = 13;
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
@@ -218,6 +218,11 @@ export class DatabaseService {
       await addConsultCol('edema', 'TEXT');
     }
 
+    if (currentVersion < 13) {
+      await this.ensurePatientColumns(connection);
+      await this.ensureConsultColumns(connection);
+    }
+
     for (const sql of statements) {
       await connection.run(sql, [], false);
     }
@@ -264,6 +269,49 @@ export class DatabaseService {
       return await this.init();
     }
     return this.db;
+  }
+
+  private async ensurePatientColumns(connection: SQLiteDBConnection) {
+    const result = await connection.query('PRAGMA table_info(patients)', [], false);
+    if (!result.values) return;
+    const existing = new Set(result.values.map((r: any) => r.name));
+
+    const cols: [string, string][] = [
+      ['embarazada', 'INTEGER DEFAULT 0'],
+      ['FUR', 'TEXT'],
+      ['FPP', 'TEXT'],
+      ['gestas', 'INTEGER DEFAULT 0'],
+      ['partos', 'INTEGER DEFAULT 0'],
+      ['cesareas', 'INTEGER DEFAULT 0'],
+      ['abortos', 'INTEGER DEFAULT 0'],
+    ];
+
+    for (const [col, def] of cols) {
+      if (!existing.has(col)) {
+        await connection.run(`ALTER TABLE patients ADD COLUMN ${col} ${def}`, [], false);
+      }
+    }
+  }
+
+  private async ensureConsultColumns(connection: SQLiteDBConnection) {
+    const result = await connection.query('PRAGMA table_info(consultations)', [], false);
+    if (!result.values) return;
+    const existing = new Set(result.values.map((r: any) => r.name));
+
+    const cols: [string, string][] = [
+      ['peso', 'REAL'],
+      ['PA', 'TEXT'],
+      ['AU', 'REAL'],
+      ['FCF', 'INTEGER'],
+      ['presentacion', 'TEXT'],
+      ['edema', 'TEXT'],
+    ];
+
+    for (const [col, def] of cols) {
+      if (!existing.has(col)) {
+        await connection.run(`ALTER TABLE consultations ADD COLUMN ${col} ${def}`, [], false);
+      }
+    }
   }
 
   async close() {

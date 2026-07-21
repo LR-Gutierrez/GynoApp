@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { jsPDF } from 'jspdf';
 import { Consultation } from 'src/app/shared/models/patient.model';
 import { DigitalSignatureService } from './digital-signature.service';
 
@@ -12,6 +11,7 @@ export class RecetaPdfService {
   private sig = inject(DigitalSignatureService);
 
   async generate(consultation: Consultation, patientName: string): Promise<Blob> {
+    const { jsPDF } = await import('jspdf');
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',

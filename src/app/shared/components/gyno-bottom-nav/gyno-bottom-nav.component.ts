@@ -7,6 +7,7 @@ import { setNavDirection } from 'src/app/core/utils/navigation-animation';
   template: `
     <div
       class="flex items-center justify-around bg-surface-container-lowest border-t border-outline-variant/50 px-2 py-2 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]"
+      style="padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px))"
     >
       @for (tab of tabs; track tab.route) {
         <button

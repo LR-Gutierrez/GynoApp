@@ -77,6 +77,7 @@ import { calculateFPP, gestacionalWeeks } from 'src/app/shared/models/patient.mo
                 Teléfono <span class="text-error">*</span>
               </label>
               <input
+                type="tel"
                 [(ngModel)]="phone"
                 (input)="markDirty()"
                 placeholder="ej. +58 412-1234567"
