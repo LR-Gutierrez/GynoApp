@@ -35,8 +35,9 @@
           </div>
         </button>
 
-        <div
-          class="flex items-center gap-3 w-full p-3 px-3 rounded-xl bg-transparent  transition-colors"
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent cursor-pointer text-left transition-colors"
         >
           <div
             class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
@@ -51,7 +52,7 @@
               Acceso con huella digital
             </p>
           </div>
-          <div class="flex items-center justify-center shrink-0 w-6">
+          <div class="flex items-center justify-center shrink-0">
             <ion-toggle
               [checked]="biometricEnabled()"
               (ionChange)="toggleBiometric($event.detail.checked)"
@@ -60,12 +61,11 @@
                 --padding-start: 0;
                 --padding-end: 0;
                 margin: 0;
-                width: 44px;
                 overflow: visible;
               "
             />
           </div>
-        </div>
+        </button>
 
         <button
           type="button"
@@ -125,8 +125,9 @@
           </div>
         </button>
 
-        <div
-          class="flex items-center gap-3 w-full p-3 px-3 rounded-xl bg-transparent  transition-colors"
+        <button
+          type="button"
+          class="flex items-center gap-3 w-full p-3 rounded-xl border-0 bg-transparent cursor-pointer text-left transition-colors"
         >
           <div
             class="w-9 h-9 rounded-xl bg-primary-fixed text-primary-700 flex items-center justify-center shrink-0"
@@ -141,7 +142,7 @@
               Alertas de citas y recordatorios
             </p>
           </div>
-          <div class="flex items-center justify-center shrink-0 w-6">
+          <div class="flex items-center justify-center shrink-0">
             <ion-toggle
               [checked]="notificationsEnabled()"
               (ionChange)="onNotificationsToggle($event.detail.checked)"
@@ -150,12 +151,11 @@
                 --padding-start: 0;
                 --padding-end: 0;
                 margin: 0;
-                width: 44px;
                 overflow: visible;
               "
             />
           </div>
-        </div>
+        </button>
 
         @if (settings.notificationsEnabled()) {
           <button
