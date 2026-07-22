@@ -11,14 +11,14 @@ export class SessionService {
 
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
   private eventsBound = false;
-  private timeoutMs = 5 * 60 * 1000;
 
   readonly locked = signal(false);
 
   constructor() {
     effect(() => {
+      const minutes = this.settings.autoLockMinutes();
       if (this.auth.isAuthenticated()) {
-        this.loadTimeout();
+        this.setTimeout(minutes);
         this.startMonitoring();
       } else {
         this.stopMonitoring();
@@ -27,9 +27,11 @@ export class SessionService {
     });
   }
 
-  private async loadTimeout() {
-    const minutes = await this.settings.getAutoLock();
-    this.timeoutMs = minutes > 0 ? minutes * 60 * 1000 : Infinity;
+  private setTimeout(minutes: number) {
+    if (this.idleTimer) clearTimeout(this.idleTimer);
+    this.idleTimer = null;
+    if (minutes === 0) return;
+    this.idleTimer = setTimeout(() => this.onTimeout(), minutes * 60 * 1000);
   }
 
   private startMonitoring() {
@@ -59,8 +61,9 @@ export class SessionService {
 
   private resetTimer() {
     if (this.idleTimer) clearTimeout(this.idleTimer);
-    if (this.timeoutMs === Infinity) return;
-    this.idleTimer = setTimeout(() => this.onTimeout(), this.timeoutMs);
+    const minutes = this.settings.autoLockMinutes();
+    if (minutes === 0) return;
+    this.idleTimer = setTimeout(() => this.onTimeout(), minutes * 60 * 1000);
   }
 
   private onTimeout() {

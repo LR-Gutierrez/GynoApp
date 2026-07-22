@@ -107,6 +107,17 @@
       </button>
     }
 
+    <!-- Forgot PIN (login only) -->
+    @if (step() === 'login') {
+      <button
+        type="button"
+        class="mt-6 font-sans text-sm text-primary-600 hover:text-primary-800 transition-colors cursor-pointer bg-transparent border-0"
+        (click)="goToResetPassword()"
+      >
+        ¿Olvidaste tu PIN?
+      </button>
+    }
+
     <!-- Submit (confirm step only) -->
     @if (step() === 'confirm') {
       <ion-button

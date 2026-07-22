@@ -59,6 +59,13 @@ export class CryptoService {
     return new Uint8Array(data);
   }
 
+  async hashAnswer(answer: string, saltHex: string): Promise<string> {
+    const salt = this.hexToBuffer(saltHex);
+    const key = await this.deriveKey(answer, salt, true);
+    const exported = await crypto.subtle.exportKey('raw', key);
+    return this.bufferToHex(exported);
+  }
+
   async hashPin(pin: string): Promise<{ salt: string; hash: string }> {
     const salt = await this.generateSalt();
     const key = await this.deriveKey(pin, salt, true);

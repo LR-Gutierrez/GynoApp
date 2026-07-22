@@ -1,0 +1,90 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <i class="not-italic text-xl mgc_arrow_left_line"></i>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="max-w-sm mx-auto px-4 pt-2">
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 rounded-2xl bg-primary-fixed flex items-center justify-center mx-auto mb-4">
+        <i class="not-italic text-3xl text-primary-600 mgc_question_line"></i>
+      </div>
+      <h2 class="font-sans text-xl font-bold text-on-surface m-0">Pregunta de seguridad</h2>
+      <p class="font-sans text-sm text-on-surface-variant mt-2 m-0 leading-relaxed max-w-[280px] mx-auto">
+        Elige una pregunta y escribe tu respuesta. La usarás para recuperar tu PIN si lo olvidas.
+      </p>
+    </div>
+
+    @if (error()) {
+      <div class="flex items-center gap-2 text-error bg-error-container/30 rounded-lg px-4 py-2.5 mb-4">
+        <i class="not-italic text-lg shrink-0 mgc_alert_circle_line"></i>
+        <span class="font-sans text-sm font-medium">{{ error() }}</span>
+      </div>
+    }
+
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-sm p-5 mb-4">
+      <label class="font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-2 block">
+        Pregunta
+      </label>
+      <div class="relative">
+        <select
+          [ngModel]="selectedQuestion()"
+          (ngModelChange)="selectedQuestion.set($event)"
+          class="w-full appearance-none cursor-pointer font-sans text-sm"
+          style="padding: 12px 36px 12px 16px; border-radius: 8px; border-width: 1px; border-style: solid; border-color: var(--color-outline-variant, #e2e8f0); outline: none; background: var(--color-surface-container-low, #f0f3ff); width: 100%; min-height: 44px; box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 14px; transition: border-color 0.2s;"
+        >
+          <option value="">Selecciona una pregunta</option>
+          @for (q of questions; track q) {
+            <option [value]="q">{{ q }}</option>
+          }
+        </select>
+        <i class="not-italic text-lg text-outline absolute pointer-events-none mgc_arrow_down_line" style="right: 12px; top: 50%; transform: translateY(-50%);"></i>
+      </div>
+
+      <label class="font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-2 mt-4 block">
+        Tu respuesta
+      </label>
+      <input
+        [ngModel]="answer()"
+        (ngModelChange)="answer.set($event)"
+        type="text"
+        placeholder="Escribe tu respuesta"
+        class="w-full font-sans text-sm"
+        style="padding: 12px 16px; border-radius: 8px; border-width: 1px; border-style: solid; border-color: var(--color-outline-variant, #e2e8f0); outline: none; background: var(--color-surface-container-low, #f0f3ff); width: 100%; min-height: 44px; box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 14px; transition: border-color 0.2s;"
+      />
+
+      <label class="font-sans text-xs font-semibold text-on-surface-variant tracking-wide uppercase mb-2 mt-4 block">
+        Confirmar respuesta
+      </label>
+      <input
+        [ngModel]="answerConfirm()"
+        (ngModelChange)="answerConfirm.set($event)"
+        type="text"
+        placeholder="Repite tu respuesta"
+        class="w-full font-sans text-sm"
+        style="padding: 12px 16px; border-radius: 8px; border-width: 1px; border-style: solid; border-color: var(--color-outline-variant, #e2e8f0); outline: none; background: var(--color-surface-container-low, #f0f3ff); width: 100%; min-height: 44px; box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 14px; transition: border-color 0.2s;"
+      />
+
+      <p class="font-sans text-xs text-on-surface-variant mt-3 m-0 flex items-center gap-1">
+        <i class="not-italic text-sm mgc_information_line"></i>
+        La respuesta se guarda cifrada y no sensible a mayúsculas/minúsculas
+      </p>
+    </div>
+
+    <ion-button class="btn-primary w-full" (click)="save()" [disabled]="saving()">
+      @if (saving()) {
+        <ion-spinner name="crescent" class="mr-2"></ion-spinner>
+      }
+      Guardar pregunta
+    </ion-button>
+
+    <ion-button fill="clear" class="mt-2 text-sm w-full" (click)="skip()">
+      Saltar este paso
+    </ion-button>
+  </div>
+</ion-content>

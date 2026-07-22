@@ -270,7 +270,7 @@ export class AuthPage implements OnInit, OnDestroy {
       await this.auth.registerPin(pin1);
       await this.auth.verifyPin(pin1);
       this.hapticImpact(ImpactStyle.Medium);
-      this.router.navigate(['/auth/biometric-setup']);
+      this.router.navigate(['/auth/security-questions']);
     } catch {
       this.error.set('Error al guardar el PIN');
     } finally {
@@ -323,5 +323,9 @@ export class AuthPage implements OnInit, OnDestroy {
     } else {
       this.hapticImpact(ImpactStyle.Heavy);
     }
+  }
+
+  goToResetPassword() {
+    this.router.navigate(['/auth/reset-password']);
   }
 }

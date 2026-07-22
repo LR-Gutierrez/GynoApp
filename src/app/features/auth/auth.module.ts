@@ -5,6 +5,8 @@ import { IonicModule } from '@ionic/angular';
 import { AuthPageRoutingModule } from './auth-routing.module';
 import { AuthPage } from './auth.page';
 import { BiometricSetupPage } from './biometric-setup.page';
+import { ResetPasswordPage } from './reset-password.page';
+import { SecurityQuestionsPage } from './security-questions.page';
 
 @NgModule({
   imports: [
@@ -14,6 +16,8 @@ import { BiometricSetupPage } from './biometric-setup.page';
     AuthPageRoutingModule,
     AuthPage,
     BiometricSetupPage,
+    ResetPasswordPage,
+    SecurityQuestionsPage,
   ],
   declarations: [],
 })

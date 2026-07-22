@@ -13,10 +13,10 @@ const REMINDER_TIMING_KEY = 'gyno_reminder_timing';
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
   private cachedTimeFormat: TimeFormat | null = null;
-  private cachedAutoLock: AutoLockMinutes | null = null;
 
   readonly notificationsEnabled = signal(false);
   readonly reminderTiming = signal<ReminderTiming>(120);
+  readonly autoLockMinutes = signal<AutoLockMinutes>(5);
 
   async getTimeFormat(): Promise<TimeFormat> {
     if (this.cachedTimeFormat) return this.cachedTimeFormat;
@@ -31,16 +31,15 @@ export class SettingsService {
   }
 
   async getAutoLock(): Promise<AutoLockMinutes> {
-    if (this.cachedAutoLock !== null) return this.cachedAutoLock;
     const { value } = await Preferences.get({ key: AUTO_LOCK_KEY });
     const parsed = value ? parseInt(value, 10) as AutoLockMinutes : 5;
-    this.cachedAutoLock = parsed;
-    return this.cachedAutoLock;
+    this.autoLockMinutes.set(parsed);
+    return parsed;
   }
 
   async setAutoLock(minutes: AutoLockMinutes): Promise<void> {
     await Preferences.set({ key: AUTO_LOCK_KEY, value: String(minutes) });
-    this.cachedAutoLock = minutes;
+    this.autoLockMinutes.set(minutes);
   }
 
   async initNotificationPrefs() {
